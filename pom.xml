@@ -1,0 +1,139 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>ru.dantalian.copvoc</groupId>
+	<artifactId>copious-vocabulary-parent</artifactId>
+	<version>0.0.1</version>
+	<packaging>pom</packaging>
+
+	<name>Copious Vocabulary: Parent</name>
+
+	<modules>
+		<module>core</module>
+		<module>ui</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<logback-version>1.2.3</logback-version>
+		<slf4j-version>1.7.25</slf4j-version>
+
+		<junit-version>4.12</junit-version>
+		<hamcrest-version>1.3</hamcrest-version>
+		<mockito-version>1.10.19</mockito-version>
+		<powermock-version>1.7.4</powermock-version>
+
+		<maven-appassembler-plugin-version>2.0.0</maven-appassembler-plugin-version>
+		<maven-assembly-plugin>3.1.0</maven-assembly-plugin>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-core</artifactId>
+				<version>${hamcrest-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-library</artifactId>
+				<version>${hamcrest-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<version>${powermock-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock-version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>appassembler-maven-plugin</artifactId>
+					<version>${maven-appassembler-plugin-version}</version>
+					<configuration>
+						<configurationDirectory>config</configurationDirectory>
+						<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+						<logsDirectory>logs</logsDirectory>
+						<repositoryLayout>flat</repositoryLayout>
+						<repositoryName>lib</repositoryName>
+						<tempDirectory>tmp</tempDirectory>
+						<useWildcardClassPath>true</useWildcardClassPath>
+						<extraJvmArguments>-XX:+HeapDumpOnOutOfMemoryError
+							-XX:HeapDumpPath=@BASEDIR@/tmp</extraJvmArguments>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>${maven-assembly-plugin}</version>
+					<executions>
+						<execution>
+							<id>assemble</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<configuration>
+								<descriptors>
+									<descriptor>application-assemble.xml</descriptor>
+								</descriptors>
+								<recompressZippedFiles>true</recompressZippedFiles>
+								<finalName>${project.build.finalName}</finalName>
+								<appendAssemblyId>false</appendAssemblyId>
+								<outputDirectory>${project.build.directory}</outputDirectory>
+								<workDirectory>${project.build.directory}/assembly/work</workDirectory>
+								<tarLongFileMode>gnu</tarLongFileMode>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

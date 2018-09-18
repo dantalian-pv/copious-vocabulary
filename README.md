@@ -1,2 +1,2 @@
-# Copious-Vocabulary
-An application for daily vocabulary training
+# Copious Vocabulary
+An application for your daily vocabulary training
