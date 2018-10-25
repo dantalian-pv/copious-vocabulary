@@ -8,4 +8,6 @@ public interface Language {
 
 	String getVariant();
 
+	String getText();
+
 }
