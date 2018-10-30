@@ -9,10 +9,10 @@
 		<version>0.0.1</version>
 	</parent>
 
-	<artifactId>copious-vocabulary-core</artifactId>
+	<artifactId>copious-vocabulary-persist-cassandra</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Copious Vocabulary: Core</name>
+	<name>Copious Vocabulary: Persist Cassandra</name>
 
 	<dependencies>
 		<dependency>
@@ -21,14 +21,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

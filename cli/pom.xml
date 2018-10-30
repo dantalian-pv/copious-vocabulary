@@ -9,26 +9,33 @@
 		<version>0.0.1</version>
 	</parent>
 
-	<artifactId>copious-vocabulary-core</artifactId>
+	<artifactId>copious-vocabulary-cli</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Copious Vocabulary: Core</name>
+	<name>Copious Vocabulary: CLI</name>
+
+	<properties>
+		<console-main-class>ru.dantalian.copvoc.cli.CopiousVocabularyCliMain</console-main-class>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>ru.dantalian.copvoc</groupId>
-			<artifactId>copious-vocabulary-persist-api</artifactId>
+			<artifactId>copious-vocabulary-core</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.clojars.ddudey</groupId>
+			<artifactId>charva</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -66,4 +73,32 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<configuration>
+					<programs>
+						<program>
+							<id>copious-vocabulary-cli</id>
+							<mainClass>${console-main-class}</mainClass>
+						</program>
+					</programs>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>
