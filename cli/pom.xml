@@ -23,6 +23,10 @@
 			<groupId>ru.dantalian.copvoc</groupId>
 			<artifactId>copious-vocabulary-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ru.dantalian.copvoc</groupId>
+			<artifactId>copious-vocabulary-persist-sqlite</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>info.picocli</groupId>

@@ -25,7 +25,6 @@
 
 		<charva-version>1.1.6</charva-version>
 		<guice-version>4.2.1</guice-version>
-		<sqlite-jdbc-version>3.25.2</sqlite-jdbc-version>
 		<picocli-version>3.5.2</picocli-version>
 
 		<logback-version>1.2.3</logback-version>
@@ -52,6 +51,11 @@
 				<artifactId>copious-vocabulary-persist-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-persist-sqlite</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.google.inject</groupId>
@@ -63,11 +67,7 @@
 				<artifactId>charva</artifactId>
 				<version>${charva-version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.xerial</groupId>
-				<artifactId>sqlite-jdbc</artifactId>
-				<version>${sqlite-jdbc-version}</version>
-			</dependency>
+
 			<dependency>
 				<groupId>info.picocli</groupId>
 				<artifactId>picocli</artifactId>
