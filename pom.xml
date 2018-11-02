@@ -12,6 +12,8 @@
 
 	<modules>
 		<module>persist-api</module>
+		<module>persist-nitrite</module>
+		<module>persist-cassandra</module>
 		<module>core</module>
 		<module>ui</module>
 		<module>cli</module>
@@ -53,7 +55,7 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.dantalian.copvoc</groupId>
-				<artifactId>copious-vocabulary-persist-sqlite</artifactId>
+				<artifactId>copious-vocabulary-persist-nitrite</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

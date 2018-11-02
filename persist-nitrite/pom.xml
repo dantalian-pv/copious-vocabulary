@@ -9,33 +9,33 @@
 		<version>0.0.1</version>
 	</parent>
 
-	<artifactId>copious-vocabulary-cli</artifactId>
+	<artifactId>copious-vocabulary-persist-nitrite</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Copious Vocabulary: CLI</name>
+	<name>Copious Vocabulary: Persist Nitrite</name>
 
 	<properties>
-		<console-main-class>ru.dantalian.copvoc.cli.CopiousVocabularyCliMain</console-main-class>
+		<nitrite-version>3.1.0</nitrite-version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>ru.dantalian.copvoc</groupId>
-			<artifactId>copious-vocabulary-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ru.dantalian.copvoc</groupId>
-			<artifactId>copious-vocabulary-persist-nitrite</artifactId>
+			<artifactId>copious-vocabulary-persist-api</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>info.picocli</groupId>
-			<artifactId>picocli</artifactId>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>org.clojars.ddudey</groupId>
-			<artifactId>charva</artifactId>
+			<groupId>org.dizitart</groupId>
+			<artifactId>nitrite</artifactId>
+			<version>${nitrite-version}</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -77,32 +77,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<configuration>
-					<programs>
-						<program>
-							<id>copious-vocabulary-cli</id>
-							<mainClass>${console-main-class}</mainClass>
-						</program>
-					</programs>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>assemble</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 </project>

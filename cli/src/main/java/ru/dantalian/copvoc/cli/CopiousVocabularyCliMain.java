@@ -10,7 +10,7 @@ import com.google.inject.Injector;
 
 import picocli.CommandLine;
 import picocli.CommandLine.MissingParameterException;
-import ru.dantalian.copvac.persist.sqlite.SqlitePersistModule;
+import ru.dantalian.copvac.persist.nitrite.NitritePersistModule;
 import ru.dantalian.copvoc.cli.services.CopiousVocabularyCliService;
 import ru.dantalian.copvoc.core.CoreModule;
 
@@ -26,15 +26,18 @@ public class CopiousVocabularyCliMain {
 				return;
 			}
 			final Injector injector = Guice.createInjector(
-				new SqlitePersistModule(),
+				new NitritePersistModule(),
 				new CoreModule(),
 				new CopiousVocabularyCliModule(cliOptions)
 			);
 			final CopiousVocabularyCliService cliService = injector.getInstance(CopiousVocabularyCliService.class);
 
-			cliService.execute();
-			cliService.close();
-			System.out.println("Application closed");
+			try {
+				cliService.execute();
+			} finally {
+				cliService.close();
+				System.out.println("Application closed");
+			}
 		} catch (final MissingParameterException e) {
 			System.err.println(e.getMessage());
 			CommandLine.usage(new CliOptions(), System.out);
