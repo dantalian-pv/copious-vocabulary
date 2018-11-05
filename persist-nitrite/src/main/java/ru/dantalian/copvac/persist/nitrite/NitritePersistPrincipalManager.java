@@ -8,19 +8,15 @@ import javax.inject.Singleton;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.objects.ObjectRepository;
 import org.dizitart.no2.objects.filters.ObjectFilters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ru.dantalian.copvac.persist.api.PersistException;
-import ru.dantalian.copvac.persist.api.PersistManager;
+import ru.dantalian.copvac.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 import ru.dantalian.copvac.persist.impl.model.personal.PojoPrincipal;
 import ru.dantalian.copvac.persist.nitrite.hibernate.model.DbPrincipal;
 
 @Singleton
-public class NitritePersistManager implements PersistManager {
-
-	private static final Logger logger = LoggerFactory.getLogger(NitritePersistManager.class);
+public class NitritePersistPrincipalManager implements PersistPrincipalManager {
 
 	@Inject
 	private Nitrite db;
@@ -33,19 +29,19 @@ public class NitritePersistManager implements PersistManager {
 	}
 
 	@Override
-	public Principal getPrincipal(final String aId, final String aPasswd) throws PersistException {
+	public Principal getPrincipal(final UUID aId, final String aPasswd) throws PersistException {
 		return getPrincipal(aId);
 	}
 
 	@Override
-	public Principal getPrincipal(final String aId) throws PersistException {
+	public Principal getPrincipal(final UUID aId) throws PersistException {
 		final DbPrincipal dbPrincipal = principalRep.find(ObjectFilters.eq("id", aId)).firstOrDefault();
 		return toPrincipal(dbPrincipal);
 	}
 
 	@Override
 	public Principal createPrincipal(final String aName, final String aDescription) throws PersistException {
-		final DbPrincipal dbPrincipal = new DbPrincipal(UUID.randomUUID().toString(), aName, aDescription);
+		final DbPrincipal dbPrincipal = new DbPrincipal(UUID.randomUUID(), aName, aDescription);
 		principalRep.insert(dbPrincipal);
 		return toPrincipal(dbPrincipal);
 	}

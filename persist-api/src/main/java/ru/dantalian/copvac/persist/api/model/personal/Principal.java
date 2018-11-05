@@ -1,8 +1,10 @@
 package ru.dantalian.copvac.persist.api.model.personal;
 
+import java.util.UUID;
+
 public interface Principal {
 
-	String getId();
+	UUID getId();
 
 	String getName();
 

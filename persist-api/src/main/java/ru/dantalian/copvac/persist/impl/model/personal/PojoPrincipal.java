@@ -1,10 +1,12 @@
 package ru.dantalian.copvac.persist.impl.model.personal;
 
+import java.util.UUID;
+
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 
 public class PojoPrincipal implements Principal {
 
-	private String id;
+	private UUID id;
 
 	private String name;
 
@@ -13,14 +15,14 @@ public class PojoPrincipal implements Principal {
 	public PojoPrincipal() {
 	}
 
-	public PojoPrincipal(final String id, final String name, final String description) {
-		this.id = id;
-		this.name = name;
-		this.description = description;
+	public PojoPrincipal(final UUID aId, final String aName, final String aDescription) {
+		this.id = aId;
+		this.name = aName;
+		this.description = aDescription;
 	}
 
 	@Override
-	public String getId() {
+	public UUID getId() {
 		return id;
 	}
 
@@ -34,6 +36,18 @@ public class PojoPrincipal implements Principal {
 		return description;
 	}
 
+	public void setId(final UUID aId) {
+		id = aId;
+	}
+
+	public void setName(final String aName) {
+		name = aName;
+	}
+
+	public void setDescription(final String aDescription) {
+		description = aDescription;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -43,17 +57,17 @@ public class PojoPrincipal implements Principal {
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
+	public boolean equals(final Object aObj) {
+		if (this == aObj) {
 			return true;
 		}
-		if (obj == null) {
+		if (aObj == null) {
 			return false;
 		}
-		if (!(obj instanceof PojoPrincipal)) {
+		if (!(aObj instanceof PojoPrincipal)) {
 			return false;
 		}
-		final PojoPrincipal other = (PojoPrincipal) obj;
+		final PojoPrincipal other = (PojoPrincipal) aObj;
 		if (id == null) {
 			if (other.id != null) {
 				return false;

@@ -1,6 +1,7 @@
 package ru.dantalian.copvac.persist.nitrite.hibernate.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.dizitart.no2.IndexType;
 import org.dizitart.no2.objects.Index;
@@ -14,7 +15,7 @@ public class DbPrincipal implements Serializable {
 
 	private static final long serialVersionUID = -6384525174653930316L;
 
-	private String id;
+	private UUID id;
 
 	private String name;
 
@@ -23,17 +24,17 @@ public class DbPrincipal implements Serializable {
 	public DbPrincipal() {
 	}
 
-	public DbPrincipal(final String aId, final String aName, final String aDescription) {
+	public DbPrincipal(final UUID aId, final String aName, final String aDescription) {
 		id = aId;
 		name = aName;
 		description = aDescription;
 	}
 
-	public String getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(final String aId) {
+	public void setId(final UUID aId) {
 		id = aId;
 	}
 

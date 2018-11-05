@@ -1,21 +1,22 @@
 package ru.dantalian.copvoc.core;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import ru.dantalian.copvac.persist.api.PersistException;
-import ru.dantalian.copvac.persist.api.PersistManager;
+import ru.dantalian.copvac.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 
 @Singleton
 public class CoreService {
 
 	@Inject
-	private PersistManager persist;
+	private PersistPrincipalManager persist;
 
-	public Principal getPrincipal(final String aId, final String aPasswd) throws CoreException {
+	public Principal getPrincipal(final UUID aId, final String aPasswd) throws CoreException {
 		try {
 			final Principal principal = persist.getPrincipal(aId, aPasswd);
 			if (principal == null) {
@@ -27,7 +28,7 @@ public class CoreService {
 		}
 	}
 
-	public Principal getPrincipal(final String aId) throws CoreException {
+	public Principal getPrincipal(final UUID aId) throws CoreException {
 		try {
 			return persist.getPrincipal(aId);
 		} catch (final PersistException e) {
