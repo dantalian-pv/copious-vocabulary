@@ -14,11 +14,11 @@ import ru.dantalian.copvac.persist.api.model.personal.Principal;
 public class CoreService {
 
 	@Inject
-	private PersistPrincipalManager persist;
+	private PersistPrincipalManager principalPersist;
 
 	public Principal getPrincipal(final UUID aId, final String aPasswd) throws CoreException {
 		try {
-			final Principal principal = persist.getPrincipal(aId, aPasswd);
+			final Principal principal = principalPersist.getPrincipal(aId, aPasswd);
 			if (principal == null) {
 				throw new CoreException("User not found", true);
 			}
@@ -30,7 +30,7 @@ public class CoreService {
 
 	public Principal getPrincipal(final UUID aId) throws CoreException {
 		try {
-			return persist.getPrincipal(aId);
+			return principalPersist.getPrincipal(aId);
 		} catch (final PersistException e) {
 			throw new CoreException("Failed to get a user", e);
 		}
@@ -38,7 +38,7 @@ public class CoreService {
 
 	public Principal getPrincipalByName(final String aName) throws CoreException {
 		try {
-			return persist.getPrincipalByName(aName);
+			return principalPersist.getPrincipalByName(aName);
 		} catch (final PersistException e) {
 			throw new CoreException("Failed to get a user by name", e);
 		}
@@ -46,14 +46,14 @@ public class CoreService {
 
 	public Principal createPrincipal(final String aName, final String aDescription) throws CoreException {
 		try {
-			return persist.createPrincipal(aName, aDescription);
+			return principalPersist.createPrincipal(aName, aDescription);
 		} catch (final PersistException e) {
 			throw new CoreException("Failed to get a user", e);
 		}
 	}
 
 	public void close() throws IOException {
-		persist.close();
+		principalPersist.close();
 	}
 
 }

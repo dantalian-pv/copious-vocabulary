@@ -7,14 +7,12 @@ public interface CardBatch {
 
 	UUID getId();
 
-	String getUserId();
+	UUID getUserId();
 
 	Language getSource();
 
 	Language getTarget();
 
-	List<String> getCardFieldIds();
-
-	boolean isPublic();
+	List<UUID> getFieldIds();
 
 }

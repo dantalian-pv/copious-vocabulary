@@ -4,6 +4,7 @@ public enum CardFiledType {
 
 	STRING,
 	TEXT,
-	MARKUP;
+	MARKUP,
+	ANSWER;
 
 }

@@ -7,14 +7,16 @@ public interface Card {
 
 	UUID getId();
 
-	String getBatchId();
+	UUID getBatchId();
 
-	Map<String, CardField> getFields();
+	Map<UUID, CardFieldContent> getFieldsContent();
 
-	void setFields(Map<String, CardField> aFields);
+	CardFieldContent getContent(UUID aField);
 
-	void addFields(Map<String, CardField> aFields);
+	void setFieldsContent(Map<UUID, CardFieldContent> aFields);
 
-	void addField(Map<String, CardField> aFields);
+	void addFieldsContent(Map<UUID, CardFieldContent> aFields);
+
+	void addFieldContent(UUID aField, CardFieldContent aContent);
 
 }

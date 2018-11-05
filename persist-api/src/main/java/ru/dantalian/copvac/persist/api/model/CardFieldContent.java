@@ -2,14 +2,14 @@ package ru.dantalian.copvac.persist.api.model;
 
 import java.util.UUID;
 
-public interface CardField {
+public interface CardFieldContent {
 
 	UUID getId();
 
 	UUID getBatchId();
 
-	String getName();
+	UUID getFieldId();
 
-	CardFiledType getType();
+	String getContent();
 
 }

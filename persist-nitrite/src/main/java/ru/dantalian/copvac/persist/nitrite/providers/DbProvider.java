@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import ru.dantalian.copvac.persist.nitrite.NitriteSettings;
 
 @Singleton
-public class SessionProvider implements Provider<Nitrite> {
+public class DbProvider implements Provider<Nitrite> {
 
-	private static final Logger logger = LoggerFactory.getLogger(SessionProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbProvider.class);
 
 	@Inject
 	private NitriteSettings settings;

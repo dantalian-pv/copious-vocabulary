@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite;
+package ru.dantalian.copvac.persist.nitrite.managers;
 
 import java.util.UUID;
 
@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.dizitart.no2.Nitrite;
+import org.dizitart.no2.exceptions.NitriteException;
 import org.dizitart.no2.objects.ObjectRepository;
 import org.dizitart.no2.objects.filters.ObjectFilters;
 
@@ -35,21 +36,33 @@ public class NitritePersistPrincipalManager implements PersistPrincipalManager {
 
 	@Override
 	public Principal getPrincipal(final UUID aId) throws PersistException {
-		final DbPrincipal dbPrincipal = principalRep.find(ObjectFilters.eq("id", aId)).firstOrDefault();
-		return toPrincipal(dbPrincipal);
+		try {
+			final DbPrincipal dbPrincipal = principalRep.find(ObjectFilters.eq("id", aId)).firstOrDefault();
+			return toPrincipal(dbPrincipal);
+		} catch (final NitriteException e) {
+			throw new PersistException("Failed to get a principal", e);
+		}
 	}
 
 	@Override
 	public Principal createPrincipal(final String aName, final String aDescription) throws PersistException {
-		final DbPrincipal dbPrincipal = new DbPrincipal(UUID.randomUUID(), aName, aDescription);
-		principalRep.insert(dbPrincipal);
-		return toPrincipal(dbPrincipal);
+		try {
+			final DbPrincipal dbPrincipal = new DbPrincipal(UUID.randomUUID(), aName, aDescription);
+			principalRep.insert(dbPrincipal);
+			return toPrincipal(dbPrincipal);
+		} catch (final NitriteException e) {
+			throw new PersistException("Failed to create a principal", e);
+		}
 	}
 
 	@Override
 	public Principal getPrincipalByName(final String aName) throws PersistException {
-		final DbPrincipal dbPrincipal = principalRep.find(ObjectFilters.eq("name", aName)).firstOrDefault();
-		return toPrincipal(dbPrincipal);
+		try {
+			final DbPrincipal dbPrincipal = principalRep.find(ObjectFilters.eq("name", aName)).firstOrDefault();
+			return toPrincipal(dbPrincipal);
+		} catch (final NitriteException e) {
+			throw new PersistException("Failed to get a principal by name", e);
+		}
 	}
 
 	@Override
