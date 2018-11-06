@@ -25,7 +25,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<charva-version>1.1.6</charva-version>
+		<lanterna-version>3.0.1</lanterna-version>
 		<guice-version>4.2.1</guice-version>
 		<picocli-version>3.5.2</picocli-version>
 
@@ -65,9 +65,9 @@
 				<version>${guice-version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.clojars.ddudey</groupId>
-				<artifactId>charva</artifactId>
-				<version>${charva-version}</version>
+				<groupId>com.googlecode.lanterna</groupId>
+				<artifactId>lanterna</artifactId>
+				<version>${lanterna-version}</version>
 			</dependency>
 
 			<dependency>
