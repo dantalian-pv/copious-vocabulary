@@ -10,6 +10,7 @@ import ru.dantalian.copvac.persist.api.model.personal.Principal;
 import ru.dantalian.copvoc.cli.CopiousVocabularyCliException;
 import ru.dantalian.copvoc.core.CoreException;
 import ru.dantalian.copvoc.core.CoreService;
+import ru.dantalian.copvoc.core.managers.PrincipalManager;
 
 @Singleton
 public class CopiousVocabularyCliService implements Closeable {
@@ -19,13 +20,20 @@ public class CopiousVocabularyCliService implements Closeable {
 	@Inject
 	private CoreService core;
 
+	private PrincipalManager principalManager;
+
 	private Principal rootUser;
+
+	@Inject
+	public void init() {
+		principalManager = core.getPrincipalManager();
+	}
 
 	public void execute() throws CopiousVocabularyCliException {
 		try {
-			rootUser = core.getPrincipalByName(ROOT);
+			rootUser = principalManager.getPrincipalByName(ROOT);
 			if (rootUser == null) {
-				rootUser = core.createPrincipal(ROOT, null);
+				rootUser = principalManager.createPrincipal(ROOT, null);
 			}
 		} catch (final CoreException e) {
 			throw new CopiousVocabularyCliException("Something happend", e);
