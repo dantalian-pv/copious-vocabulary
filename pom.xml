@@ -25,9 +25,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<lanterna-version>3.0.1</lanterna-version>
 		<guice-version>4.2.1</guice-version>
-		<picocli-version>3.5.2</picocli-version>
 
 		<logback-version>1.2.3</logback-version>
 		<slf4j-version>1.7.25</slf4j-version>
@@ -58,22 +56,16 @@
 				<artifactId>copious-vocabulary-persist-nitrite</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-persist-cassandra</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
 				<version>${guice-version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.googlecode.lanterna</groupId>
-				<artifactId>lanterna</artifactId>
-				<version>${lanterna-version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>info.picocli</groupId>
-				<artifactId>picocli</artifactId>
-				<version>${picocli-version}</version>
 			</dependency>
 
 			<dependency>

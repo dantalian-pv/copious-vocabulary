@@ -15,6 +15,9 @@
 	<name>Copious Vocabulary: CLI</name>
 
 	<properties>
+		<picocli-version>3.5.2</picocli-version>
+		<lanterna-version>3.0.1</lanterna-version>
+
 		<console-main-class>ru.dantalian.copvoc.cli.CopiousVocabularyCliMain</console-main-class>
 	</properties>
 
@@ -27,14 +30,21 @@
 			<groupId>ru.dantalian.copvoc</groupId>
 			<artifactId>copious-vocabulary-persist-nitrite</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
+			<version>${picocli-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.lanterna</groupId>
 			<artifactId>lanterna</artifactId>
+			<version>${lanterna-version}</version>
 		</dependency>
 
 		<dependency>
