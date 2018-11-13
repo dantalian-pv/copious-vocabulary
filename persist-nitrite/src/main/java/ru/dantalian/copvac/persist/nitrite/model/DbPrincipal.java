@@ -1,22 +1,15 @@
-package ru.dantalian.copvac.persist.nitrite.hibernate.model;
+package ru.dantalian.copvac.persist.nitrite.model;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-import org.dizitart.no2.IndexType;
-import org.dizitart.no2.objects.Index;
-import org.dizitart.no2.objects.Indices;
+import javax.persistence.Id;
 
-@Indices({
-  @Index(value = "name", type = IndexType.Unique),
-  @Index(value = "id", type = IndexType.Unique)
-})
-public class DbPrincipal implements Serializable {
+public class DbPrincipal {
 
-	private static final long serialVersionUID = -6384525174653930316L;
-
+	@Id
 	private UUID id;
 
+	@Id
 	private String name;
 
 	private String description;

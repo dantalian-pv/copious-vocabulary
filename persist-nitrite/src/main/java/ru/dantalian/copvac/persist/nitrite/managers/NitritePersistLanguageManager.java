@@ -1,6 +1,6 @@
 package ru.dantalian.copvac.persist.nitrite.managers;
 
-import java.util.LinkedList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -8,84 +8,87 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.dizitart.no2.Nitrite;
-import org.dizitart.no2.exceptions.NitriteException;
-import org.dizitart.no2.objects.ObjectFilter;
-import org.dizitart.no2.objects.ObjectRepository;
-import org.dizitart.no2.objects.filters.ObjectFilters;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.object.db.OrientDBObject;
 
 import ru.dantalian.copvac.persist.api.PersistException;
 import ru.dantalian.copvac.persist.api.PersistLanguageManager;
 import ru.dantalian.copvac.persist.api.model.Language;
 import ru.dantalian.copvac.persist.impl.model.personal.PojoLanguage;
-import ru.dantalian.copvac.persist.nitrite.hibernate.model.DbLanguage;
+import ru.dantalian.copvac.persist.nitrite.model.DbLanguage;
 
 @Singleton
 public class NitritePersistLanguageManager implements PersistLanguageManager {
 
 	@Inject
-	private Nitrite db;
-
-	private ObjectRepository<DbLanguage> languageRep;
+	private ODatabaseObject session;
 
 	@Inject
-	public void init() {
-		languageRep = db.getRepository(DbLanguage.class);
-	}
+	private OrientDBObject db;
 
 	@Override
 	public List<Language> listLanguages(final Optional<String> aName, final Optional<String> aCountry,
 			final Optional<String> aVariant) throws PersistException {
 		try {
-			final List<ObjectFilter> filters = new LinkedList<>();
-			if (aName.isPresent()) {
-				filters.add(ObjectFilters.eq("name", aName.get()));
-			}
-			if (aCountry.isPresent()) {
-				filters.add(ObjectFilters.eq("country", aCountry.get()));
-			}
-			if (aVariant.isPresent()) {
-				filters.add(ObjectFilters.eq("variant", aVariant.get()));
-			}
-			final ObjectFilter rootFilter = filters.isEmpty()
-					? ObjectFilters.ALL : ObjectFilters.and(filters.toArray(new ObjectFilter[filters.size()]));
-			final List<DbLanguage> langs = languageRep.find(rootFilter).toList();
+			final OResultSet langs = session.query("select * from DbLanguage where name = ? "
+					+ "and country = ? "
+					+ "and variant = ?",
+					aName.orElse(""),
+					aCountry.orElse(""),
+					aVariant.orElse(""));
 			return langs.stream()
-					.map(this::toLanguage)
-					.collect(Collectors.toList());
-		} catch (final NitriteException e) {
+			.map(aItem -> this.toLanguage(aItem.toElement().getRecord()))
+			.collect(Collectors.toList());
+		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
 			throw new PersistException("Failed list languages", e);
 		}
 	}
 
 	@Override
-	public Language getLanguage(final String aName, final String aCountry, final String aVariant) throws PersistException {
+	public Language getLanguage(final String aName, final String aCountry, final String aVariant)
+			throws PersistException {
+		final List<Language> languages = listLanguages(Optional.of(aName), Optional.of(aCountry), Optional.of(aVariant));
+		if (languages.iterator().hasNext()) {
+			return languages.iterator().next();
+		}
+		return null;
+	}
+
+	@Override
+	public Language createLanguage(final String aName, final String aCountry, final String aVariant,
+			final String aText) throws PersistException {
 		try {
-			final DbLanguage lang = languageRep.find(ObjectFilters.and(
-					ObjectFilters.eq("name", aName),
-					ObjectFilters.eq("country", aCountry),
-					ObjectFilters.eq("variant", aVariant)))
-				.firstOrDefault();
+			final DbLanguage lang = new DbLanguage(aName, aCountry, aVariant, aText);
+			session.save(lang);
 			return toLanguage(lang);
-		} catch (final NitriteException e) {
-			throw new PersistException("Failed get a language", e);
+		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
+			throw new PersistException("Failed create a language", e);
 		}
 	}
 
 	@Override
-	public Language createLanguage(final String aName, final String aCountry, final String aVariant, final String aText)
-			throws PersistException {
+	public Language updateLanguage(final String aName, final String aCountry, final String aVariant,
+			final String aText) throws PersistException {
 		try {
 			final DbLanguage lang = new DbLanguage(aName, aCountry, aVariant, aText);
-			languageRep.insert(lang);
+			session.save(lang);
 			return toLanguage(lang);
-		} catch (final NitriteException e) {
+		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
 			throw new PersistException("Failed create a language", e);
 		}
 	}
 
 	private Language toLanguage(final DbLanguage aLang) {
 		return new PojoLanguage(aLang.getName(), aLang.getCountry(), aLang.getVariant(), aLang.getText());
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.session.close();
+		this.db.close();
 	}
 
 }

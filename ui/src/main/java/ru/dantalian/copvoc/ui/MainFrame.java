@@ -16,11 +16,13 @@ public class MainFrame extends JFrame {
 
 		final JPanel mainPanel = new JPanel();
 		final MigLayout mainLayout = new MigLayout("fill", // Layout Constraints
-				"[right]rel[]", // Column constraints
+				"[fill]", // Column constraints
 				"[]8[]"); // Row constraints
 		mainPanel.setLayout(mainLayout);
 
-		mainPanel.add(new JButton("test"));
+		mainPanel.add(new JButton("test1"));
+		mainPanel.add(new JButton("test2"));
+		mainPanel.add(new JButton("test3"));
 
 		getContentPane().add(mainPanel);
 		pack();

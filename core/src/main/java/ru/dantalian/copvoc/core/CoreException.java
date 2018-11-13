@@ -11,7 +11,6 @@ public class CoreException extends Exception {
 	}
 
 	public CoreException(final boolean aUser) {
-		super();
 		user = aUser;
 	}
 

@@ -1,11 +1,12 @@
 package ru.dantalian.copvac.persist.api;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Optional;
 
 import ru.dantalian.copvac.persist.api.model.Language;
 
-public interface PersistLanguageManager {
+public interface PersistLanguageManager extends Closeable {
 
 	List<Language> listLanguages(final Optional<String> aName,
 		final Optional<String> aCountry, final Optional<String> aVariant)
@@ -15,6 +16,9 @@ public interface PersistLanguageManager {
 			throws PersistException;
 
 	Language createLanguage(final String aName, final String aCountry, final String aVariant,
+			final String aText) throws PersistException;
+
+	Language updateLanguage(final String aName, final String aCountry, final String aVariant,
 			final String aText) throws PersistException;
 
 }

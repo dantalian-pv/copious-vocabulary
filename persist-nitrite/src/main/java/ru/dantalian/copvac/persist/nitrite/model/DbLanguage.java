@@ -1,24 +1,16 @@
-package ru.dantalian.copvac.persist.nitrite.hibernate.model;
+package ru.dantalian.copvac.persist.nitrite.model;
 
-import java.io.Serializable;
+import javax.persistence.Id;
 
-import org.dizitart.no2.IndexType;
-import org.dizitart.no2.objects.Index;
-import org.dizitart.no2.objects.Indices;
+public class DbLanguage {
 
-@Indices({
-  @Index(value = "name", type = IndexType.NonUnique),
-  @Index(value = "country", type = IndexType.NonUnique),
-  @Index(value = "variant", type = IndexType.NonUnique)
-})
-public class DbLanguage implements Serializable {
-
-	private static final long serialVersionUID = -6393462192785396179L;
-
+	@Id
 	private String name;
 
+	@Id
 	private String country;
 
+	@Id
 	private String variant;
 
 	private String text;

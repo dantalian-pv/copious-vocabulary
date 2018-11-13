@@ -15,7 +15,7 @@
 	<name>Copious Vocabulary: Persist Nitrite</name>
 
 	<properties>
-		<nitrite-version>3.1.0</nitrite-version>
+		<orientdb-version>3.0.10</orientdb-version>
 	</properties>
 
 	<dependencies>
@@ -31,11 +31,20 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.dizitart</groupId>
-			<artifactId>nitrite</artifactId>
-			<version>${nitrite-version}</version>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-server</artifactId>
+			<version>${orientdb-version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-client</artifactId>
+			<version>${orientdb-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-object</artifactId>
+			<version>${orientdb-version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

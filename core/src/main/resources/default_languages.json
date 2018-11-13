@@ -1,0 +1,28 @@
+{
+	"laguages": [
+		{
+			"name": "en",
+			"country": "US",
+			"variant": "",
+			"text": "English"
+		},
+		{
+			"name": "ru",
+			"country": "RU",
+			"variant": "",
+			"text": "(Русский) Russian"
+		},
+		{
+			"name": "de",
+			"country": "DE",
+			"variant": "",
+			"text": "(Deutsch) German"
+		},
+		{
+			"name": "jp",
+			"country": "JP",
+			"variant": "",
+			"text": "(日本語) Japanese"
+		}
+	]
+}
