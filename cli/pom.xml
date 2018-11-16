@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ru.dantalian.copvoc</groupId>
-			<artifactId>copious-vocabulary-persist-nitrite</artifactId>
+			<artifactId>copious-vocabulary-persist-orient</artifactId>
 		</dependency>
 		
 		<dependency>

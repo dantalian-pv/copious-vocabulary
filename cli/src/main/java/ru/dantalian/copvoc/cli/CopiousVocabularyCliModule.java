@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import ru.dantalian.copvac.persist.nitrite.NitriteConstants;
+import ru.dantalian.copvac.persist.orientdb.OrientConstants;
 
 public class CopiousVocabularyCliModule extends AbstractModule {
 
@@ -21,10 +21,10 @@ public class CopiousVocabularyCliModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(File.class)
-			.annotatedWith(Names.named(NitriteConstants.CONFIG_DIR))
+			.annotatedWith(Names.named(OrientConstants.CONFIG_DIR))
 			.toInstance(configDir);
 		bind(File.class)
-			.annotatedWith(Names.named(NitriteConstants.DATA_DIR))
+			.annotatedWith(Names.named(OrientConstants.DATA_DIR))
 			.toInstance(dataDir);
 	}
 

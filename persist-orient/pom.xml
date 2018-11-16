@@ -9,10 +9,10 @@
 		<version>0.0.1</version>
 	</parent>
 
-	<artifactId>copious-vocabulary-persist-nitrite</artifactId>
+	<artifactId>copious-vocabulary-persist-orient</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Copious Vocabulary: Persist Nitrite</name>
+	<name>Copious Vocabulary: Persist OrientDB</name>
 
 	<properties>
 		<orientdb-version>3.0.10</orientdb-version>

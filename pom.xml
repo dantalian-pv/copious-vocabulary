@@ -12,7 +12,7 @@
 
 	<modules>
 		<module>persist-api</module>
-		<module>persist-nitrite</module>
+		<module>persist-orient</module>
 		<module>persist-cassandra</module>
 		<module>core</module>
 		<module>ui</module>
@@ -55,7 +55,7 @@
 			</dependency>
 			<dependency>
 				<groupId>ru.dantalian.copvoc</groupId>
-				<artifactId>copious-vocabulary-persist-nitrite</artifactId>
+				<artifactId>copious-vocabulary-persist-orient</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
