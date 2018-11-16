@@ -78,7 +78,7 @@ public class NitritePersistPrincipalManager implements PersistPrincipalManager {
 		if (aHibPrincipal == null) {
 			return null;
 		}
-		return new PojoPrincipal(aHibPrincipal.getId(), aHibPrincipal.getName(), aHibPrincipal.getDescription());
+		return new PojoPrincipal(aHibPrincipal.getId().getId(), aHibPrincipal.getId().getName(), aHibPrincipal.getDescription());
 	}
 
 }

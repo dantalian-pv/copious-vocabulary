@@ -25,10 +25,10 @@ public class DbProvider implements Provider<OrientDBObject> {
 
 	@Override
 	public OrientDBObject get() {
-		final File dbPath = this.settings.getDataDir().toPath().resolve("user.db").toFile();
+		final File dbPath = this.settings.getDataDir().toPath().resolve("user_db").toFile();
 		try {
 			final OrientDBObject orientDbObject = new OrientDBObject("embedded:"
-					+ this.settings.getDataDir().getPath(), "root", "root", OrientDBConfig.defaultConfig());
+					+ this.settings.getDataDir().getPath(), "admin", "admin", OrientDBConfig.defaultConfig());
 			if (!orientDbObject.exists("user_db")) {
 				orientDbObject.create("user_db", ODatabaseType.PLOCAL);
 			}

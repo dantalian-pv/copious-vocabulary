@@ -82,7 +82,7 @@ public class NitritePersistLanguageManager implements PersistLanguageManager {
 	}
 
 	private Language toLanguage(final DbLanguage aLang) {
-		return new PojoLanguage(aLang.getName(), aLang.getCountry(), aLang.getVariant(), aLang.getText());
+		return new PojoLanguage(aLang.getId().getName(), aLang.getId().getCountry(), aLang.getVariant(), aLang.getText());
 	}
 
 	@Override

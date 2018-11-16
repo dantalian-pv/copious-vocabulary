@@ -1,44 +1,31 @@
 package ru.dantalian.copvac.persist.nitrite.model;
 
-import javax.persistence.Id;
+import javax.persistence.EmbeddedId;
 
 public class DbLanguage {
 
-	@Id
-	private String name;
-
-	@Id
-	private String country;
-
-	@Id
-	private String variant;
+	@EmbeddedId
+	private DbLanguageId id;
 
 	private String text;
+
+	private String variant;
 
 	public DbLanguage() {
 	}
 
 	public DbLanguage(final String aName, final String aCountry, final String aVariant, final String aText) {
-		name = aName;
-		country = aCountry;
+		id = new DbLanguageId(aName, aCountry);
 		variant = aVariant;
 		text = aText;
 	}
 
-	public String getName() {
-		return name;
+	public DbLanguageId getId() {
+		return id;
 	}
 
-	public void setName(final String aName) {
-		name = aName;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(final String aCountry) {
-		country = aCountry;
+	public void setId(final DbLanguageId aId) {
+		id = aId;
 	}
 
 	public String getVariant() {
@@ -59,8 +46,7 @@ public class DbLanguage {
 
 	@Override
 	public String toString() {
-		return "DbLanguage [name=" + name + ", country=" + country
-				+ ", variant=" + variant + ", text=" + text + "]";
+		return "DbLanguage [id=" + id + ", variant=" + variant + ", text=" + text + "]";
 	}
 
 }

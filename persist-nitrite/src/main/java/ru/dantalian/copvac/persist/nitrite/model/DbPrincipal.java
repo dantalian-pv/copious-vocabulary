@@ -2,15 +2,12 @@ package ru.dantalian.copvac.persist.nitrite.model;
 
 import java.util.UUID;
 
-import javax.persistence.Id;
+import javax.persistence.EmbeddedId;
 
 public class DbPrincipal {
 
-	@Id
-	private UUID id;
-
-	@Id
-	private String name;
+	@EmbeddedId
+	private DpPrincipalId id;
 
 	private String description;
 
@@ -18,25 +15,16 @@ public class DbPrincipal {
 	}
 
 	public DbPrincipal(final UUID aId, final String aName, final String aDescription) {
-		id = aId;
-		name = aName;
+		id = new DpPrincipalId(aId, aName);
 		description = aDescription;
 	}
 
-	public UUID getId() {
+	public DpPrincipalId getId() {
 		return id;
 	}
 
-	public void setId(final UUID aId) {
+	public void setId(final DpPrincipalId aId) {
 		id = aId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(final String aName) {
-		name = aName;
 	}
 
 	public String getDescription() {
@@ -79,7 +67,7 @@ public class DbPrincipal {
 
 	@Override
 	public String toString() {
-		return "DbPrincipal [id=" + id + ", name=" + name + ", description=" + description + "]";
+		return "DbPrincipal [id=" + id + ", description=" + description + "]";
 	}
 
 }
