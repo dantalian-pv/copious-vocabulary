@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite.providers;
+package ru.dantalian.copvac.persist.orientdb.providers;
 
 import java.io.File;
 
@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.object.db.OrientDBObject;
 
-import ru.dantalian.copvac.persist.nitrite.NitriteSettings;
+import ru.dantalian.copvac.persist.orientdb.OrientSettings;
 
 @Singleton
 public class DbProvider implements Provider<OrientDBObject> {
@@ -21,7 +21,7 @@ public class DbProvider implements Provider<OrientDBObject> {
 	private static final Logger logger = LoggerFactory.getLogger(DbProvider.class);
 
 	@Inject
-	private NitriteSettings settings;
+	private OrientSettings settings;
 
 	@Override
 	public OrientDBObject get() {

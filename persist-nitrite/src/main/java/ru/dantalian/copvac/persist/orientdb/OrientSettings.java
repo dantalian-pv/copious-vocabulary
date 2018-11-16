@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite;
+package ru.dantalian.copvac.persist.orientdb;
 
 import java.io.File;
 
@@ -10,14 +10,14 @@ import javax.inject.Singleton;
 import ru.dantalian.copvac.persist.api.utils.Validator;
 
 @Singleton
-public class NitriteSettings {
+public class OrientSettings {
 
 	@Inject
-	@Named(NitriteConstants.CONFIG_DIR)
+	@Named(OrientConstants.CONFIG_DIR)
 	private File configDir;
 
 	@Inject
-	@Named(NitriteConstants.DATA_DIR)
+	@Named(OrientConstants.DATA_DIR)
 	private File dataDir;
 
 	@PostConstruct

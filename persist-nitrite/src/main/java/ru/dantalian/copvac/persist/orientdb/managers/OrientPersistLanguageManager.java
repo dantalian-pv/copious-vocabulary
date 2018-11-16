@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite.managers;
+package ru.dantalian.copvac.persist.orientdb.managers;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,10 +18,10 @@ import ru.dantalian.copvac.persist.api.PersistException;
 import ru.dantalian.copvac.persist.api.PersistLanguageManager;
 import ru.dantalian.copvac.persist.api.model.Language;
 import ru.dantalian.copvac.persist.impl.model.personal.PojoLanguage;
-import ru.dantalian.copvac.persist.nitrite.model.DbLanguage;
+import ru.dantalian.copvac.persist.orientdb.model.DbLanguage;
 
 @Singleton
-public class NitritePersistLanguageManager implements PersistLanguageManager {
+public class OrientPersistLanguageManager implements PersistLanguageManager {
 
 	@Inject
 	private ODatabaseObject session;

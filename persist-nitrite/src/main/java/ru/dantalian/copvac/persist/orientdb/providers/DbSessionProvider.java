@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite.providers;
+package ru.dantalian.copvac.persist.orientdb.providers;
 
 import java.util.UUID;
 
@@ -36,7 +36,7 @@ public class DbSessionProvider implements Provider<ODatabaseObject> {
 			}
 		}, session);
 		OObjectSerializerHelper.bindSerializerContext(UUID.class, serializerContext);
-		session.getEntityManager().registerEntityClasses("ru.dantalian.copvac.persist.nitrite.model");
+		session.getEntityManager().registerEntityClasses("ru.dantalian.copvac.persist.orientdb.model");
 		session.getMetadata().getSchema().create();
 		return session;
 	}

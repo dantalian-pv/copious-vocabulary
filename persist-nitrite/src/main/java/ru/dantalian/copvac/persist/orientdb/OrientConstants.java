@@ -1,6 +1,6 @@
-package ru.dantalian.copvac.persist.nitrite;
+package ru.dantalian.copvac.persist.orientdb;
 
-public interface NitriteConstants {
+public interface OrientConstants {
 
 	public static final String CONFIG_DIR = "configDir";
 

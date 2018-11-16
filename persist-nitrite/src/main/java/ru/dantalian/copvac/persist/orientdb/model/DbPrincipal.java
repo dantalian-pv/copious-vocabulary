@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite.model;
+package ru.dantalian.copvac.persist.orientdb.model;
 
 import java.util.UUID;
 

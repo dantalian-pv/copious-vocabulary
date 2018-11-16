@@ -1,4 +1,4 @@
-package ru.dantalian.copvac.persist.nitrite.managers;
+package ru.dantalian.copvac.persist.orientdb.managers;
 
 import java.util.UUID;
 
@@ -15,10 +15,10 @@ import ru.dantalian.copvac.persist.api.PersistException;
 import ru.dantalian.copvac.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 import ru.dantalian.copvac.persist.impl.model.personal.PojoPrincipal;
-import ru.dantalian.copvac.persist.nitrite.model.DbPrincipal;
+import ru.dantalian.copvac.persist.orientdb.model.DbPrincipal;
 
 @Singleton
-public class NitritePersistPrincipalManager implements PersistPrincipalManager {
+public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 
 	@Inject
 	private ODatabaseObject session;
