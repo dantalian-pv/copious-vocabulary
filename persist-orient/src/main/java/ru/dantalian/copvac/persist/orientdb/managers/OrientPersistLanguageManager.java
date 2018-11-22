@@ -33,14 +33,32 @@ public class OrientPersistLanguageManager implements PersistLanguageManager {
 	public List<Language> listLanguages(final Optional<String> aName, final Optional<String> aCountry,
 			final Optional<String> aVariant) throws PersistException {
 		try {
-			final OResultSet langs = session.query("select * from DbLanguage where name = ? "
-					+ "and country = ? "
-					+ "and variant = ?",
-					aName.orElse(""),
-					aCountry.orElse(""),
-					aVariant.orElse(""));
+			final OResultSet langs;
+			if (!aName.isPresent() && !aCountry.isPresent() && !aVariant.isPresent()) {
+				langs = session.query("select * from DbLanguage");
+			} else if (aName.isPresent() && !aCountry.isPresent() && !aVariant.isPresent()) {
+				langs = session.query("select * from DbLanguage"
+						+ " name = ?"
+						+ " country = ?",
+						aName.get(),
+						aName.get().toUpperCase());
+			} else if (aName.isPresent() && aCountry.isPresent() && !aVariant.isPresent()) {
+				langs = session.query("select * from DbLanguage"
+						+ " name = ?"
+						+ " country = ?",
+						aName.get(),
+						aCountry.get());
+			} else {
+				langs = session.query("select * from DbLanguage"
+						+ " name = ?"
+						+ " country = ?"
+						+ " variant = ?",
+						aName.get(),
+						aCountry.get(),
+						aVariant.get());
+			}
 			return langs.stream()
-			.map(aItem -> this.toLanguage(aItem.toElement().getRecord()))
+			.map(aItem -> this.toLanguage((DbLanguage) session.getUserObjectByRecord(aItem.toElement(), null)))
 			.collect(Collectors.toList());
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
 			throw new PersistException("Failed list languages", e);
@@ -75,6 +93,16 @@ public class OrientPersistLanguageManager implements PersistLanguageManager {
 		try {
 			final DbLanguage lang = new DbLanguage(aName, aCountry, aVariant, aText);
 			session.save(lang);
+//			final ORecord doc = session.getRecordByUserObject(lang, false);
+//			if (doc != null) {
+//				lang = (DbLanguage) session.getUserObjectByRecord(doc, null);
+//				lang.setText(aText);
+//				s.command(
+//					   new OCommandSQL("UPDATE Animal SET sold = false"))
+//					   .execute();
+//			} else {
+//
+//			}
 			return toLanguage(lang);
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
 			throw new PersistException("Failed create a language", e);
@@ -82,7 +110,7 @@ public class OrientPersistLanguageManager implements PersistLanguageManager {
 	}
 
 	private Language toLanguage(final DbLanguage aLang) {
-		return new PojoLanguage(aLang.getId().getName(), aLang.getId().getCountry(), aLang.getVariant(), aLang.getText());
+		return new PojoLanguage(aLang.getName(), aLang.getCountry(), aLang.getVariant(), aLang.getText());
 	}
 
 	@Override

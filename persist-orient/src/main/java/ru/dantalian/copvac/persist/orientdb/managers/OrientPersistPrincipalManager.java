@@ -36,7 +36,7 @@ public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 		try {
 			final OResultSet res = session.query("select * from DbPrincipal where id = ?", aId);
 			if(res.hasNext()) {
-				return toPrincipal(res.next().toElement().getRecord());
+				return toPrincipal((DbPrincipal) session.getUserObjectByRecord(res.next().toElement(), null));
 			}
 			return null;
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
@@ -60,7 +60,7 @@ public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 		try {
 			final OResultSet res = session.query("select * from DbPrincipal where name = ?", aName);
 			if(res.hasNext()) {
-				return toPrincipal(res.next().toElement().getRecord());
+				return toPrincipal((DbPrincipal) session.getUserObjectByRecord(res.next().toElement(), null));
 			}
 			return null;
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
@@ -78,7 +78,7 @@ public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 		if (aHibPrincipal == null) {
 			return null;
 		}
-		return new PojoPrincipal(aHibPrincipal.getId().getId(), aHibPrincipal.getId().getName(), aHibPrincipal.getDescription());
+		return new PojoPrincipal(aHibPrincipal.getId(), aHibPrincipal.getName(), aHibPrincipal.getDescription());
 	}
 
 }

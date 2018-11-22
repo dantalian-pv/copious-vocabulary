@@ -10,9 +10,9 @@ import javax.swing.plaf.FontUIResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CopiousVocabularyMain {
+public class CopiousVocabularyUIMain {
 
-	private static final Logger logger = LoggerFactory.getLogger(CopiousVocabularyMain.class);
+	private static final Logger logger = LoggerFactory.getLogger(CopiousVocabularyUIMain.class);
 
 	public static void main(final String[] args) {
 		System.setProperty("apple.laf.useScreenMenuBar", "true");

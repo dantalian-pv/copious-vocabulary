@@ -17,7 +17,7 @@
 	<properties>
 		<miglayout-version>5.2</miglayout-version>
 
-		<ui-main-class>ru.dantalian.copvoc.ui.CopiousVocabularyMain</ui-main-class>
+		<ui-main-class>ru.dantalian.copvoc.ui.CopiousVocabularyUIMain</ui-main-class>
 	</properties>
 
 	<dependencies>

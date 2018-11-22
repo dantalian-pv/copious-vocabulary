@@ -2,12 +2,19 @@ package ru.dantalian.copvac.persist.orientdb.model;
 
 import java.util.UUID;
 
-import javax.persistence.EmbeddedId;
+import javax.persistence.Id;
 
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
+
+import ru.dantalian.copvac.persist.orientdb.api.Index;
+
+@Index(name = "name_index", columnList="name", indexType = INDEX_TYPE.UNIQUE)
 public class DbPrincipal {
 
-	@EmbeddedId
-	private DpPrincipalId id;
+	@Id
+	private UUID id;
+
+	private String name;
 
 	private String description;
 
@@ -15,16 +22,25 @@ public class DbPrincipal {
 	}
 
 	public DbPrincipal(final UUID aId, final String aName, final String aDescription) {
-		id = new DpPrincipalId(aId, aName);
+		id = aId;
+		name = aName;
 		description = aDescription;
 	}
 
-	public DpPrincipalId getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(final DpPrincipalId aId) {
+	public void setId(final UUID aId) {
 		id = aId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(final String aName) {
+		name = aName;
 	}
 
 	public String getDescription() {
@@ -67,7 +83,7 @@ public class DbPrincipal {
 
 	@Override
 	public String toString() {
-		return "DbPrincipal [id=" + id + ", description=" + description + "]";
+		return "DbPrincipal [id=" + id + ", name=" + name + ", description=" + description + "]";
 	}
 
 }
