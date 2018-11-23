@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.orientechnologies.orient.core.conflict.OAutoMergeRecordConflictStrategy;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -47,9 +46,9 @@ public class DbSessionProvider implements Provider<ODatabaseObject> {
 		}, session);
 		OObjectSerializerHelper.bindSerializerContext(UUID.class, serializerContext);
 		session.getEntityManager().registerEntityClasses("ru.dantalian.copvac.persist.orientdb.model");
-		session.getMetadata().getSchema().create();
+		session.getMetadata().getSchema().synchronizeSchema();
 		createIndices(session);
-		session.setConflictStrategy(new OAutoMergeRecordConflictStrategy());
+		//session.setConflictStrategy(new OAutoMergeRecordConflictStrategy());
 		return session;
 	}
 
