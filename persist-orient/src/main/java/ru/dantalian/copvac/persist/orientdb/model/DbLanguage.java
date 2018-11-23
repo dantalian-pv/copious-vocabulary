@@ -1,5 +1,7 @@
 package ru.dantalian.copvac.persist.orientdb.model;
 
+import javax.persistence.Id;
+
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 
 import ru.dantalian.copvac.persist.orientdb.api.Index;
@@ -7,6 +9,9 @@ import ru.dantalian.copvac.persist.orientdb.api.Index;
 @Index(name = "index_name_country", indexType = INDEX_TYPE.NOTUNIQUE, columnList = {"name", "country"})
 @Index(name = "index_name_country_variant", indexType = INDEX_TYPE.UNIQUE, columnList = {"name", "country", "variant"})
 public class DbLanguage {
+
+	@Id
+	private Object id;
 
 	private String name;
 

@@ -1,7 +1,5 @@
 package ru.dantalian.copvac.persist.orientdb.managers;
 
-import java.util.UUID;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -27,27 +25,9 @@ public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 	private OrientDBObject db;
 
 	@Override
-	public Principal getPrincipal(final UUID aId, final String aPasswd) throws PersistException {
-		return getPrincipal(aId);
-	}
-
-	@Override
-	public Principal getPrincipal(final UUID aId) throws PersistException {
-		try {
-			final OResultSet res = session.query("select * from DbPrincipal where id = ?", aId);
-			if(res.hasNext()) {
-				return toPrincipal((DbPrincipal) session.getUserObjectByRecord(res.next().toElement(), null));
-			}
-			return null;
-		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
-			throw new PersistException("Failed to get a principal", e);
-		}
-	}
-
-	@Override
 	public Principal createPrincipal(final String aName, final String aDescription) throws PersistException {
 		try {
-			final DbPrincipal dbPrincipal = new DbPrincipal(UUID.randomUUID(), aName, aDescription);
+			final DbPrincipal dbPrincipal = new DbPrincipal(aName, aDescription);
 			session.save(dbPrincipal);
 			return toPrincipal(dbPrincipal);
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
@@ -78,7 +58,7 @@ public class OrientPersistPrincipalManager implements PersistPrincipalManager {
 		if (aHibPrincipal == null) {
 			return null;
 		}
-		return new PojoPrincipal(aHibPrincipal.getId(), aHibPrincipal.getName(), aHibPrincipal.getDescription());
+		return new PojoPrincipal(aHibPrincipal.getName(), aHibPrincipal.getDescription());
 	}
 
 }

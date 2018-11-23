@@ -2,7 +2,6 @@ package ru.dantalian.copvoc.core.managers;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,26 +16,6 @@ public class PrincipalManager implements Closeable {
 
 	@Inject
 	private PersistPrincipalManager principalPersist;
-
-	public Principal getPrincipal(final UUID aId, final String aPasswd) throws CoreException {
-		try {
-			final Principal principal = principalPersist.getPrincipal(aId, aPasswd);
-			if (principal == null) {
-				throw new CoreException("User not found", true);
-			}
-			return principal;
-		} catch (final PersistException e) {
-			throw new CoreException("Failed to get a user", e);
-		}
-	}
-
-	public Principal getPrincipal(final UUID aId) throws CoreException {
-		try {
-			return principalPersist.getPrincipal(aId);
-		} catch (final PersistException e) {
-			throw new CoreException("Failed to get a user", e);
-		}
-	}
 
 	public Principal getPrincipalByName(final String aName) throws CoreException {
 		try {

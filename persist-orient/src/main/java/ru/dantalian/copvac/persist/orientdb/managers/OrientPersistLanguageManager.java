@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.object.db.OrientDBObject;
@@ -91,18 +92,14 @@ public class OrientPersistLanguageManager implements PersistLanguageManager {
 	public Language updateLanguage(final String aName, final String aCountry, final String aVariant,
 			final String aText) throws PersistException {
 		try {
-			final DbLanguage lang = new DbLanguage(aName, aCountry, aVariant, aText);
+			DbLanguage lang = new DbLanguage(aName, aCountry, aVariant, aText);
+
+			final ORecord doc = session.getRecordByUserObject(lang, false);
+			if (doc != null) {
+				lang = (DbLanguage) session.getUserObjectByRecord(doc, null);
+				lang.setText(aText);
+			}
 			session.save(lang);
-//			final ORecord doc = session.getRecordByUserObject(lang, false);
-//			if (doc != null) {
-//				lang = (DbLanguage) session.getUserObjectByRecord(doc, null);
-//				lang.setText(aText);
-//				s.command(
-//					   new OCommandSQL("UPDATE Animal SET sold = false"))
-//					   .execute();
-//			} else {
-//
-//			}
 			return toLanguage(lang);
 		} catch (final OCommandSQLParsingException | OCommandExecutionException e) {
 			throw new PersistException("Failed create a language", e);

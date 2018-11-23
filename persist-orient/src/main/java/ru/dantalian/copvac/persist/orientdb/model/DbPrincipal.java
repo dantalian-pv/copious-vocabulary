@@ -1,7 +1,5 @@
 package ru.dantalian.copvac.persist.orientdb.model;
 
-import java.util.UUID;
-
 import javax.persistence.Id;
 
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
@@ -12,7 +10,7 @@ import ru.dantalian.copvac.persist.orientdb.api.Index;
 public class DbPrincipal {
 
 	@Id
-	private UUID id;
+	private Object id;
 
 	private String name;
 
@@ -21,18 +19,9 @@ public class DbPrincipal {
 	public DbPrincipal() {
 	}
 
-	public DbPrincipal(final UUID aId, final String aName, final String aDescription) {
-		id = aId;
+	public DbPrincipal(final String aName, final String aDescription) {
 		name = aName;
 		description = aDescription;
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(final UUID aId) {
-		id = aId;
 	}
 
 	public String getName() {

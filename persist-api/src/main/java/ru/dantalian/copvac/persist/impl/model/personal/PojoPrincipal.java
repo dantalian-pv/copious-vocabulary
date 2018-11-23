@@ -1,12 +1,8 @@
 package ru.dantalian.copvac.persist.impl.model.personal;
 
-import java.util.UUID;
-
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 
 public class PojoPrincipal implements Principal {
-
-	private UUID id;
 
 	private String name;
 
@@ -15,15 +11,9 @@ public class PojoPrincipal implements Principal {
 	public PojoPrincipal() {
 	}
 
-	public PojoPrincipal(final UUID aId, final String aName, final String aDescription) {
-		this.id = aId;
+	public PojoPrincipal(final String aName, final String aDescription) {
 		this.name = aName;
 		this.description = aDescription;
-	}
-
-	@Override
-	public UUID getId() {
-		return id;
 	}
 
 	@Override
@@ -34,10 +24,6 @@ public class PojoPrincipal implements Principal {
 	@Override
 	public String getDescription() {
 		return description;
-	}
-
-	public void setId(final UUID aId) {
-		id = aId;
 	}
 
 	public void setName(final String aName) {
@@ -52,27 +38,27 @@ public class PojoPrincipal implements Principal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(final Object aObj) {
-		if (this == aObj) {
+	public boolean equals(final Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (aObj == null) {
+		if (obj == null) {
 			return false;
 		}
-		if (!(aObj instanceof PojoPrincipal)) {
+		if (!(obj instanceof PojoPrincipal)) {
 			return false;
 		}
-		final PojoPrincipal other = (PojoPrincipal) aObj;
-		if (id == null) {
-			if (other.id != null) {
+		final PojoPrincipal other = (PojoPrincipal) obj;
+		if (name == null) {
+			if (other.name != null) {
 				return false;
 			}
-		} else if (!id.equals(other.id)) {
+		} else if (!name.equals(other.name)) {
 			return false;
 		}
 		return true;
@@ -80,7 +66,7 @@ public class PojoPrincipal implements Principal {
 
 	@Override
 	public String toString() {
-		return "PojoPrincipal [id=" + id + ", name=" + name + ", description=" + description + "]";
+		return "PojoPrincipal [name=" + name + ", description=" + description + "]";
 	}
 
 }
