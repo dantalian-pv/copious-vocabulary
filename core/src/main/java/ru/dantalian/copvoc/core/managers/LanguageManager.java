@@ -34,7 +34,11 @@ public class LanguageManager implements Closeable {
 				final ArrayNode arr = (ArrayNode) om.readTree(langStream).get("laguages");
 				for (final JsonNode node: arr) {
 					final PojoLanguage lang = om.treeToValue(node, PojoLanguage.class);
-					languagePersist.updateLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
+					final Language persistLang = languagePersist.getLanguage(
+							lang.getName(), lang.getCountry(), lang.getVariant());
+					if (persistLang == null) {
+						languagePersist.createLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
+					}
 				}
 			}
 			return languagePersist.listLanguages(Optional.empty(), Optional.empty(), Optional.empty());

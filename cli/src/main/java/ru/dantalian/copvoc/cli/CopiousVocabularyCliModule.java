@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import ru.dantalian.copvac.persist.orientdb.OrientConstants;
+import ru.dantalian.copvac.persist.sqlite.SqliteConstants;
 
 public class CopiousVocabularyCliModule extends AbstractModule {
 
@@ -21,10 +21,10 @@ public class CopiousVocabularyCliModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(File.class)
-			.annotatedWith(Names.named(OrientConstants.CONFIG_DIR))
+			.annotatedWith(Names.named(SqliteConstants.CONFIG_DIR))
 			.toInstance(configDir);
 		bind(File.class)
-			.annotatedWith(Names.named(OrientConstants.DATA_DIR))
+			.annotatedWith(Names.named(SqliteConstants.DATA_DIR))
 			.toInstance(dataDir);
 	}
 

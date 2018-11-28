@@ -10,7 +10,7 @@ import com.google.inject.Injector;
 
 import picocli.CommandLine;
 import picocli.CommandLine.MissingParameterException;
-import ru.dantalian.copvac.persist.orientdb.OrientPersistModule;
+import ru.dantalian.copvac.persist.sqlite.SqlitePersistModule;
 import ru.dantalian.copvoc.cli.services.CopiousVocabularyCliService;
 import ru.dantalian.copvoc.core.CoreModule;
 
@@ -26,7 +26,7 @@ public class CopiousVocabularyCliMain {
 				return;
 			}
 			final Injector injector = Guice.createInjector(
-				new OrientPersistModule(),
+				new SqlitePersistModule(),
 				new CoreModule(),
 				new CopiousVocabularyCliModule(cliOptions)
 			);
