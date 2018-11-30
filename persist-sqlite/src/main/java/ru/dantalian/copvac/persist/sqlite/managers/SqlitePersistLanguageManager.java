@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvac.persist.api.PersistException;
 import ru.dantalian.copvac.persist.api.PersistLanguageManager;
@@ -18,13 +17,13 @@ import ru.dantalian.copvac.persist.impl.model.personal.PojoLanguage;
 import ru.dantalian.copvac.persist.sqlite.model.DbLanguage;
 import ru.dantalian.copvac.persist.sqlite.model.mappers.DbLanguageMapper;
 
-@Singleton
+@Service
 public class SqlitePersistLanguageManager implements PersistLanguageManager {
 
-	@Inject
+	@Autowired
 	private JdbcTemplate db;
 
-	@Inject
+	@Autowired
 	private DbLanguageMapper mapper;
 
 	@Override

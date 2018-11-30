@@ -3,19 +3,19 @@ package ru.dantalian.copvoc.core;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.core.managers.LanguageManager;
 import ru.dantalian.copvoc.core.managers.PrincipalManager;
 
-@Singleton
+@Service
 public class CoreService implements Closeable {
 
-	@Inject
+	@Autowired
 	private PrincipalManager principalManager;
 
-	@Inject
+	@Autowired
 	private LanguageManager languageManager;
 
 	public PrincipalManager getPrincipalManager() {

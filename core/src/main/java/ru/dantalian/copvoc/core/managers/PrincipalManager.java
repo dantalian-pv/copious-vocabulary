@@ -3,18 +3,18 @@ package ru.dantalian.copvoc.core.managers;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvac.persist.api.PersistException;
 import ru.dantalian.copvac.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvac.persist.api.model.personal.Principal;
 import ru.dantalian.copvoc.core.CoreException;
 
-@Singleton
+@Service
 public class PrincipalManager implements Closeable {
 
-	@Inject
+	@Autowired
 	private PersistPrincipalManager principalPersist;
 
 	public Principal getPrincipalByName(final String aName) throws CoreException {

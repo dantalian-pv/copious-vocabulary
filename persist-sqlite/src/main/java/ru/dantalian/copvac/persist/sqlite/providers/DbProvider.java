@@ -2,27 +2,24 @@ package ru.dantalian.copvac.persist.sqlite.providers;
 
 import java.io.File;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.sqlite.SQLiteDataSource;
 
-import ru.dantalian.copvac.persist.sqlite.SqliteSettings;
+import ru.dantalian.copvac.persist.sqlite.config.SqliteSettings;
 
-@Singleton
-public class DbProvider implements Provider<JdbcTemplate> {
+public class DbProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbProvider.class);
 
-	@Inject
+	@Autowired
 	private SqliteSettings settings;
 
-	@Override
+	@Bean
 	public JdbcTemplate get() {
 		final File dbPath = this.settings.getDataDir().toPath().resolve("user_db").toFile();
 		try {

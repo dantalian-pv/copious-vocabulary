@@ -2,11 +2,10 @@ package ru.dantalian.copvac.persist.sqlite.managers;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import ru.dantalian.copvac.persist.api.PersistException;
@@ -16,13 +15,13 @@ import ru.dantalian.copvac.persist.impl.model.personal.PojoPrincipal;
 import ru.dantalian.copvac.persist.sqlite.model.DbPrincipal;
 import ru.dantalian.copvac.persist.sqlite.model.mappers.DbPrincipalMapper;
 
-@Singleton
+@Service
 public class SqlitePersistPrincipalManager implements PersistPrincipalManager {
 
-	@Inject
+	@Autowired
 	private JdbcTemplate db;
 
-	@Inject
+	@Autowired
 	private DbPrincipalMapper mapper;
 
 	@Override

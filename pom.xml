@@ -16,7 +16,6 @@
 		<module>persist-cassandra</module>
 		<module>core</module>
 		<module>ui</module>
-		<module>cli</module>
 		<module>web</module>
 	</modules>
 
@@ -25,9 +24,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<guice-version>4.2.1</guice-version>
-		
-		<jackson-version>2.9.7</jackson-version>
+		<spring-boot-version>2.1.0.RELEASE</spring-boot-version>
 
 		<logback-version>1.2.3</logback-version>
 		<slf4j-version>1.7.25</slf4j-version>
@@ -63,28 +60,19 @@
 				<artifactId>copious-vocabulary-persist-cassandra</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
 			<dependency>
-				<groupId>com.google.inject</groupId>
-				<artifactId>guice</artifactId>
-				<version>${guice-version}</version>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-web</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			
 			<dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson-version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson-version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson-version}</version>
-      </dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter</artifactId>
+				<version>${spring-boot-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
@@ -136,50 +124,38 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<profiles>
+		<profile>
+			<id>local</id>
+			<dependencies>
+				<dependency>
+					<groupId>ru.dantalian.copvoc</groupId>
+					<artifactId>copious-vocabulary-persist-sqlite</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>server</id>
+			<dependencies>
+				<dependency>
+					<groupId>ru.dantalian.copvoc</groupId>
+					<artifactId>copious-vocabulary-persist-cassandra</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
 	<build>
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>appassembler-maven-plugin</artifactId>
-					<version>${maven-appassembler-plugin-version}</version>
-					<configuration>
-						<configurationDirectory>config</configurationDirectory>
-						<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-						<logsDirectory>logs</logsDirectory>
-						<repositoryLayout>flat</repositoryLayout>
-						<repositoryName>lib</repositoryName>
-						<tempDirectory>tmp</tempDirectory>
-						<useWildcardClassPath>true</useWildcardClassPath>
-						<extraJvmArguments>-XX:+HeapDumpOnOutOfMemoryError
-							-XX:HeapDumpPath=@BASEDIR@/tmp</extraJvmArguments>
-					</configuration>
-				</plugin>
-				<plugin>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>${maven-assembly-plugin}</version>
-					<executions>
-						<execution>
-							<id>assemble</id>
-							<phase>package</phase>
-							<goals>
-								<goal>single</goal>
-							</goals>
-							<configuration>
-								<descriptors>
-									<descriptor>application-assemble.xml</descriptor>
-								</descriptors>
-								<recompressZippedFiles>true</recompressZippedFiles>
-								<finalName>${project.build.finalName}</finalName>
-								<appendAssemblyId>false</appendAssemblyId>
-								<outputDirectory>${project.build.directory}</outputDirectory>
-								<workDirectory>${project.build.directory}/assembly/work</workDirectory>
-								<tarLongFileMode>gnu</tarLongFileMode>
-							</configuration>
-						</execution>
-					</executions>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+
 </project>

@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,10 +20,10 @@ import ru.dantalian.copvac.persist.impl.model.personal.PojoLanguage;
 import ru.dantalian.copvoc.core.CoreConstants;
 import ru.dantalian.copvoc.core.CoreException;
 
-@Singleton
+@Service
 public class LanguageManager implements Closeable {
 
-	@Inject
+	@Autowired
 	private PersistLanguageManager languagePersist;
 
 	public List<Language> initLanguages() throws CoreException {
