@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import ru.dantalian.copvac.persist.api.PersistException;
-import ru.dantalian.copvac.persist.api.PersistLanguageManager;
-import ru.dantalian.copvac.persist.api.model.Language;
-import ru.dantalian.copvac.persist.impl.model.personal.PojoLanguage;
 import ru.dantalian.copvoc.core.CoreConstants;
 import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
+import ru.dantalian.copvoc.persist.api.model.Language;
+import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
 
 @Service
 public class LanguageManager implements Closeable {

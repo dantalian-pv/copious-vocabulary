@@ -15,6 +15,8 @@
 	<name>Copious Vocabulary: Web Server</name>
 
 	<properties>
+		<server-profile>true</server-profile>
+
 		<web-main-class>ru.dantalian.copvoc.web.CopiousVocabularyWebMain</web-main-class>
 	</properties>
 
@@ -23,10 +25,19 @@
 			<groupId>ru.dantalian.copvoc</groupId>
 			<artifactId>copious-vocabulary-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ru.dantalian.copvoc</groupId>
+			<artifactId>copious-vocabulary-persist-cassandra</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
 		<dependency>
@@ -74,15 +85,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>server</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-	</profiles>
 
 	<build>
 		<plugins>

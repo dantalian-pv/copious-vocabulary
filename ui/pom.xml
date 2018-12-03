@@ -18,6 +18,16 @@
 		<dependency>
 			<groupId>ru.dantalian.copvoc</groupId>
 			<artifactId>copious-vocabulary-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>ru.dantalian.copvoc</groupId>
+					<artifactId>copious-vocabulary-persist-cassandra</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>ru.dantalian.copvoc</groupId>
+			<artifactId>copious-vocabulary-persist-sqlite</artifactId>
 		</dependency>
 
 		<dependency>
@@ -46,12 +56,4 @@
 		</dependency>
 	</dependencies>
 
-	<profiles>
-		<profile>
-			<id>local</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-	</profiles>
 </project>

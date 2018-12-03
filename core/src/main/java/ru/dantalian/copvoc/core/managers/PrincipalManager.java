@@ -6,10 +6,10 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ru.dantalian.copvac.persist.api.PersistException;
-import ru.dantalian.copvac.persist.api.PersistPrincipalManager;
-import ru.dantalian.copvac.persist.api.model.personal.Principal;
 import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
+import ru.dantalian.copvoc.persist.api.model.personal.Principal;
 
 @Service
 public class PrincipalManager implements Closeable {
