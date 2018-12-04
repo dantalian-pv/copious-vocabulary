@@ -1,10 +1,13 @@
 package ru.dantalian.copvoc.persist.sqlite.managers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -58,6 +61,36 @@ public class SqlitePersistPrincipalManager implements PersistPrincipalManager {
 			return null;
 		}
 		return new PojoPrincipal(aHibPrincipal.getName(), aHibPrincipal.getDescription());
+	}
+
+	@Override
+	public String getPasswordFor(final String aUsername) throws PersistException {
+		try {
+			return db.query("select password from principal_password where name = ?",
+					new Object[] {
+							aUsername
+					}, new ResultSetExtractor<String>() {
+
+						@Override
+						public String extractData(final ResultSet aRs) throws SQLException, DataAccessException {
+							return aRs.getString(1);
+						}
+
+			});
+		} catch (final DataAccessException e) {
+			throw new PersistException("Failed to get pass for user", e);
+		}
+	}
+
+	@Override
+	public void storePasswordFor(final String aUsername, final CharSequence aEncryptedPassword)
+			throws PersistException {
+		try {
+			db.update("REPLACE INTO principal_password (name, password) values " +
+					"(?, ?)", aUsername, aEncryptedPassword);
+		} catch (final DataAccessException e) {
+			throw new PersistException("Failed to set password", e);
+		}
 	}
 
 }

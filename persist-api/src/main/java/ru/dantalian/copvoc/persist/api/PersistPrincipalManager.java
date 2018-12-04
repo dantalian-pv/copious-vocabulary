@@ -10,4 +10,8 @@ public interface PersistPrincipalManager extends Closeable {
 
 	Principal getPrincipalByName(String aName) throws PersistException;
 
+	String getPasswordFor(String aUsername) throws PersistException;
+
+	void storePasswordFor(String aUsername, CharSequence aEncryptedPassword) throws PersistException;
+
 }
