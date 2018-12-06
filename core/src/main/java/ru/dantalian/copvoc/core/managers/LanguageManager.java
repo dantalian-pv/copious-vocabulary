@@ -1,6 +1,5 @@
 package ru.dantalian.copvoc.core.managers;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -21,7 +20,7 @@ import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
 
 @Service
-public class LanguageManager implements Closeable {
+public class LanguageManager {
 
 	@Autowired
 	private PersistLanguageManager languagePersist;
@@ -72,11 +71,6 @@ public class LanguageManager implements Closeable {
 		} catch (final PersistException e) {
 			throw new CoreException("Failed to create language", e);
 		}
-	}
-
-	@Override
-	public void close() throws IOException {
-		languagePersist.close();
 	}
 
 }

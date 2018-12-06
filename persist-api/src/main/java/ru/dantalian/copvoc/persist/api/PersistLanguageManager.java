@@ -1,12 +1,11 @@
 package ru.dantalian.copvoc.persist.api;
 
-import java.io.Closeable;
 import java.util.List;
 import java.util.Optional;
 
 import ru.dantalian.copvoc.persist.api.model.Language;
 
-public interface PersistLanguageManager extends Closeable {
+public interface PersistLanguageManager {
 
 	List<Language> listLanguages(final Optional<String> aName,
 		final Optional<String> aCountry, final Optional<String> aVariant)

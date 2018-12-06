@@ -52,10 +52,6 @@ public class SqlitePersistPrincipalManager implements PersistPrincipalManager {
 		}
 	}
 
-	@Override
-	public void close() {
-	}
-
 	private Principal toPrincipal(final DbPrincipal aHibPrincipal) {
 		if (aHibPrincipal == null) {
 			return null;

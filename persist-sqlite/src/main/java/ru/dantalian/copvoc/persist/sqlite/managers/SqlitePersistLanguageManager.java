@@ -1,6 +1,5 @@
 package ru.dantalian.copvoc.persist.sqlite.managers;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,10 +112,6 @@ public class SqlitePersistLanguageManager implements PersistLanguageManager {
 
 	private Language toLanguage(final DbLanguage aLang) {
 		return new PojoLanguage(aLang.getName(), aLang.getCountry(), aLang.getVariant(), aLang.getText());
-	}
-
-	@Override
-	public void close() throws IOException {
 	}
 
 }

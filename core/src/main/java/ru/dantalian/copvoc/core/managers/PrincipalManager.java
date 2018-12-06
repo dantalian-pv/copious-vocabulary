@@ -1,8 +1,5 @@
 package ru.dantalian.copvoc.core.managers;
 
-import java.io.Closeable;
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +9,7 @@ import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvoc.persist.api.model.personal.Principal;
 
 @Service
-public class PrincipalManager implements Closeable {
+public class PrincipalManager {
 
 	@Autowired
 	private PersistPrincipalManager principalPersist;
@@ -31,11 +28,6 @@ public class PrincipalManager implements Closeable {
 		} catch (final PersistException e) {
 			throw new CoreException("Failed to get a user", e);
 		}
-	}
-
-	@Override
-	public void close() throws IOException {
-		principalPersist.close();
 	}
 
 }

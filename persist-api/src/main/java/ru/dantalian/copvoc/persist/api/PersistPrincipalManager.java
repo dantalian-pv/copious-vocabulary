@@ -1,10 +1,8 @@
 package ru.dantalian.copvoc.persist.api;
 
-import java.io.Closeable;
-
 import ru.dantalian.copvoc.persist.api.model.personal.Principal;
 
-public interface PersistPrincipalManager extends Closeable {
+public interface PersistPrincipalManager {
 
 	Principal createPrincipal(String aName, String aDescription) throws PersistException;
 
