@@ -2,30 +2,58 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:th="http://www.thymeleaf.org"
 		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-<head th:replace="header :: root-script(~{::title})">
-	<title>Hello World!</title>
+<head>
+	<div th:replace="header :: root-script(~{::title})" th:remove="tag">
+		<title>Log-in</title>
+	</div>
+	<style type="text/css">
+    body {
+      background-color: #DADADA;
+    }
+    body > .grid {
+      height: 100%;
+    }
+    .column {
+      max-width: 450px;
+    }
+  </style>
 </head>
 <body>
-  <div th:if="${param.error}">
-  	<div class="ui error message">
-      Invalid username and password.
-    </div>
-  </div>
-  <div th:if="${param.logout}">
-  	<div class="ui success message">
-      You have been logged out.
-    </div>
-  </div>
-  <form class="ui form" th:action="@{/page/login}" method="post">
-	  <div class="field">
-	    <label>User Name</label>
-	    <input name="username" placeholder="User Name" type="text">
+	<div class="ui middle aligned center aligned grid">
+	  <div class="column">
+	    <h2 class="ui teal image header">
+	      <div class="content">
+	        Log-in to your account
+	      </div>
+	    </h2>
+	    <div th:if="${param.error}">
+		  	<div class="ui error message">
+		      Invalid username or password.
+		    </div>
+		  </div>
+		  <div th:if="${param.logout}">
+		  	<div class="ui success message">
+		      You have been logged out.
+		    </div>
+		  </div>
+	    <form class="ui large form" th:action="@{/page/login}" method="post">
+	      <div class="ui stacked segment">
+	        <div class="field">
+	          <div class="ui left icon input">
+	            <i class="user icon"></i>
+	            <input name="username" placeholder="User Name" type="text">
+	          </div>
+	        </div>
+	        <div class="field">
+	          <div class="ui left icon input">
+	            <i class="lock icon"></i>
+	            <input name="password" placeholder="Password" type="password">
+	          </div>
+	        </div>
+	        <button class="ui fluid large teal submit button" type="submit">Sign In</button>
+	      </div>
+	    </form>
 	  </div>
-	  <div class="field">
-	    <label>Password</label>
-	    <input name="password" placeholder="Password" type="password">
-	  </div>
-	  <button class="ui button" type="submit">Sign In</button>
-	</form>
+	</div>
 </body>
 </html>

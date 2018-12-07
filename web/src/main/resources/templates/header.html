@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:fragment="root-script(title)">
+<head th:fragment="root-script(title)" th:remove="tag">
 	<title th:replace="${title}"></title>
 
 	<link rel="stylesheet" type="text/css" th:href="@{/semantic/semantic.css}">
