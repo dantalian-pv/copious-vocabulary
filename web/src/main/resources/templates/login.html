@@ -1,20 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-    <head>
-        <title>Spring Security Example </title>
-    </head>
-    <body>
-        <div th:if="${param.error}">
-            Invalid username and password.
-        </div>
-        <div th:if="${param.logout}">
-            You have been logged out.
-        </div>
-        <form th:action="@{/page/login}" method="post">
-            <div><label> User Name : <input type="text" name="username"/> </label></div>
-            <div><label> Password: <input type="password" name="password"/> </label></div>
-            <div><input type="submit" value="Sign In"/></div>
-        </form>
-    </body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head th:replace="header :: root-script(~{::title})">
+	<title>Hello World!</title>
+</head>
+<body>
+  <div th:if="${param.error}">
+  	<div class="ui error message">
+      Invalid username and password.
+    </div>
+  </div>
+  <div th:if="${param.logout}">
+  	<div class="ui success message">
+      You have been logged out.
+    </div>
+  </div>
+  <form class="ui form" th:action="@{/page/login}" method="post">
+	  <div class="field">
+	    <label>User Name</label>
+	    <input name="username" placeholder="User Name" type="text">
+	  </div>
+	  <div class="field">
+	    <label>Password</label>
+	    <input name="password" placeholder="Password" type="password">
+	  </div>
+	  <button class="ui button" type="submit">Sign In</button>
+	</form>
+</body>
 </html>
