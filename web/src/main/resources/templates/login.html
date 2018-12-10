@@ -3,10 +3,7 @@
 		xmlns:th="http://www.thymeleaf.org"
 		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-	<div th:replace="header :: root-script(~{::title})" th:remove="tag">
-		<title>Log-in</title>
-	</div>
-	<style type="text/css">
+	<style type="text/css" th:fragment="headcss">
     body {
       background-color: #DADADA;
     }
@@ -17,8 +14,9 @@
       max-width: 450px;
     }
   </style>
+  <script type="text/javascript" th:fragment="headscript" th:remove="tag"></script>
 </head>
-<body>
+<body th:fragment="body" th:remove="tag">
 	<div class="ui middle aligned center aligned grid">
 	  <div class="column">
 	    <h2 class="ui teal image header">

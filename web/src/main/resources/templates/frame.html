@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title th:text="'Copious Vovabulary - '+${title?:'Main Page'}"></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+<link rel="stylesheet" type="text/css"
+	th:href="@{/semantic/semantic.css}">
+
+<link th:remove="tag" th:replace="${tpl}::headcss"></link>
+<link th:remove="tag" th:replace="${tpl}::headcsssd"></link>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+	crossorigin="anonymous"></script>
+<script th:src="@{/semantic/semantic.js}"></script>
+
+<script th:remove="tag" th:replace="${tpl}::headscript"></script>
+</head>
+
+<body>
+	<div th:remove="tag" th:replace="${tpl}::body"></div>
+</body>
+</html>

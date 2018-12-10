@@ -2,15 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:th="http://www.thymeleaf.org"
 		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-<head th:replace="header :: root-script(~{::title})">
-	<title>Hello World!</title>
+<head>
+	<link th:fragment="headcss" th:remove="tag" />
+	<script type="text/javascript" th:fragment="headscript" th:remove="tag"></script>
 </head>
 
-<body>
+<body th:fragment="body" th:remove="tag">
 	<h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
 	<form th:action="@{/logout}" method="post">
 		<input type="submit" value="Sign Out" />
-		<button class="ui button">Follow</button>
 	</form>
 </body>
 </html>
