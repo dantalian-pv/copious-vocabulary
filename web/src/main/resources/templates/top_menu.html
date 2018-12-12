@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+
+<body th:fragment="menu" th:remove="tag">
+	<div id="menu" class="ui inverted menu page grid">
+		<div class="left menu">
+			<a class="item" href="/"><i class="home icon"></i></a>
+		</div>
+		<div class="right menu">
+			<div class="item">
+				<div class="ui action left icon input">
+					<div class="ui fluid category search">
+						<div class="ui icon input">
+							<input class="prompt" placeholder="Search..." type="text" /> <i
+								class="search icon"></i>
+						</div>
+						<div class="results"></div>
+					</div>
+				</div>
+			</div>
+			<div class="ui dropdown item">
+				<span th:text="${#authentication.name}"></span> <i
+					class="dropdown icon"></i>
+				<div class="menu">
+					<a
+						th:remove="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? tag: none"
+						class="item" href="/page/settings">System Settings</a> <a
+						th:remove="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? tag: none"
+						class="item" href="/page/users_groups">Users &amp; Groups</a> <a
+						class="item" href="/page/personal">Personal Settings</a>
+					<div class="divider"></div>
+					<div class="item">
+						<form action="/logout" method="post">
+							<input class="ui button" type="submit" value="Log out" /> <input
+								type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

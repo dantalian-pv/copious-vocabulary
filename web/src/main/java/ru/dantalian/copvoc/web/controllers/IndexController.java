@@ -20,17 +20,17 @@ public class IndexController {
 		if (aPrincipal == null) {
 			return "redirect:/page/login";
 		} else {
-			aModel.addAttribute("tpl", "main");
-			return "frame";
+			return page("main", aModel);
 		}
 	}
 
 	@RequestMapping("/page/{page}")
-	String login(@PathVariable("page") final String aPage, final Model aModel) {
+	String page(@PathVariable("page") final String aPage, final Model aModel) {
 		if (!whiteList.contains(aPage)) {
 			throw new PageNotFoundException();
 		}
 		aModel.addAttribute("tpl", aPage);
+		aModel.addAttribute("top_menu", "login".equals(aPage) ? null : true);
 		return "frame";
 	}
 

@@ -12,18 +12,22 @@
 <link rel="stylesheet" type="text/css"
 	th:href="@{/semantic/semantic.css}">
 
-<link th:remove="tag" th:replace="${tpl}::headcss"></link>
-<link th:remove="tag" th:replace="${tpl}::headcsssd"></link>
+<link th:replace="${tpl}::headcss" th:remove="tag"></link>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
 	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
 	crossorigin="anonymous"></script>
 <script th:src="@{/semantic/semantic.js}"></script>
+<script th:if="${top_menu}" th:src="@{/js/frame.js}"></script>
 
-<script th:remove="tag" th:replace="${tpl}::headscript"></script>
+<script th:replace="${tpl}::headscript" th:remove="tag"></script>
 </head>
 
 <body>
-	<div th:remove="tag" th:replace="${tpl}::body"></div>
+	<div th:if="${top_menu}" id="main" style="height: 100%;">
+		<div th:replace="top_menu::menu" th:remove="tag"></div>
+		<div th:replace="${tpl}::body" th:remove="tag"></div>
+	</div>
+	<div th:unless="${top_menu}" th:replace="${tpl}::body" th:remove="tag"></div>
 </body>
 </html>
