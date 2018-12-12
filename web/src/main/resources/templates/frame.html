@@ -18,7 +18,9 @@
 	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
 	crossorigin="anonymous"></script>
 <script th:src="@{/semantic/semantic.js}"></script>
-<script th:if="${top_menu}" th:src="@{/js/frame.js}"></script>
+<script th:src="@{/js/knockout.js}"></script>
+
+<script th:if="${top_menu}" th:src="@{/js/tpl/frame.js}"></script>
 
 <script th:replace="${tpl}::headscript" th:remove="tag"></script>
 </head>

@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-		xmlns:th="http://www.thymeleaf.org"
-		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-	<link th:fragment="headcss" th:remove="tag" />
-	<script type="text/javascript" th:fragment="headscript" th:remove="tag"></script>
+<link th:fragment="headcss" th:remove="tag" />
+<script type="text/javascript" th:fragment="headscript" th:remove="tag"></script>
 </head>
 
 <body th:fragment="body" th:remove="tag">
-	<h1 th:inline="text">Hello [[${#authentication.name}]]!</h1>
-	<form th:action="@{/logout}" method="post">
-		<input type="submit" value="Sign Out" />
-	</form>
+	<div class="ui top attached button" tabindex="0"><i class="add icon"></i>Add Batch</div>
+	<div class="ui attached segment">
+		<p></p>
+	</div>
 </body>
 </html>
