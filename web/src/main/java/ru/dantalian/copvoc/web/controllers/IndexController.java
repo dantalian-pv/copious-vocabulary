@@ -31,6 +31,7 @@ public class IndexController {
 		}
 		aModel.addAttribute("tpl", aPage);
 		aModel.addAttribute("top_menu", "login".equals(aPage) ? null : true);
+		aModel.addAttribute("title", "login".equals(aPage) ? "Login" : null);
 		return "frame";
 	}
 

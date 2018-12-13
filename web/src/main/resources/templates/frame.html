@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
 <title th:text="'Copious Vovabulary - '+${title?:'Main Page'}"></title>
@@ -9,14 +8,12 @@
 <meta name="_csrf" th:content="${_csrf.token}" />
 <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-<link rel="stylesheet" type="text/css"
-	th:href="@{/semantic/semantic.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/semantic/semantic.css}" />
 
-<link th:replace="${tpl}::headcss" th:remove="tag"></link>
+<object th:replace="${tpl}::headcss" th:remove="tag"></object>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
-	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-	crossorigin="anonymous"></script>
+	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script th:src="@{/semantic/semantic.js}"></script>
 <script th:src="@{/js/knockout.js}"></script>
 
@@ -30,6 +27,8 @@
 		<div th:replace="top_menu::menu" th:remove="tag"></div>
 		<div th:replace="${tpl}::body" th:remove="tag"></div>
 	</div>
-	<div th:unless="${top_menu}" th:replace="${tpl}::body" th:remove="tag"></div>
+	<div th:unless="${top_menu}" th:remove="tag">
+		<div th:replace="${tpl}::body" th:remove="tag"></div>
+	</div>
 </body>
 </html>

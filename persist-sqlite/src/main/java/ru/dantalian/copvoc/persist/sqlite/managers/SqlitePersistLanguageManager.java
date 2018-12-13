@@ -73,7 +73,8 @@ public class SqlitePersistLanguageManager implements PersistLanguageManager {
 	@Override
 	public Language getLanguage(final String aName, final String aCountry, final String aVariant)
 			throws PersistException {
-		final List<Language> languages = listLanguages(Optional.of(aName), Optional.of(aCountry), Optional.of(aVariant));
+		final List<Language> languages = listLanguages(Optional.ofNullable(aName),
+				Optional.ofNullable(aCountry), Optional.ofNullable(aVariant));
 		if (languages.iterator().hasNext()) {
 			return languages.iterator().next();
 		}

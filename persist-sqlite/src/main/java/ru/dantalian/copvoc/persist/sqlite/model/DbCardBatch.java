@@ -1,11 +1,8 @@
-package ru.dantalian.copvoc.persist.impl.model.personal;
+package ru.dantalian.copvoc.persist.sqlite.model;
 
 import java.util.UUID;
 
-import ru.dantalian.copvoc.persist.api.model.CardBatch;
-import ru.dantalian.copvoc.persist.api.model.Language;
-
-public class PojoCardBatch implements CardBatch {
+public class DbCardBatch {
 
 	private UUID id;
 
@@ -15,15 +12,15 @@ public class PojoCardBatch implements CardBatch {
 
 	private String user;
 
-	private Language source;
+	private String source;
 
-	private Language target;
+	private String target;
 
-	public PojoCardBatch() {
+	public DbCardBatch() {
 	}
 
-	public PojoCardBatch(final UUID aId, final String aName, final String aDescription, final String aUser,
-			final Language aSource,	final Language aTarget) {
+	public DbCardBatch(final UUID aId, final String aName, final String aDescription,
+			final String aUser, final String aSource, final String aTarget) {
 		id = aId;
 		name = aName;
 		description = aDescription;
@@ -32,7 +29,6 @@ public class PojoCardBatch implements CardBatch {
 		target = aTarget;
 	}
 
-	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -41,7 +37,6 @@ public class PojoCardBatch implements CardBatch {
 		id = aId;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -50,7 +45,6 @@ public class PojoCardBatch implements CardBatch {
 		name = aName;
 	}
 
-	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -59,7 +53,6 @@ public class PojoCardBatch implements CardBatch {
 		description = aDescription;
 	}
 
-	@Override
 	public String getUser() {
 		return user;
 	}
@@ -68,21 +61,19 @@ public class PojoCardBatch implements CardBatch {
 		user = aUser;
 	}
 
-	@Override
-	public Language getSource() {
+	public String getSource() {
 		return source;
 	}
 
-	public void setSource(final Language aSource) {
+	public void setSource(final String aSource) {
 		source = aSource;
 	}
 
-	@Override
-	public Language getTarget() {
+	public String getTarget() {
 		return target;
 	}
 
-	public void setTarget(final Language aTarget) {
+	public void setTarget(final String aTarget) {
 		target = aTarget;
 	}
 
@@ -102,10 +93,10 @@ public class PojoCardBatch implements CardBatch {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof PojoCardBatch)) {
+		if (!(obj instanceof DbCardBatch)) {
 			return false;
 		}
-		final PojoCardBatch other = (PojoCardBatch) obj;
+		final DbCardBatch other = (DbCardBatch) obj;
 		if (id == null) {
 			if (other.id != null) {
 				return false;
@@ -118,7 +109,7 @@ public class PojoCardBatch implements CardBatch {
 
 	@Override
 	public String toString() {
-		return "PojoCardBatch [id=" + id + ", name=" + name + ", description=" + description
+		return "DbCardBatch [id=" + id + ", name=" + name + ", description=" + description
 				+ ", user=" + user + ", source=" + source + ", target=" + target + "]";
 	}
 
