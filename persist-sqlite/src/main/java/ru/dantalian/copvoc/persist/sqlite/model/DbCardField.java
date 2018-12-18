@@ -1,11 +1,11 @@
-package ru.dantalian.copvoc.persist.impl.model.personal;
+package ru.dantalian.copvoc.persist.sqlite.model;
 
 import java.util.UUID;
 
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 
-public class PojoCardField implements CardField {
+public class DbCardField implements CardField {
 
 	private UUID id;
 
@@ -17,10 +17,10 @@ public class PojoCardField implements CardField {
 
 	private CardFiledType	type;
 
-	public PojoCardField() {
+	public DbCardField() {
 	}
 
-	public PojoCardField(final UUID aId, final UUID aBatchId, final String aName,
+	public DbCardField(final UUID aId, final UUID aBatchId, final String aName,
 			final String aDisplayName, final CardFiledType aType) {
 		id = aId;
 		batchId = aBatchId;
@@ -76,7 +76,7 @@ public class PojoCardField implements CardField {
 
 	@Override
 	public String toString() {
-		return "PojoCardField [id=" + id + ", batchId=" + batchId + ", name=" + name + ", type=" + type + "]";
+		return "DbCardField [id=" + id + ", batchId=" + batchId + ", name=" + name + ", type=" + type + "]";
 	}
 
 }

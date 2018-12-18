@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import ru.dantalian.copvoc.core.CoreConstants;
-import ru.dantalian.copvoc.core.CoreException;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
@@ -25,7 +24,7 @@ public class LanguageManager {
 	@Autowired
 	private PersistLanguageManager languagePersist;
 
-	public List<Language> initLanguages() throws CoreException {
+	public List<Language> initLanguages() throws PersistException {
 		try {
 			final ObjectMapper om = new ObjectMapper();
 			try (InputStream langStream = this.getClass().getClassLoader()
@@ -41,36 +40,24 @@ public class LanguageManager {
 				}
 			}
 			return languagePersist.listLanguages(Optional.empty(), Optional.empty(), Optional.empty());
-		} catch (final PersistException | IOException e) {
-			throw new CoreException("Failed to init languages", e);
+		} catch (final IOException e) {
+			throw new PersistException("Failed to init languages", e);
 		}
 	}
 
 	public List<Language> listLanguages(final Optional<String> aName, final Optional<String> aCountry,
-			final Optional<String> aVariant) throws CoreException {
-		try {
-			return languagePersist.listLanguages(aName, aCountry, aVariant);
-		} catch (final PersistException e) {
-			throw new CoreException("Failed to list languages", e);
-		}
+			final Optional<String> aVariant) throws PersistException {
+		return languagePersist.listLanguages(aName, aCountry, aVariant);
 	}
 
 	public Language getLanguage(final String aName, final String aCountry, final String aVariant)
-			throws CoreException {
-		try {
-			return languagePersist.getLanguage(aName, aCountry, aVariant);
-		} catch (final PersistException e) {
-			throw new CoreException("Failed to get language", e);
-		}
+			throws PersistException {
+		return languagePersist.getLanguage(aName, aCountry, aVariant);
 	}
 
 	public Language createLanguage(final String aName, final String aCountry, final String aVariant,
-			final String aText) throws CoreException {
-		try {
-			return languagePersist.createLanguage(aName, aCountry, aVariant, aText);
-		} catch (final PersistException e) {
-			throw new CoreException("Failed to create language", e);
-		}
+			final String aText) throws PersistException {
+		return languagePersist.createLanguage(aName, aCountry, aVariant, aText);
 	}
 
 }

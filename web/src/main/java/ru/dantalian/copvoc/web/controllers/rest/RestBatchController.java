@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.dantalian.copvoc.persist.api.PersistBatchManager;
+import ru.dantalian.copvoc.core.managers.BatchManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardBatch;
 import ru.dantalian.copvoc.persist.api.model.Language;
@@ -28,7 +28,7 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardBatch;
 public class RestBatchController {
 
 	@Autowired
-	private PersistBatchManager mBatchPersist;
+	private BatchManager mBatchPersist;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<DtoCardBatch> listBatches(final Principal aPrincipal) throws PersistException {

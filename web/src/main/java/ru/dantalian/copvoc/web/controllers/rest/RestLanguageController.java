@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.managers.LanguageManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoLanguage;
@@ -23,7 +23,7 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoLanguage;
 public class RestLanguageController {
 
 	@Autowired
-	private PersistLanguageManager mLangManager;
+	private LanguageManager mLangManager;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<DtoLanguage> listLanguages(final Principal aPrincipal,

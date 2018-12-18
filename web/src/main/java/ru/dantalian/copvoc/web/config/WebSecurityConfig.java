@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
+import ru.dantalian.copvoc.core.managers.PrincipalManager;
 import ru.dantalian.copvoc.web.security.DbUserDetailsService;
 
 @Configuration
@@ -16,7 +16,7 @@ import ru.dantalian.copvoc.web.security.DbUserDetailsService;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private PersistPrincipalManager principalManager;
+	private PrincipalManager principalManager;
 
   @Override
   protected void configure(final HttpSecurity aHttp) throws Exception {
@@ -26,7 +26,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .anyRequest().authenticated()
             .and()
         .formLogin()
-            .loginPage("/page/login")
+            .loginPage("/login")
             .permitAll()
             .and()
         .logout()

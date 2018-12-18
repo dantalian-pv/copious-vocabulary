@@ -14,7 +14,7 @@ $(document).ready(function() {
 
 	$('.ui.search').search({
 		apiSettings : {
-			url : '/page/search/?q={query}'
+			url : '/search/?q={query}'
 		},
 		type : 'category'
 	});

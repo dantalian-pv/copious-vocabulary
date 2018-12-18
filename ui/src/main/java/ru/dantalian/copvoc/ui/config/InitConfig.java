@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import ru.dantalian.copvoc.core.CoreConstants;
+import ru.dantalian.copvoc.core.managers.LanguageManager;
+import ru.dantalian.copvoc.core.managers.PrincipalManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
-import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
 
@@ -24,10 +24,10 @@ import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
 public class InitConfig {
 
 	@Autowired
-	private PersistLanguageManager languagePersist;
+	private LanguageManager languageManager;
 
 	@Autowired
-	private PersistPrincipalManager principalPersist;
+	private PrincipalManager principalManager;
 
 	@PostConstruct
 	public void initData() throws PersistException {
@@ -43,10 +43,10 @@ public class InitConfig {
 				final ArrayNode arr = (ArrayNode) om.readTree(langStream).get("laguages");
 				for (final JsonNode node: arr) {
 					final PojoLanguage lang = om.treeToValue(node, PojoLanguage.class);
-					final Language persistLang = languagePersist.getLanguage(
+					final Language persistLang = languageManager.getLanguage(
 							lang.getName(), lang.getCountry(), lang.getVariant());
 					if (persistLang == null) {
-						languagePersist.createLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
+						languageManager.createLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
 					}
 				}
 			}
@@ -56,9 +56,9 @@ public class InitConfig {
 	}
 
 	public void initDefaultPrincipal() throws PersistException {
-		principalPersist.createPrincipal("user", "user");
+		principalManager.createPrincipal("user", "user");
 		final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-		principalPersist.storePasswordFor("user", "{bcrypt}" + passwordEncoder.encode("user"));
+		principalManager.storePasswordFor("user", "{bcrypt}" + passwordEncoder.encode("user"));
 	}
 
 }
