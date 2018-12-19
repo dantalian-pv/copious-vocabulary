@@ -1,6 +1,6 @@
-package ru.dantalian.copvoc.persist.impl.model.personal;
+package ru.dantalian.copvoc.persist.impl.model;
 
-import ru.dantalian.copvoc.persist.api.model.personal.Principal;
+import ru.dantalian.copvoc.persist.api.model.Principal;
 
 public class PojoPrincipal implements Principal {
 

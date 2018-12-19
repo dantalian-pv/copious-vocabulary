@@ -1,6 +1,6 @@
 package ru.dantalian.copvoc.persist.api;
 
-import ru.dantalian.copvoc.persist.api.model.personal.Principal;
+import ru.dantalian.copvoc.persist.api.model.Principal;
 
 public interface PersistPrincipalManager {
 

@@ -13,8 +13,8 @@ import org.springframework.util.CollectionUtils;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
-import ru.dantalian.copvoc.persist.api.model.personal.Principal;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoPrincipal;
+import ru.dantalian.copvoc.persist.api.model.Principal;
+import ru.dantalian.copvoc.persist.impl.model.PojoPrincipal;
 import ru.dantalian.copvoc.persist.sqlite.model.DbPrincipal;
 import ru.dantalian.copvoc.persist.sqlite.model.mappers.DbPrincipalMapper;
 

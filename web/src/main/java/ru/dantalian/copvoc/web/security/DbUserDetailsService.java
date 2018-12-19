@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import ru.dantalian.copvoc.core.managers.PrincipalManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.api.model.personal.Principal;
+import ru.dantalian.copvoc.persist.api.model.Principal;
 
 public class DbUserDetailsService implements UserDetailsService {
 

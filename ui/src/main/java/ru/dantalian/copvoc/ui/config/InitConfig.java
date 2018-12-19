@@ -18,7 +18,7 @@ import ru.dantalian.copvoc.core.managers.LanguageManager;
 import ru.dantalian.copvoc.core.managers.PrincipalManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
+import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
 @Configuration
 public class InitConfig {

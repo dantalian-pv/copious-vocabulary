@@ -13,19 +13,16 @@ public class DbCardField implements CardField {
 
 	private String name;
 
-	private String displayName;
-
 	private CardFiledType	type;
 
 	public DbCardField() {
 	}
 
 	public DbCardField(final UUID aId, final UUID aBatchId, final String aName,
-			final String aDisplayName, final CardFiledType aType) {
+			final CardFiledType aType) {
 		id = aId;
 		batchId = aBatchId;
 		name = aName;
-		displayName = aDisplayName;
 		type = aType;
 	}
 
@@ -54,15 +51,6 @@ public class DbCardField implements CardField {
 
 	public void setName(final String aName) {
 		name = aName;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(final String aDisplayName) {
-		displayName = aDisplayName;
 	}
 
 	@Override

@@ -18,7 +18,6 @@ public class DbCardFieldMapper implements RowMapper<DbCardField> {
 		return new DbCardField(UUID.fromString(aRs.getString("id")),
 				UUID.fromString(aRs.getString("batch_id")),
 				aRs.getString("name"),
-				aRs.getString("display_name"),
 				CardFiledType.valueOf(aRs.getString("type")));
 	}
 

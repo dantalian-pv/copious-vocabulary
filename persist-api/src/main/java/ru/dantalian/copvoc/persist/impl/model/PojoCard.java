@@ -1,4 +1,4 @@
-package ru.dantalian.copvoc.persist.impl.model.personal;
+package ru.dantalian.copvoc.persist.impl.model;
 
 import java.util.Collections;
 import java.util.HashMap;

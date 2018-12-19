@@ -15,7 +15,7 @@ import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardBatch;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoCardBatch;
+import ru.dantalian.copvoc.persist.impl.model.PojoCardBatch;
 import ru.dantalian.copvoc.persist.sqlite.model.DbCardBatch;
 import ru.dantalian.copvoc.persist.sqlite.model.mappers.DbCardBatchMapper;
 

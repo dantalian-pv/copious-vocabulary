@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.dantalian.copvoc.core.managers.BatchManager;
+import ru.dantalian.copvoc.core.managers.FieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardBatch;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoCardBatch;
+import ru.dantalian.copvoc.persist.impl.model.PojoCardBatch;
 import ru.dantalian.copvoc.web.controllers.BadUserRequestException;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardBatch;
 
@@ -29,6 +30,9 @@ public class RestBatchController {
 
 	@Autowired
 	private BatchManager mBatchPersist;
+
+	@Autowired
+	private FieldManager mFieldManager;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<DtoCardBatch> listBatches(final Principal aPrincipal) throws PersistException {
@@ -61,6 +65,10 @@ public class RestBatchController {
 		}
 		final CardBatch batch = mBatchPersist.createBatch(user, aCardBatch.getName(), aCardBatch.getDescription(),
 				asLanguage(aCardBatch.getSourceId()), asLanguage(aCardBatch.getTargetId()));
+		// Init default fields
+		mFieldManager.initPredefinedFields(batch.getId());
+		// Init default view
+		mBatchPersist.initDefaultView(batch.getId());
 		return asDtoCardBatch(batch);
 	}
 

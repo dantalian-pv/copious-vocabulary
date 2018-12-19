@@ -1,7 +1,7 @@
 package ru.dantalian.copvoc.persist.api.utils;
 
 import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
+import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
 public final class LanguageUtils {
 

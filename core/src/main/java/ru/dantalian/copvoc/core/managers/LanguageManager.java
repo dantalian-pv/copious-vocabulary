@@ -16,7 +16,7 @@ import ru.dantalian.copvoc.core.CoreConstants;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
+import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
 @Service
 public class LanguageManager {
@@ -25,18 +25,16 @@ public class LanguageManager {
 	private PersistLanguageManager languagePersist;
 
 	public List<Language> initLanguages() throws PersistException {
-		try {
-			final ObjectMapper om = new ObjectMapper();
-			try (InputStream langStream = this.getClass().getClassLoader()
-					.getResourceAsStream(CoreConstants.DEFAULT_LANGUAGES)) {
-				final ArrayNode arr = (ArrayNode) om.readTree(langStream).get("laguages");
-				for (final JsonNode node: arr) {
-					final PojoLanguage lang = om.treeToValue(node, PojoLanguage.class);
-					final Language persistLang = languagePersist.getLanguage(
-							lang.getName(), lang.getCountry(), lang.getVariant());
-					if (persistLang == null) {
-						languagePersist.createLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
-					}
+		final ObjectMapper om = new ObjectMapper();
+		try (InputStream langStream = this.getClass().getClassLoader()
+				.getResourceAsStream(CoreConstants.DEFAULT_LANGUAGES)) {
+			final ArrayNode arr = (ArrayNode) om.readTree(langStream).get("laguages");
+			for (final JsonNode node: arr) {
+				final PojoLanguage lang = om.treeToValue(node, PojoLanguage.class);
+				final Language persistLang = languagePersist.getLanguage(
+						lang.getName(), lang.getCountry(), lang.getVariant());
+				if (persistLang == null) {
+					languagePersist.createLanguage(lang.getName(), lang.getCountry(), lang.getVariant(), lang.getText());
 				}
 			}
 			return languagePersist.listLanguages(Optional.empty(), Optional.empty(), Optional.empty());

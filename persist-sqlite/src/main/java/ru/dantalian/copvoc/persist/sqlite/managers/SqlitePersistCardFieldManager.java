@@ -14,7 +14,7 @@ import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoCardField;
+import ru.dantalian.copvoc.persist.impl.model.PojoCardField;
 import ru.dantalian.copvoc.persist.sqlite.model.DbCardField;
 import ru.dantalian.copvoc.persist.sqlite.model.mappers.DbCardFieldMapper;
 
@@ -28,28 +28,15 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager {
 	private DbCardFieldMapper mapper;
 
 	@Override
-	public CardField createField(final UUID aBatchId, final String aName, final String aDisplayName,
+	public CardField createField(final UUID aBatchId, final String aName,
 			final CardFiledType aType) throws PersistException {
 		try {
 			final UUID id = UUID.randomUUID();
-			db.update("INSERT INTO card_field (id, batch_id, name, display_name, \"type\") VALUES (?, ?, ? ,?, ?)",
-					id.toString(), aBatchId.toString(), aName, aDisplayName, aType.name());
-			return toCardField(new DbCardField(id, aBatchId, aName, aDisplayName, aType));
+			db.update("INSERT INTO card_field (id, batch_id, name, \"type\") VALUES (?, ?, ?, ?)",
+					id.toString(), aBatchId.toString(), aName, aType.name());
+			return toCardField(new DbCardField(id, aBatchId, aName, aType));
 		} catch (final DataAccessException e) {
 			throw new PersistException("Failed to create a field", e);
-		}
-	}
-
-	@Override
-	public CardField updateField(final UUID aId, final String aDisplayName) throws PersistException {
-		try {
-			db.update("UPDATE card_field SET display_name = ?"
-					+ " WHERE id = ?",
-					aDisplayName,
-					aId);
-			return getField(aId);
-		} catch (final DataAccessException e) {
-			throw new PersistException("Failed to update a field", e);
 		}
 	}
 
@@ -96,7 +83,7 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager {
 
 	private CardField toCardField(final DbCardField aDbCardField) {
 		return new PojoCardField(aDbCardField.getId(), aDbCardField.getBatchId(), aDbCardField.getName(),
-				aDbCardField.getDisplayName(), aDbCardField.getType());
+				aDbCardField.getType());
 	}
 
 }

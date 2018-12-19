@@ -10,8 +10,6 @@ public interface CardField {
 
 	String getName();
 
-	String getDisplayName();
-
 	CardFiledType getType();
 
 }

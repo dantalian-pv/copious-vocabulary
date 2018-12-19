@@ -1,4 +1,4 @@
-package ru.dantalian.copvoc.persist.impl.model.personal;
+package ru.dantalian.copvoc.persist.impl.model;
 
 import java.util.UUID;
 
@@ -13,19 +13,16 @@ public class PojoCardField implements CardField {
 
 	private String name;
 
-	private String displayName;
-
 	private CardFiledType	type;
 
 	public PojoCardField() {
 	}
 
 	public PojoCardField(final UUID aId, final UUID aBatchId, final String aName,
-			final String aDisplayName, final CardFiledType aType) {
+			final CardFiledType aType) {
 		id = aId;
 		batchId = aBatchId;
 		name = aName;
-		displayName = aDisplayName;
 		type = aType;
 	}
 
@@ -54,15 +51,6 @@ public class PojoCardField implements CardField {
 
 	public void setName(final String aName) {
 		name = aName;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(final String aDisplayName) {
-		displayName = aDisplayName;
 	}
 
 	@Override

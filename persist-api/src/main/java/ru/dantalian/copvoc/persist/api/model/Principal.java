@@ -1,4 +1,4 @@
-package ru.dantalian.copvoc.persist.api.model.personal;
+package ru.dantalian.copvoc.persist.api.model;
 
 public interface Principal {
 

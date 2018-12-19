@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
-import ru.dantalian.copvoc.persist.api.model.personal.Principal;
+import ru.dantalian.copvoc.persist.api.model.Principal;
 
 @Service
 public class PrincipalManager {

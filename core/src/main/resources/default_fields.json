@@ -1,0 +1,16 @@
+{
+	"fields": [
+		{
+			"name": "word",
+			"type": "STRING"
+		},
+		{
+			"name": "translation",
+			"type": "ANSWER"
+		},
+		{
+			"name": "Example",
+			"type": "TEXT"
+		}
+	]
+}

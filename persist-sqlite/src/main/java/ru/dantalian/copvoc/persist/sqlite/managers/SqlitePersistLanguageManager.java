@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.impl.model.personal.PojoLanguage;
+import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 import ru.dantalian.copvoc.persist.sqlite.model.DbLanguage;
 import ru.dantalian.copvoc.persist.sqlite.model.mappers.DbLanguageMapper;
 
