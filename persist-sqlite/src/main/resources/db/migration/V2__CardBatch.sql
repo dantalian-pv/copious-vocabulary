@@ -42,3 +42,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_card_batch_view_batch_id
 ON card_batch_view (
 	batch_id
 );
+
+-- Card
+CREATE TABLE IF NOT EXISTS card (
+  id VARCHAR(32) NOT NULL,
+  batch_id VARCHAR(32) NOT NULL,
+	content TEXT NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_card_batch_id
+ON card (
+	batch_id
+);

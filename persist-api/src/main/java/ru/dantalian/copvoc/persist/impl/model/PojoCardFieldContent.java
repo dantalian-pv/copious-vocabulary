@@ -2,34 +2,38 @@ package ru.dantalian.copvoc.persist.impl.model;
 
 import java.util.UUID;
 
-public class PojoCardFieldContent {
+import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 
-	private UUID id;
+public class PojoCardFieldContent implements CardFieldContent {
+
+	private UUID cardId;
 
 	private UUID batchId;
 
-	private UUID fieldId;
+	private String fieldName;
 
 	private String content;
 
 	public PojoCardFieldContent() {
 	}
 
-	public PojoCardFieldContent(final UUID aId, final UUID aBatchId, final UUID aFieldId, final String aContent) {
-		id = aId;
+	public PojoCardFieldContent(final UUID aCardId, final UUID aBatchId, final String aFieldName, final String aContent) {
+		cardId = aCardId;
 		batchId = aBatchId;
-		fieldId = aFieldId;
+		fieldName = aFieldName;
 		content = aContent;
 	}
 
-	public UUID getId() {
-		return id;
+	@Override
+	public UUID getCardId() {
+		return cardId;
 	}
 
-	public void setId(final UUID aId) {
-		id = aId;
+	public void setCardId(final UUID aCardId) {
+		cardId = aCardId;
 	}
 
+	@Override
 	public UUID getBatchId() {
 		return batchId;
 	}
@@ -38,14 +42,16 @@ public class PojoCardFieldContent {
 		batchId = aBatchId;
 	}
 
-	public UUID getFieldId() {
-		return fieldId;
+	@Override
+	public String getFieldName() {
+		return fieldName;
 	}
 
-	public void setFieldId(final UUID aFieldId) {
-		fieldId = aFieldId;
+	public void setFieldName(final String aFieldName) {
+		fieldName = aFieldName;
 	}
 
+	@Override
 	public String getContent() {
 		return content;
 	}
@@ -56,8 +62,7 @@ public class PojoCardFieldContent {
 
 	@Override
 	public String toString() {
-		return "PojoCardFieldContent [id=" + id + ", batchId=" + batchId + ", fieldId=" + fieldId
-				+ ", content=" + content + "]";
+		return "PojoCardFieldContent [cardId=" + cardId + ", batchId=" + batchId + ", fieldName=" + fieldName + "]";
 	}
 
 }

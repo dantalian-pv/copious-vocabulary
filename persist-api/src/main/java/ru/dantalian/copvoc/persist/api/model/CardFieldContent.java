@@ -4,11 +4,11 @@ import java.util.UUID;
 
 public interface CardFieldContent {
 
-	UUID getId();
+	UUID getCardId();
 
 	UUID getBatchId();
 
-	UUID getFieldId();
+	String getFieldName();
 
 	String getContent();
 

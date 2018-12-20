@@ -7,37 +7,14 @@ $(document).ready(
 			var csrf_name = $("meta[name='_csrf_header']").attr("content");
 			csrf[csrf_name] = $("meta[name='_csrf']").attr("content");
 
-			$('.languages').dropdown({
-				apiSettings : {
-					url : '/v1/api/langs',
-					cache : 'none',
-					onResponse: function(data) {
-						var results = [];
-						$.each(data, function( i, l ) {
-							results[i] = {"name": l.text, "value": l.id};
-						});
-						return {"success": true, "results": results};
-					}
-				}
-			});
-
 			function Item(data) {
 				this.id = ko.observable(data.id);
-				this.link = ko.observable("/batches/" + data.id)
-				this.name = ko.observable(data.name)
-				this.description = ko.observable(data.description);
-				this.sourceId = ko.observable(data.sourceId);
-				this.targetId = ko.observable(data.targetId);
-				this.sourceName = ko.observable(data.sourceName);
-				this.targetName = ko.observable(data.targetName);
+				this.content = ko.observableArray(data.content)
 			}
 
 			function ItemForm(data) {
 				this.id = ko.observable(data.id);
-				this.name = ko.observable(data.name)
-				this.description = ko.observable(data.description);
-				this.sourceId = ko.observable(data.sourceId);
-				this.targetId = ko.observable(data.targetId);
+				this.content = ko.observableArray(data.content)
 			}
 
 			function ItemGroupListViewModel() {
@@ -55,27 +32,18 @@ $(document).ready(
 				self.itemForm = new Form({
 					setItem : function(data) {
 						this.id(data.id());
-						this.name(data.name());
-						this.description(data.description());
-						this.sourceId(data.sourceId());
-						this.targetId(data.targetId());
+						this.content(data.content());
 					},
 					setEmpty : function(data) {
 						this.id(null);
-						this.name('');
-						this.description('');
-						this.sourceId('');
-						this.targetId('')
+						this.content([]);
 					},
-					url : '/v1/api/batches',
-					formSelector : '#add_card_batch_form',
-					modalSelector : '#add_card_batch',
+					url : '/v1/api/cards',
+					formSelector : '#add_card_form',
+					modalSelector : '#add_card',
 					initItem : function() {
 						this.id = ko.observable();
-						this.name = ko.observable();
-						this.description = ko.observable();
-						this.sourceId = ko.observable();
-						this.targetId = ko.observable();
+						this.content = ko.observableArray();
 					}
 				});
 
@@ -91,23 +59,23 @@ $(document).ready(
 					self.itemForm.setEmpty();
 					self.itemForm.show(function(data) {
 						self.addItem(data);
-						$('#add_card_batch').modal('hide');
+						$('#add_card').modal('hide');
 					});
 				};
 
 				self.showEditItemForm = function() {
 					var selectedItem = self.selectedItems()[0];
-					$.getJSON("/v1/api/batches", function(itemForm) {
+					$.getJSON("/v1/api/cards", function(itemForm) {
 						self.itemForm.setItem(new ItemForm(itemForm));
 						self.itemForm.show(function(data) {
 							self.items.replace(self.selectedItem, new Item(data));
-							$('#add_card_batch').modal('hide');
+							$('#add_card').modal('hide');
 						});
 					});
 				};
 
 				self.showDeleteItems = function() {
-					self.deleteUrl = '/v1/api/batches';
+					self.deleteUrl = '/v1/api/cards';
 
 					self.itemsToDelete.removeAll();
 
@@ -159,7 +127,7 @@ $(document).ready(
 
 				self.updateData = function() {
 					// Load initial state from server
-					$.getJSON('/v1/api/batches', function(allData) {
+					$.getJSON('/v1/api/cards/' + document.batchId, function(allData) {
 						var mappedItems = $.map(allData, function(item) {
 							return new Item(item)
 						});

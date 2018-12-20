@@ -9,14 +9,14 @@ public interface Card {
 
 	UUID getBatchId();
 
-	Map<UUID, CardFieldContent> getFieldsContent();
+	Map<String, CardFieldContent> getFieldsContent();
 
-	CardFieldContent getContent(UUID aField);
+	CardFieldContent getContent(String aFieldName);
 
-	void setFieldsContent(Map<UUID, CardFieldContent> aFields);
+	void setFieldsContent(Map<String, CardFieldContent> aFields);
 
-	void addFieldsContent(Map<UUID, CardFieldContent> aFields);
+	void addFieldsContent(Map<String, CardFieldContent> aFields);
 
-	void addFieldContent(UUID aField, CardFieldContent aContent);
+	void addFieldContent(String aFieldName, CardFieldContent aContent);
 
 }

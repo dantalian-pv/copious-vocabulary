@@ -6,6 +6,9 @@
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		document.batchId=[[${batch.id}]];
+	</script>
 	<script th:src="@{/js/tpl/cards.js}"></script>
 </object>
 </head>
@@ -18,14 +21,13 @@
 		<div class="ui relaxed divided list" data-bind="foreach: items">
 			<div class="item">
 				<i class="large github middle aligned icon"></i>
-				<div class="content">
-					<a class="header" data-bind="text: name, attr: { href: link }"></a>
+				<div class="content" data-bind="with: content">
 					<div class="description" data-bind="text: sourceName() + ' -> ' + targetName()"></div>
 					<div class="description" data-bind="text: description"></div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div th:replace="forms/batch_form::body" th:remove="tag"></div>
+	<div th:replace="forms/card_form::body" th:remove="tag"></div>
 </body>
 </html>

@@ -7,17 +7,17 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
-	<div id="add_card_batch" class="ui modal">
+	<div id="add_card" class="ui modal">
 		<i class="close icon"></i>
-		<div class="header" data-bind="text: (itemForm.id()) ? 'Edit Batch' : 'Add New Batch'"></div>
+		<div class="header" data-bind="text: (itemForm.id()) ? 'Edit Card' : 'Add New Card'"></div>
 		<div class="content">
-			<form id="add_card_batch_form" class="ui form segment" method="post" action="/v1/api/batch">
+			<form id="add_card_form" class="ui form segment" method="post" action="/v1/api/cards">
 				<div class="ui inverted dimmer">
 					<div class="ui text loader">Loading</div>
 				</div>
 				<div class="ui hidden positive message">
 					<div class="header">Success</div>
-					<p class="info">Batch has been saved</p>
+					<p class="info">Card has been saved</p>
 				</div>
 
 				<div class="required field">
@@ -32,26 +32,6 @@
 					<div class="ui pointing below red label hidden"></div>
 					<div class="ui input">
 						<input name="description" data-bind="text: itemForm.description" />
-					</div>
-				</div>
-				<div class="required field">
-					<label>Source Language</label>
-					<div class="ui pointing below red label hidden"></div>
-					<div class="ui search selection dropdown languages">
-						<input type="hidden" name="sourceId" data-bind="value: itemForm.sourceId" />
-						<i class="dropdown icon"></i> <input type="text" class="search"
-							data-bind="value: itemForm.sourceId" />
-						<div class="default text">Select Source Language...</div>
-					</div>
-				</div>
-				<div class="required field">
-					<label>Target Language</label>
-					<div class="ui pointing below red label hidden"></div>
-					<div class="ui search selection dropdown languages">
-						<input type="hidden" name="targetId" data-bind="value: itemForm.targetId" />
-						<i class="dropdown icon"></i> <input type="text" class="search"
-							data-bind="value: itemForm.targetId" />
-						<div class="default text">Select Target Language...</div>
 					</div>
 				</div>
 
