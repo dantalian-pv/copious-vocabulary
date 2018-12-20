@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<object th:fragment="headcss" th:remove="tag">
-		<style type="text/css" th:text="${batchView.css}"></style>
-	</object>
+<object th:fragment="headcss" th:remove="tag">
+	<style type="text/css" th:text="${batchView.css}"></style>
+</object>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
 </object>
 </head>
 <body th:fragment="body" th:remove="tag">
+	<div class="ui buttons">
+		<a th:href="${'/batches/' + batch.id}" th:text="${'Batck to ' + batch.name}" class="ui button"> <i class="save icon"></i>View Cards
+		</a>
+	</div>
+	<div class="ui divider"></div>
 	<div th:replace="${'front/' + batchView.id}::body"></div>
-	<hr/>
+	<div class="ui divider"></div>
 	<div th:replace="${'back/' + batchView.id}::body"></div>
 </body>
 </html>

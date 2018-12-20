@@ -15,8 +15,7 @@ public class DbCardFieldMapper implements RowMapper<DbCardField> {
 
 	@Override
 	public DbCardField mapRow(final ResultSet aRs, final int aRowNum) throws SQLException {
-		return new DbCardField(UUID.fromString(aRs.getString("id")),
-				UUID.fromString(aRs.getString("batch_id")),
+		return new DbCardField(UUID.fromString(aRs.getString("batch_id")),
 				aRs.getString("name"),
 				CardFiledType.valueOf(aRs.getString("type")));
 	}

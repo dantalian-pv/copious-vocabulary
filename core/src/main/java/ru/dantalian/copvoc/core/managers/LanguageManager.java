@@ -19,7 +19,7 @@ import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
 @Service
-public class LanguageManager {
+public class LanguageManager implements PersistLanguageManager {
 
 	@Autowired
 	private PersistLanguageManager languagePersist;
@@ -43,19 +43,28 @@ public class LanguageManager {
 		}
 	}
 
+	@Override
 	public List<Language> listLanguages(final Optional<String> aName, final Optional<String> aCountry,
 			final Optional<String> aVariant) throws PersistException {
 		return languagePersist.listLanguages(aName, aCountry, aVariant);
 	}
 
+	@Override
 	public Language getLanguage(final String aName, final String aCountry, final String aVariant)
 			throws PersistException {
 		return languagePersist.getLanguage(aName, aCountry, aVariant);
 	}
 
+	@Override
 	public Language createLanguage(final String aName, final String aCountry, final String aVariant,
 			final String aText) throws PersistException {
 		return languagePersist.createLanguage(aName, aCountry, aVariant, aText);
+	}
+
+	@Override
+	public Language updateLanguage(final String aName, final String aCountry, final String aVariant, final String aText)
+			throws PersistException {
+		return languagePersist.updateLanguage(aName, aCountry, aVariant, aText);
 	}
 
 }

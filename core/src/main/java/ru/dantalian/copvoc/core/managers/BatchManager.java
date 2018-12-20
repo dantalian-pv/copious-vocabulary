@@ -20,7 +20,7 @@ import ru.dantalian.copvoc.persist.api.model.CardBatchView;
 import ru.dantalian.copvoc.persist.api.model.Language;
 
 @Service
-public class BatchManager {
+public class BatchManager implements PersistBatchManager, PersistBatchViewManager {
 
 	@Autowired
 	private PersistBatchManager persistBatchManager;
@@ -47,41 +47,50 @@ public class BatchManager {
 		}
 	}
 
+	@Override
 	public CardBatch createBatch(final String aUser, final String aName, final String aDescription,
 			final Language aSource, final Language aTarget) throws PersistException {
 		return persistBatchManager.createBatch(aUser, aName, aDescription, aSource, aTarget);
 	}
 
+	@Override
 	public void updateBatch(final String aUser, final CardBatch aCardBatch) throws PersistException {
 		persistBatchManager.updateBatch(aUser, aCardBatch);
 	}
 
+	@Override
 	public CardBatch getBatch(final String aUser, final UUID aId) throws PersistException {
 		return persistBatchManager.getBatch(aUser, aId);
 	}
 
+	@Override
 	public CardBatch queryBatch(final String aUser, final String aName) throws PersistException {
 		return persistBatchManager.queryBatch(aUser, aName);
 	}
 
+	@Override
 	public List<CardBatch> listBatches(final String aUser) throws PersistException {
 		return persistBatchManager.listBatches(aUser);
 	}
 
+	@Override
 	public CardBatchView createBatchView(final UUID aBatchId, final String aCss, final String aFrontTpl,
 			final String aBackTpl) throws PersistException {
 		return persistViewManager.createBatchView(aBatchId, aCss, aFrontTpl, aBackTpl);
 	}
 
+	@Override
 	public void updateBatchView(final UUID aId, final String aCss, final String aFrontTpl,
 			final String aBackTpl) throws PersistException {
 		persistViewManager.updateBatchView(aId, aCss, aFrontTpl, aBackTpl);
 	}
 
+	@Override
 	public CardBatchView getBatchView(final UUID aId) throws PersistException {
 		return persistViewManager.getBatchView(aId);
 	}
 
+	@Override
 	public CardBatchView getBatchViewByBatchId(final UUID aBatchId) throws PersistException {
 		return persistViewManager.getBatchViewByBatchId(aBatchId);
 	}

@@ -10,9 +10,9 @@ public interface PersistCardFieldManager {
 
 	CardField createField(UUID aBatchId, String aName, CardFiledType aType) throws PersistException;
 
-	CardField getField(UUID aId) throws PersistException;
+	CardField getField(UUID aBatchId, String aName) throws PersistException;
 
-	void deleteField(UUID aId) throws PersistException;
+	void deleteField(UUID aBatchId, String aName) throws PersistException;
 
 	List<CardField> listFields(UUID aBatchId) throws PersistException;
 

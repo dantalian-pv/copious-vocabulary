@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<link th:fragment="headcss" th:remove="tag"></link>
+<object type="text/javascript" th:fragment="headscript" th:remove="tag">
+	<script th:src="@{/js/tpl/root/form.js}"></script>
+	<script th:src="@{/js/tpl/form.js}"></script>
+	<script th:src="@{/js/tpl/cards.js}"></script>
+</object>
+</head>
+
+<body th:fragment="body" th:remove="tag">
+	<div class="ui top attached button" tabindex="0" data-bind="click: showItemForm">
+		<i class="add icon"></i>Add Card
+	</div>
+	<div class="ui attached segment">
+		<div class="ui relaxed divided list" data-bind="foreach: items">
+			<div class="item">
+				<i class="large github middle aligned icon"></i>
+				<div class="content">
+					<a class="header" data-bind="text: name, attr: { href: link }"></a>
+					<div class="description" data-bind="text: sourceName() + ' -> ' + targetName()"></div>
+					<div class="description" data-bind="text: description"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="forms/batch_form::body" th:remove="tag"></div>
+</body>
+</html>

@@ -7,8 +7,6 @@ import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 
 public class PojoCardField implements CardField {
 
-	private UUID id;
-
 	private UUID batchId;
 
 	private String name;
@@ -18,21 +16,11 @@ public class PojoCardField implements CardField {
 	public PojoCardField() {
 	}
 
-	public PojoCardField(final UUID aId, final UUID aBatchId, final String aName,
+	public PojoCardField(final UUID aBatchId, final String aName,
 			final CardFiledType aType) {
-		id = aId;
 		batchId = aBatchId;
 		name = aName;
 		type = aType;
-	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(final UUID aId) {
-		id = aId;
 	}
 
 	@Override
@@ -64,7 +52,7 @@ public class PojoCardField implements CardField {
 
 	@Override
 	public String toString() {
-		return "PojoCardField [id=" + id + ", batchId=" + batchId + ", name=" + name + ", type=" + type + "]";
+		return "PojoCardField [batchId=" + batchId + ", name=" + name + ", type=" + type + "]";
 	}
 
 }

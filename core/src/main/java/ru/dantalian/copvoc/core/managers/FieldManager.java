@@ -20,7 +20,7 @@ import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 
 @Service
-public class FieldManager {
+public class FieldManager implements PersistCardFieldManager {
 
 	@Autowired
 	private PersistCardFieldManager persistFieldManager;
@@ -39,19 +39,23 @@ public class FieldManager {
 		}
 	}
 
+	@Override
 	public CardField createField(final UUID aBatchId, final String aName,
 			final CardFiledType aType) throws PersistException {
 		return persistFieldManager.createField(aBatchId, aName, aType);
 	}
 
-	public CardField getField(final UUID aId) throws PersistException {
-		return persistFieldManager.getField(aId);
+	@Override
+	public CardField getField(final UUID aBatchId, final String aName) throws PersistException {
+		return persistFieldManager.getField(aBatchId, aName);
 	}
 
-	public void deleteField(final UUID aId) throws PersistException {
-		persistFieldManager.deleteField(aId);
+	@Override
+	public void deleteField(final UUID aBatchId, final String aName) throws PersistException {
+		persistFieldManager.deleteField(aBatchId, aName);
 	}
 
+	@Override
 	public List<CardField> listFields(final UUID aBatchId) throws PersistException {
 		return persistFieldManager.listFields(aBatchId);
 	}

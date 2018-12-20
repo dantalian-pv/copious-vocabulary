@@ -31,35 +31,40 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager {
 	public CardField createField(final UUID aBatchId, final String aName,
 			final CardFiledType aType) throws PersistException {
 		try {
-			final UUID id = UUID.randomUUID();
-			db.update("INSERT INTO card_field (id, batch_id, name, \"type\") VALUES (?, ?, ?, ?)",
-					id.toString(), aBatchId.toString(), aName, aType.name());
-			return toCardField(new DbCardField(id, aBatchId, aName, aType));
+			db.update("INSERT INTO card_field (batch_id, name, \"type\") "
+					+ " VALUES (?, ?, ?)",
+					aBatchId.toString(), aName, aType.name());
+			return toCardField(new DbCardField(aBatchId, aName, aType));
 		} catch (final DataAccessException e) {
 			throw new PersistException("Failed to create a field", e);
 		}
 	}
 
 	@Override
-	public CardField getField(final UUID aId) throws PersistException {
+	public CardField getField(final UUID aBatchId, final String aName) throws PersistException {
 		try {
-			final List<DbCardField> list = db.query("select * from card_field where id = ?",
+			final List<DbCardField> list = db.query("select * from card_field "
+					+ " WHERE batch_id = ?"
+					+ " AND name = ?",
 					new Object[] {
-							aId.toString()
+							aBatchId.toString(),
+							aName
 					},
 					mapper);
 			return toCardField(CollectionUtils.lastElement(list));
 		} catch (final DataAccessException e) {
-			throw new PersistException("Failed to get a field by id " + aId, e);
+			throw new PersistException("Failed to get a field by batch_id: " + aBatchId + " name: " + aName, e);
 		}
 	}
 
 	@Override
-	public void deleteField(final UUID aId) throws PersistException {
+	public void deleteField(final UUID aBatchId, final String aName) throws PersistException {
 		try {
 			db.update("DELETE FROM card_field "
-					+ " WHERE id = ?",
-					aId);
+					+ " WHERE batch_id = ?"
+					+ " AND name = ?",
+					aBatchId.toString(),
+					aName);
 		} catch (final DataAccessException e) {
 			throw new PersistException("Failed to delete a field", e);
 		}
@@ -82,7 +87,7 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager {
 	}
 
 	private CardField toCardField(final DbCardField aDbCardField) {
-		return new PojoCardField(aDbCardField.getId(), aDbCardField.getBatchId(), aDbCardField.getName(),
+		return new PojoCardField(aDbCardField.getBatchId(), aDbCardField.getName(),
 				aDbCardField.getType());
 	}
 
