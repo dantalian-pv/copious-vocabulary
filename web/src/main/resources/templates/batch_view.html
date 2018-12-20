@@ -2,17 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<object th:fragment="headcss" th:remove="tag">
-		<style type="text/css" th:text="${css}"></style>
+		<style type="text/css" th:text="${batchView.css}"></style>
 	</object>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
-	<script th:src="@{/js/tpl/main.js}"></script>
 </object>
 </head>
-<body>
-	<div th:replace="front::body"></div>
+<body th:fragment="body" th:remove="tag">
+	<div th:replace="${'front/' + batchView.id}::body"></div>
 	<hr/>
-	<div th:replace="back::body"></div>
+	<div th:replace="${'back/' + batchView.id}::body"></div>
 </body>
 </html>

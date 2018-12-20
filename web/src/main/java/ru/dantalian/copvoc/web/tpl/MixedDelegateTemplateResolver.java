@@ -17,7 +17,7 @@ public class MixedDelegateTemplateResolver extends SpringResourceTemplateResolve
 			final String aOwnerTemplate, final String aTemplate,
 			final String aResourceName, final String aCharacterEncoding,
 			final Map<String, Object> aTemplateResolutionAttributes) {
-		if (aTemplate.equals("front") || aTemplate.equals("back")) {
+		if (aTemplate.startsWith("front/") || aTemplate.startsWith("back/")) {
 			return cardViewTemplateResolver.computeTemplateResource(aConfiguration,
 					aOwnerTemplate, aTemplate, aTemplateResolutionAttributes);
 		}

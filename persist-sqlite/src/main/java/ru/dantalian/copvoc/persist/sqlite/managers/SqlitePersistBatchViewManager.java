@@ -73,7 +73,24 @@ public class SqlitePersistBatchViewManager implements PersistBatchViewManager {
 		}
 	}
 
+	@Override
+	public CardBatchView getBatchViewByBatchId(final UUID aBatchId) throws PersistException {
+		try {
+			final List<DbCardBatchView> list = db.query("select * from card_batch_view where batch_id = ?",
+					new Object[] {
+							aBatchId.toString()
+					},
+					mapper);
+			return toCardBatchView(CollectionUtils.lastElement(list));
+		} catch (final DataAccessException e) {
+			throw new PersistException("Failed to get a CardBatchView by batchId " + aBatchId, e);
+		}
+	}
+
 	private CardBatchView toCardBatchView(final DbCardBatchView aDbCardBatchView) {
+		if (aDbCardBatchView == null) {
+			return null;
+		}
 		return new PojoCardBatchView(aDbCardBatchView.getId(), aDbCardBatchView.getBatchId(),
 				aDbCardBatchView.getCss(), aDbCardBatchView.getFrontTpl(), aDbCardBatchView.getBackTpl());
 	}

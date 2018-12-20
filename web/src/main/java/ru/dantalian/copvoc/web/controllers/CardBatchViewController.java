@@ -20,10 +20,10 @@ public class CardBatchViewController {
 	@Autowired
 	private BatchManager batchManager;
 
-	@RequestMapping("/batch_views/{id}")
-	public String view(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
+	@RequestMapping("/batch_views/{batch_id}")
+	public String view(@PathVariable("batch_id") final String aBatchId, final Principal aPrincipal, final Model aModel)
 			throws PersistException {
-		final CardBatchView batchView = batchManager.getBatchView(UUID.fromString(aId));
+		final CardBatchView batchView = batchManager.getBatchViewByBatchId(UUID.fromString(aBatchId));
 		if (batchView == null) {
 			throw new PageNotFoundException();
 		}
@@ -35,6 +35,8 @@ public class CardBatchViewController {
 		aModel.addAttribute("tpl", "batch_view");
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", batch.getName());
+		aModel.addAttribute("batch", batch);
+		aModel.addAttribute("batchView", batchView);
 		return "frame";
 	}
 

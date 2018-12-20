@@ -82,4 +82,8 @@ public class BatchManager {
 		return persistViewManager.getBatchView(aId);
 	}
 
+	public CardBatchView getBatchViewByBatchId(final UUID aBatchId) throws PersistException {
+		return persistViewManager.getBatchViewByBatchId(aBatchId);
+	}
+
 }

@@ -14,4 +14,6 @@ public interface PersistBatchViewManager {
 
 	CardBatchView getBatchView(UUID aId) throws PersistException;
 
+	CardBatchView getBatchViewByBatchId(UUID aBatchId) throws PersistException;
+
 }

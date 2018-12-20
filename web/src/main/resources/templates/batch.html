@@ -33,9 +33,9 @@
 	</div>
 	<div class="ui divider"></div>
 	<div class="ui buttons">
-		<div class="ui green button" data-bind="click: showListCards">
+		<a th:href="'/batch_views/' + ${batch.id}" class="ui green button">
 			<i class="save icon"></i>View Cards
-		</div>
+		</a>
 		<div class="or"></div>
 		<div class="ui orange button" data-bind="click: showTraining">
 			<i class="keyboard icon"></i>Training
