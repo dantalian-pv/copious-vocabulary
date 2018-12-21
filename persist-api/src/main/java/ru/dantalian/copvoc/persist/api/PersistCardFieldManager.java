@@ -8,12 +8,12 @@ import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 
 public interface PersistCardFieldManager {
 
-	CardField createField(UUID aBatchId, String aName, CardFiledType aType) throws PersistException;
+	CardField createField(String aUser, UUID aVocabularyId, String aName, CardFiledType aType) throws PersistException;
 
-	CardField getField(UUID aBatchId, String aName) throws PersistException;
+	CardField getField(String aUser, UUID aVocabularyId, String aName) throws PersistException;
 
-	void deleteField(UUID aBatchId, String aName) throws PersistException;
+	void deleteField(String aUser, UUID aVocabularyId, String aName) throws PersistException;
 
-	List<CardField> listFields(UUID aBatchId) throws PersistException;
+	List<CardField> listFields(String aUser, UUID aVocabularyId) throws PersistException;
 
 }

@@ -14,86 +14,105 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.dantalian.copvoc.core.managers.BatchManager;
-import ru.dantalian.copvoc.core.managers.FieldManager;
+import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.core.utils.BatchUtils;
+import ru.dantalian.copvoc.core.utils.FieldUtils;
+import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.api.model.CardBatch;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
+import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.Language;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
+import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.impl.model.PojoCardBatch;
+import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 import ru.dantalian.copvoc.web.controllers.BadUserRequestException;
-import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardBatch;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoVocabulary;
 
 @RestController
-@RequestMapping(value = "/v1/api/batches", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/v1/api/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestBatchController {
 
 	@Autowired
-	private BatchManager mBatchPersist;
+	private PersistVocabularyManager batchPersist;
 
 	@Autowired
-	private FieldManager mFieldManager;
+	private PersistVocabularyViewManager batchViewPersist;
+
+	@Autowired
+	private PersistCardFieldManager fieldManager;
+
+	@Autowired
+	private FieldUtils fieldUtils;
+
+	@Autowired
+	private BatchUtils batchUtils;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public List<DtoCardBatch> listBatches(final Principal aPrincipal) throws PersistException {
+	public List<DtoVocabulary> listBatches(final Principal aPrincipal) throws PersistException {
 		final String user = aPrincipal.getName();
-		return mBatchPersist.listBatches(user)
+		return batchPersist.listVocabularies(user)
 				.stream()
-				.map(this::asDtoCardBatch)
+				.map(this::asDtoVocabulary)
 				.collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public DtoCardBatch getBatch(final Principal aPrincipal, @PathVariable(value = "id") final String id)
+	public DtoVocabulary getBatch(final Principal aPrincipal, @PathVariable(value = "id") final String id)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final CardBatch cardBatch = mBatchPersist.getBatch(user, UUID.fromString(id));
+		final Vocabulary cardBatch = batchPersist.getVocabulary(user, UUID.fromString(id));
 		if (cardBatch == null) {
-			throw new PersistException("CardBatch with id: " + id + " not found");
+			throw new PersistException("Vocabulary with id: " + id + " not found");
 		}
-		return asDtoCardBatch(cardBatch);
+		return asDtoVocabulary(cardBatch);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public DtoCardBatch createBatch(final Principal aPrincipal, @RequestBody final DtoCardBatch aCardBatch)
-			throws PersistException {
+	public DtoVocabulary createBatch(final Principal aPrincipal, @RequestBody final DtoVocabulary aVocabulary)
+			throws PersistException, CoreException {
 		final String user = aPrincipal.getName();
-		final CardBatch queryBatch = mBatchPersist.queryBatch(user, aCardBatch.getName());
+		final Vocabulary queryBatch = batchPersist.queryVocabulary(user, aVocabulary.getName());
 		if (queryBatch != null) {
-			throw new BadUserRequestException("CardBatch with given name already exists");
+			throw new BadUserRequestException("Vocabulary with given name already exists");
 		}
-		final CardBatch batch = mBatchPersist.createBatch(user, aCardBatch.getName(), aCardBatch.getDescription(),
-				asLanguage(aCardBatch.getSourceId()), asLanguage(aCardBatch.getTargetId()));
+		final Vocabulary voc = batchPersist.createVocabulary(user, aVocabulary.getName(), aVocabulary.getDescription(),
+				asLanguage(aVocabulary.getSourceId()), asLanguage(aVocabulary.getTargetId()));
 		// Init default fields
-		mFieldManager.initPredefinedFields(batch.getId());
+		final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc.getId());
+		for (final CardField field: defaultFields) {
+			fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+		}
 		// Init default view
-		mBatchPersist.initDefaultView(batch.getId());
-		return asDtoCardBatch(batch);
+		final VocabularyView vocView = batchUtils.getDefaultView(voc.getId());
+		batchViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
+		return asDtoVocabulary(voc);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateBatch(final Principal aPrincipal, @RequestBody final DtoCardBatch aCardBatch)
+	public void updateBatch(final Principal aPrincipal, @RequestBody final DtoVocabulary aCardBatch)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		mBatchPersist.updateBatch(user, asCardBatch(user, aCardBatch));
+		batchPersist.updateVocabulary(user, asVocabulary(user, aCardBatch));
 	}
 
-	private DtoCardBatch asDtoCardBatch(final CardBatch aCardBatch) {
-		if (aCardBatch == null) {
+	private DtoVocabulary asDtoVocabulary(final Vocabulary aVocabulary) {
+		if (aVocabulary == null) {
 			return null;
 		}
-		return new DtoCardBatch(aCardBatch.getId().toString(), aCardBatch.getName(), aCardBatch.getDescription(),
-				LanguageUtils.asString(aCardBatch.getSource()), aCardBatch.getSource().getText(),
-				LanguageUtils.asString(aCardBatch.getTarget()), aCardBatch.getTarget().getText());
+		return new DtoVocabulary(aVocabulary.getId().toString(), aVocabulary.getName(), aVocabulary.getDescription(),
+				LanguageUtils.asString(aVocabulary.getSource()), aVocabulary.getSource().getText(),
+				LanguageUtils.asString(aVocabulary.getTarget()), aVocabulary.getTarget().getText());
 	}
 
 	private Language asLanguage(final String aLanguage) {
 		return LanguageUtils.asLanguage(aLanguage);
 	}
 
-	private CardBatch asCardBatch(final String aUser, final DtoCardBatch aDtoCardBatch) {
-		return new PojoCardBatch(UUID.fromString(aDtoCardBatch.getId()), aDtoCardBatch.getName(),
+	private Vocabulary asVocabulary(final String aUser, final DtoVocabulary aDtoCardBatch) {
+		return new PojoVocabulary(UUID.fromString(aDtoCardBatch.getId()), aDtoCardBatch.getName(),
 				aDtoCardBatch.getDescription(), aUser,
 				asLanguage(aDtoCardBatch.getSourceId()), asLanguage(aDtoCardBatch.getTargetId()));
 	}

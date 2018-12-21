@@ -7,7 +7,7 @@ import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 
 public class PojoCardField implements CardField {
 
-	private UUID batchId;
+	private UUID vocabularyId;
 
 	private String name;
 
@@ -16,20 +16,20 @@ public class PojoCardField implements CardField {
 	public PojoCardField() {
 	}
 
-	public PojoCardField(final UUID aBatchId, final String aName,
+	public PojoCardField(final UUID aVocabularyId, final String aName,
 			final CardFiledType aType) {
-		batchId = aBatchId;
+		vocabularyId = aVocabularyId;
 		name = aName;
 		type = aType;
 	}
 
 	@Override
-	public UUID getBatchId() {
-		return batchId;
+	public UUID getVocabularyId() {
+		return vocabularyId;
 	}
 
-	public void setBatchId(final UUID aBatchId) {
-		batchId = aBatchId;
+	public void setVocabularyId(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class PojoCardField implements CardField {
 
 	@Override
 	public String toString() {
-		return "PojoCardField [batchId=" + batchId + ", name=" + name + ", type=" + type + "]";
+		return "PojoCardField [vocabularyId=" + vocabularyId + ", name=" + name + ", type=" + type + "]";
 	}
 
 }

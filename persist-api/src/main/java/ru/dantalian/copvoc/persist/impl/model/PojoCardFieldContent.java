@@ -8,7 +8,7 @@ public class PojoCardFieldContent implements CardFieldContent {
 
 	private UUID cardId;
 
-	private UUID batchId;
+	private UUID vocabularyId;
 
 	private String fieldName;
 
@@ -17,9 +17,9 @@ public class PojoCardFieldContent implements CardFieldContent {
 	public PojoCardFieldContent() {
 	}
 
-	public PojoCardFieldContent(final UUID aCardId, final UUID aBatchId, final String aFieldName, final String aContent) {
+	public PojoCardFieldContent(final UUID aCardId, final UUID aVocabularyId, final String aFieldName, final String aContent) {
 		cardId = aCardId;
-		batchId = aBatchId;
+		vocabularyId = aVocabularyId;
 		fieldName = aFieldName;
 		content = aContent;
 	}
@@ -34,12 +34,12 @@ public class PojoCardFieldContent implements CardFieldContent {
 	}
 
 	@Override
-	public UUID getBatchId() {
-		return batchId;
+	public UUID getVocabularyId() {
+		return vocabularyId;
 	}
 
-	public void setBatchId(final UUID aBatchId) {
-		batchId = aBatchId;
+	public void setVocabularyId(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class PojoCardFieldContent implements CardFieldContent {
 
 	@Override
 	public String toString() {
-		return "PojoCardFieldContent [cardId=" + cardId + ", batchId=" + batchId + ", fieldName=" + fieldName + "]";
+		return "PojoCardFieldContent [cardId=" + cardId + ", vocabularyId=" + vocabularyId + ", fieldName=" + fieldName + "]";
 	}
 
 }

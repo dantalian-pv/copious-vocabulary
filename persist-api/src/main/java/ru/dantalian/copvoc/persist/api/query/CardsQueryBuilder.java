@@ -6,6 +6,6 @@ import ru.dantalian.copvoc.persist.api.Builder;
 
 public interface CardsQueryBuilder extends Builder<CardsQuery> {
 
-	CardsQueryBuilder setBatchId(UUID aBatchId);
+	CardsQueryBuilder setVocabularyId(UUID aBatchId);
 
 }

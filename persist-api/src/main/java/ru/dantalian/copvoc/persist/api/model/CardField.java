@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public interface CardField {
 
-	UUID getBatchId();
+	UUID getVocabularyId();
 
 	String getName();
 

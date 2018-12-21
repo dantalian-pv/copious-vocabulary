@@ -10,7 +10,7 @@ import org.thymeleaf.templateresource.ITemplateResource;
 public class MixedDelegateTemplateResolver extends SpringResourceTemplateResolver {
 
 	@Autowired
-	private CardBatchViewTemplateResolver cardViewTemplateResolver;
+	private VocabularyViewTemplateResolver cardViewTemplateResolver;
 
 	@Override
 	protected ITemplateResource computeTemplateResource(final IEngineConfiguration aConfiguration,

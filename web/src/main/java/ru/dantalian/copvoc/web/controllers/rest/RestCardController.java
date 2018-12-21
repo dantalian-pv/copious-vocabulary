@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.dantalian.copvoc.core.managers.CardManager;
+import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
@@ -31,14 +31,14 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 public class RestCardController {
 
 	@Autowired
-	private CardManager mCardManager;
+	private PersistCardManager mCardManager;
 
 	@RequestMapping(value = "/{batch_id}", method = RequestMethod.GET)
 	public List<DtoCard> listCards(@PathVariable(value = "batch_id") final String aBatchId,
 			final Principal aPrincipal) throws PersistException {
 		final String user = aPrincipal.getName();
-		return mCardManager.queryCards(QueryFactory.newCardsQuery()
-				.setBatchId(UUID.fromString(aBatchId)).build())
+		return mCardManager.queryCards(user, QueryFactory.newCardsQuery()
+				.setVocabularyId(UUID.fromString(aBatchId)).build())
 				.stream()
 				.map(this::asDtoCard)
 				.collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class RestCardController {
 	public DtoCard getCard(@PathVariable(value = "id") final String aId, final Principal aPrincipal)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final Card card = mCardManager.getCard(UUID.fromString(aId));
+		final Card card = mCardManager.getCard(user, UUID.fromString(aId));
 		if (card == null) {
 			throw new PersistException("Card with id: " + aId + " not found");
 		}
@@ -61,7 +61,7 @@ public class RestCardController {
 			throws PersistException {
 		final String user = aPrincipal.getName();
 		final Map<String, String> map = asMap(aCard.getContent());
-		final Card card = mCardManager.createCard(UUID.fromString(aCard.getBatchId()), map);
+		final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getBatchId()), map);
 		return asDtoCard(card);
 	}
 
@@ -70,7 +70,7 @@ public class RestCardController {
 			throws PersistException {
 		final String user = aPrincipal.getName();
 		final Map<String, String> map = asMap(aCard.getContent());
-		mCardManager.updateCard(UUID.fromString(aCard.getId()), map);
+		mCardManager.updateCard(user, UUID.fromString(aCard.getId()), map);
 	}
 
 	private Map<String, String> asMap(final List<DtoCardContent> aContent) {
@@ -91,7 +91,7 @@ public class RestCardController {
 			list.add(new DtoCardContent(entry.getKey(), entry.getValue().getContent()));
 		}
 		return new DtoCard(aCard.getId().toString(),
-				aCard.getBatchId().toString(), list);
+				aCard.getVocabularyId().toString(), list);
 	}
 
 }

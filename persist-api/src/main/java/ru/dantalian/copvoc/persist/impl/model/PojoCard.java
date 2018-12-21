@@ -12,16 +12,16 @@ public class PojoCard implements Card {
 
 	private UUID id;
 
-	private UUID batchId;
+	private UUID vocabularyId;
 
 	private Map<String, CardFieldContent> fieldsContent;
 
 	public PojoCard() {
 	}
 
-	public PojoCard(final UUID aId, final UUID aBatchId, final Map<String, CardFieldContent> aFieldsContent) {
+	public PojoCard(final UUID aId, final UUID aVocabularyId, final Map<String, CardFieldContent> aFieldsContent) {
 		id = aId;
-		batchId = aBatchId;
+		vocabularyId = aVocabularyId;
 		fieldsContent = aFieldsContent;
 	}
 
@@ -35,12 +35,12 @@ public class PojoCard implements Card {
 	}
 
 	@Override
-	public UUID getBatchId() {
-		return batchId;
+	public UUID getVocabularyId() {
+		return vocabularyId;
 	}
 
-	public void setBatchId(final UUID aBatchId) {
-		batchId = aBatchId;
+	public void setVocabularyId(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class PojoCard implements Card {
 
 	@Override
 	public String toString() {
-		return "PojoCard [id=" + id + ", batchId=" + batchId + ", fieldsContent=" + fieldsContent + "]";
+		return "PojoCard [id=" + id + ", vocabularyId=" + vocabularyId + ", fieldsContent=" + fieldsContent + "]";
 	}
 
 }

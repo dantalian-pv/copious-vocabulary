@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
-import ru.dantalian.copvoc.core.managers.PrincipalManager;
+import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
 import ru.dantalian.copvoc.web.security.DbUserDetailsService;
 import ru.dantalian.copvoc.web.tpl.MixedDelegateTemplateResolver;
 
@@ -21,7 +21,7 @@ import ru.dantalian.copvoc.web.tpl.MixedDelegateTemplateResolver;
 public class WebConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private PrincipalManager principalManager;
+	private PersistPrincipalManager principalManager;
 
 	@Autowired
 	private ApplicationContext applicationContext;

@@ -6,15 +6,15 @@ import ru.dantalian.copvoc.persist.api.query.CardsQuery;
 
 public class DefaultCardsQuery implements CardsQuery {
 
-	private final UUID batchId;
+	private final UUID vocabularyId;
 
-	public DefaultCardsQuery(final UUID aBatchId) {
-		batchId = aBatchId;
+	public DefaultCardsQuery(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	@Override
-	public UUID getBatchId() {
-		return batchId;
+	public UUID getVocabularyId() {
+		return vocabularyId;
 	}
 
 }

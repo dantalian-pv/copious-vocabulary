@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public interface CardsQuery {
 
-	UUID getBatchId();
+	UUID getVocabularyId();
 
 }

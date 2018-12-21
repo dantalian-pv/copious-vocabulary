@@ -9,18 +9,18 @@ import ru.dantalian.copvoc.persist.api.utils.Validator;
 
 public class DefaultCardsQueryBuilder implements CardsQueryBuilder {
 
-	private UUID batchId;
+	private UUID vocabularyId;
 
 	@Override
-	public CardsQueryBuilder setBatchId(final UUID aBatchId) {
-		batchId = aBatchId;
+	public CardsQueryBuilder setVocabularyId(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 		return this;
 	}
 
 	@Override
 	public CardsQuery build() throws PersistException {
-		batchId = Validator.checkNotNull(batchId, "batchId cannot be null");
-		return new DefaultCardsQuery(batchId);
+		vocabularyId = Validator.checkNotNull(vocabularyId, "vocabularyId cannot be null");
+		return new DefaultCardsQuery(vocabularyId);
 	}
 
 }

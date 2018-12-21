@@ -6,7 +6,7 @@ public interface CardFieldContent {
 
 	UUID getCardId();
 
-	UUID getBatchId();
+	UUID getVocabularyId();
 
 	String getFieldName();
 

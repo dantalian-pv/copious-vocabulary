@@ -7,7 +7,7 @@ public interface Card {
 
 	UUID getId();
 
-	UUID getBatchId();
+	UUID getVocabularyId();
 
 	Map<String, CardFieldContent> getFieldsContent();
 

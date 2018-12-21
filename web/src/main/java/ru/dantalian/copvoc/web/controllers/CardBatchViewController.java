@@ -9,34 +9,38 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ru.dantalian.copvoc.core.managers.BatchManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.api.model.CardBatch;
-import ru.dantalian.copvoc.persist.api.model.CardBatchView;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
+import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 
 @Controller
 public class CardBatchViewController {
 
 	@Autowired
-	private BatchManager batchManager;
+	private PersistVocabularyManager batchPersist;
 
-	@RequestMapping("/batch_views/{batch_id}")
-	public String view(@PathVariable("batch_id") final String aBatchId, final Principal aPrincipal, final Model aModel)
+	@Autowired
+	private PersistVocabularyViewManager batchViewPersist;
+
+	@RequestMapping("/vocabulary_views/{batch_id}")
+	public String view(@PathVariable("batch_id") final String aVocabularyId, final Principal aPrincipal, final Model aModel)
 			throws PersistException {
-		final CardBatchView batchView = batchManager.getBatchViewByBatchId(UUID.fromString(aBatchId));
-		if (batchView == null) {
+		final String user = aPrincipal.getName();
+		final VocabularyView vocView = batchViewPersist.getVocabularyView(user, UUID.fromString(aVocabularyId));
+		if (vocView == null) {
 			throw new PageNotFoundException();
 		}
-		final String user = aPrincipal.getName();
-		final CardBatch batch = batchManager.getBatch(user, batchView.getBatchId());
-		if (batch == null) {
+		final Vocabulary voc = batchPersist.getVocabulary(user, UUID.fromString(aVocabularyId));
+		if (voc == null) {
 			throw new PageNotFoundException();
 		}
 		aModel.addAttribute("tpl", "batch_view");
 		aModel.addAttribute("top_menu", true);
-		aModel.addAttribute("title", batch.getName());
-		aModel.addAttribute("batch", batch);
-		aModel.addAttribute("batchView", batchView);
+		aModel.addAttribute("title", voc.getName());
+		aModel.addAttribute("batch", voc);
+		aModel.addAttribute("batchView", vocView);
 		return "frame";
 	}
 
