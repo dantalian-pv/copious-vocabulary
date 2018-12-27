@@ -170,15 +170,15 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 			final List<Vocabulary> list = new LinkedList<>();
 			search.getHits()
 				.forEach(aItem -> {
-					Language source = LanguageUtils.asLanguage(aItem.field("source").getValue());
-					Language target = LanguageUtils.asLanguage(aItem.field("target").getValue());
+					final Map<String, Object> src = aItem.getSourceAsMap();
+					Language source = LanguageUtils.asLanguage((String) src.get("source"));
+					Language target = LanguageUtils.asLanguage((String) src.get("target"));
 					try {
 						source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 						target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
 					} catch (final PersistException e) {
 						throw new IllegalStateException("Failed to get languge", e);
 					}
-					final Map<String, Object> src = aItem.getSourceAsMap();
 					final PojoVocabulary vocabulary = new PojoVocabulary(UUID.fromString(aItem.getId()),
 							(String) src.get("name"),
 							(String) src.get("description"),
