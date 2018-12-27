@@ -19,18 +19,18 @@ import ru.dantalian.copvoc.web.controllers.PageNotFoundException;
 public class VocabularyViewTemplateResolver extends StringTemplateResolver {
 
 	@Autowired
-	private PersistVocabularyViewManager vocViewPersist;
+	private PersistVocabularyViewManager viewPersist;
 
 	@Override
 	protected ITemplateResource computeTemplateResource(final IEngineConfiguration aConfiguration,
 			final String aOwnerTemplate,
 			final String aTemplate,
 			final Map<String, Object> aTemplateResolutionAttributes) {
-		// No way to get mvc view model here, have to encode batchView id in template name
+		// No way to get mvc view model here, have to encode View id in template name
 		final String viewId = aTemplate.substring(aTemplate.indexOf("/") + 1);
 		final String tplName = aTemplate.substring(0, aTemplate.indexOf("/"));
 		try {
-			final VocabularyView view = vocViewPersist.getVocabularyView(null, UUID.fromString(viewId));
+			final VocabularyView view = viewPersist.getVocabularyView(null, UUID.fromString(viewId));
 			if (view == null) {
 				throw new PageNotFoundException();
 			}
@@ -43,7 +43,7 @@ public class VocabularyViewTemplateResolver extends StringTemplateResolver {
 					throw new PageNotFoundException();
 			}
 		} catch (final PersistException e) {
-			throw new RuntimeException("Failed to get batch view for " + viewId);
+			throw new RuntimeException("Failed to get view for " + viewId);
 		}
 	}
 

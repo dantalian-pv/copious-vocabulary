@@ -6,20 +6,20 @@
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
-	<script th:src="@{/js/tpl/batch.js}"></script>
+	<script th:src="@{/js/tpl/voc.js}"></script>
 </object>
 </head>
 
 <body th:fragment="body" th:remove="tag">
 	<div class="content">
-		<h1 class="header" th:text="${batch.name}"></h1>
-		<h2 class="description" th:text="${batch.source.text + ' -> ' + batch.target.text}"></h2>
-		<h2 class="description" th:text="${batch.description}"></h2>
+		<h1 class="header" th:text="${voc.name}"></h1>
+		<h2 class="description" th:text="${voc.source.text + ' -> ' + voc.target.text}"></h2>
+		<h2 class="description" th:text="${voc.description}"></h2>
 	</div>
 	<div class="ui divider"></div>
 	<div class="ui basic buttons">
-		<div class="ui button" data-bind="click: showEditBatch">
-			<i class="edit icon"></i>Edit Batch
+		<div class="ui button" data-bind="click: showEditVoc">
+			<i class="edit icon"></i>Edit Vocabulary Settings
 		</div>
 		<div class="ui button" data-bind="click: showEditView">
 			<i class="edit icon"></i>Edit View
@@ -28,14 +28,14 @@
 			<i class="edit icon"></i>Edit Fields
 		</div>
 		<div class="ui button">
-			<a th:href="'/batches/' + ${batch.id} + '/edit_cards'">
+			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_cards'">
 				<i class="edit icon"></i>Edit Cards
 			</a>
 		</div>
 	</div>
 	<div class="ui divider"></div>
 	<div class="ui buttons">
-		<a th:href="'/batch_views/' + ${batch.id}" class="ui green button">
+		<a th:href="'/views/' + ${voc.id}" class="ui green button">
 			<i class="save icon"></i>View Cards
 		</a>
 		<div class="or"></div>
@@ -43,6 +43,6 @@
 			<i class="keyboard icon"></i>Training
 		</div>
 	</div>
-	<div th:replace="forms/batch_form::body" th:remove="tag"></div>
+	<div th:replace="forms/voc_form::body" th:remove="tag"></div>
 </body>
 </html>

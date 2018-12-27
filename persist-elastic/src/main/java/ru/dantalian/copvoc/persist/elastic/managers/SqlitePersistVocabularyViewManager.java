@@ -1,6 +1,7 @@
 package ru.dantalian.copvoc.persist.elastic.managers;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import org.elasticsearch.ElasticsearchException;
@@ -28,7 +29,7 @@ import ru.dantalian.copvoc.persist.elastic.model.DbVocabularyView;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 
 @Service
-public class SqlitePersistBatchViewManager implements PersistVocabularyViewManager, IndexHandler {
+public class SqlitePersistVocabularyViewManager implements PersistVocabularyViewManager, IndexHandler {
 
 	private static final String DEFAULT_INDEX = "views";
 
@@ -90,21 +91,22 @@ public class SqlitePersistBatchViewManager implements PersistVocabularyViewManag
 			if (!response.isExists()) {
 				return null;
 			}
+			final Map<String, Object> src = response.getSourceAsMap();
 			return new PojoVocabularyView(UUID.fromString(response.getId()),
-					response.getField("css").getValue(),
-					response.getField("front").getValue(),
-					response.getField("back").getValue());
+					(String) src.get("css"),
+					(String) src.get("front"),
+					(String) src.get("back"));
 		} catch (final Exception e) {
 			throw new PersistException("Failed to update a card", e);
 		}
 	}
 
-	private VocabularyView toCardBatchView(final DbVocabularyView aDbCardBatchView) {
-		if (aDbCardBatchView == null) {
+	private VocabularyView toCardVocabularyView(final DbVocabularyView aDbCardVocabularyView) {
+		if (aDbCardVocabularyView == null) {
 			return null;
 		}
-		return new PojoVocabularyView(aDbCardBatchView.getVocabularyId(),
-				aDbCardBatchView.getCss(), aDbCardBatchView.getFrontTpl(), aDbCardBatchView.getBackTpl());
+		return new PojoVocabularyView(aDbCardVocabularyView.getVocabularyId(),
+				aDbCardVocabularyView.getCss(), aDbCardVocabularyView.getFrontTpl(), aDbCardVocabularyView.getBackTpl());
 	}
 
 	@Override
@@ -141,6 +143,7 @@ public class SqlitePersistBatchViewManager implements PersistVocabularyViewManag
 		}
 		builder.endObject();
 		createIndex.mapping("_doc", builder);
+		client.indices().create(createIndex, RequestOptions.DEFAULT);
 	}
 
 	@Override

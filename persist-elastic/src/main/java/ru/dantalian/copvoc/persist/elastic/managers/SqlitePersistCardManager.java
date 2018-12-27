@@ -185,6 +185,7 @@ public class SqlitePersistCardManager implements PersistCardManager, IndexHandle
 			}
 			builder.endObject();
 			createIndex.mapping("_doc", builder);
+			client.indices().create(createIndex, RequestOptions.DEFAULT);
 		}
 	}
 

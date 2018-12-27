@@ -6,16 +6,16 @@ public class DtoCard {
 
 	private String id;
 
-	private String batchId;
+	private String vocabularyId;
 
 	private List<DtoCardContent> content;
 
 	public DtoCard() {
 	}
 
-	public DtoCard(final String aId, final String aBatchId, final List<DtoCardContent> aContent) {
+	public DtoCard(final String aId, final String aVocabularyId, final List<DtoCardContent> aContent) {
 		id = aId;
-		batchId = aBatchId;
+		vocabularyId = aVocabularyId;
 		content = aContent;
 	}
 
@@ -27,12 +27,12 @@ public class DtoCard {
 		id = aId;
 	}
 
-	public String getBatchId() {
-		return batchId;
+	public String getVocabularyId() {
+		return vocabularyId;
 	}
 
-	public void setBatchId(final String aBatchId) {
-		batchId = aBatchId;
+	public void setVocabularyId(final String aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	public List<DtoCardContent> getContent() {

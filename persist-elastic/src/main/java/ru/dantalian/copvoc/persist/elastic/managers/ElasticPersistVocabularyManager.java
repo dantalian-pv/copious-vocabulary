@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.elasticsearch.ElasticsearchException;
@@ -39,7 +40,7 @@ import ru.dantalian.copvoc.persist.elastic.model.DbVocabulary;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 
 @Service
-public class ElasticPersistBatchManager implements PersistVocabularyManager, IndexHandler {
+public class ElasticPersistVocabularyManager implements PersistVocabularyManager, IndexHandler {
 
 	private static final String DEFAULT_INDEX = "vocabularies";
 
@@ -109,14 +110,15 @@ public class ElasticPersistBatchManager implements PersistVocabularyManager, Ind
 			if (!response.isExists()) {
 				return null;
 			}
-			Language source = LanguageUtils.asLanguage(response.getField("source").getValue());
-			Language target = LanguageUtils.asLanguage(response.getField("target").getValue());
+			final Map<String, Object> src = response.getSourceAsMap();
+			Language source = LanguageUtils.asLanguage((String) src.get("source"));
+			Language target = LanguageUtils.asLanguage((String) src.get("target"));
 			source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 			target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
 			return new PojoVocabulary(UUID.fromString(response.getId()),
-					response.getField("name").getValue(),
-					response.getField("description").getValue(),
-					response.getField("user").getValue(),
+					(String) src.get("name"),
+					(String) src.get("description"),
+					(String) src.get("user"),
 					source,
 					target);
 		} catch (final Exception e) {
@@ -145,10 +147,11 @@ public class ElasticPersistBatchManager implements PersistVocabularyManager, Ind
 			Language target = LanguageUtils.asLanguage(hit.field("target").getValue());
 			source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 			target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
+			final Map<String, Object> src = hit.getSourceAsMap();
 			return new PojoVocabulary(UUID.fromString(hit.getId()),
-					hit.field("name").getValue(),
-					hit.field("description").getValue(),
-					hit.field("user").getValue(),
+					(String) src.get("name"),
+					(String) src.get("description"),
+					(String) src.get("user"),
 					source, target);
 		} catch (final Exception e) {
 			throw new PersistException("Failed list languages", e);
@@ -175,11 +178,11 @@ public class ElasticPersistBatchManager implements PersistVocabularyManager, Ind
 					} catch (final PersistException e) {
 						throw new IllegalStateException("Failed to get languge", e);
 					}
-
+					final Map<String, Object> src = aItem.getSourceAsMap();
 					final PojoVocabulary vocabulary = new PojoVocabulary(UUID.fromString(aItem.getId()),
-							aItem.field("name").getValue(),
-							aItem.field("description").getValue(),
-							aItem.field("user").getValue(),
+							(String) src.get("name"),
+							(String) src.get("description"),
+							(String) src.get("user"),
 							source, target);
 					list.add(vocabulary);
 				});
@@ -197,16 +200,16 @@ public class ElasticPersistBatchManager implements PersistVocabularyManager, Ind
 		}
 	}
 
-	private Vocabulary toVocabulary(final DbVocabulary aDbCardBatch) throws PersistException {
-		if (aDbCardBatch == null) {
+	private Vocabulary toVocabulary(final DbVocabulary aDbCardVocabulary) throws PersistException {
+		if (aDbCardVocabulary == null) {
 			return null;
 		}
-		Language source = LanguageUtils.asLanguage(aDbCardBatch.getSource());
-		Language target = LanguageUtils.asLanguage(aDbCardBatch.getTarget());
+		Language source = LanguageUtils.asLanguage(aDbCardVocabulary.getSource());
+		Language target = LanguageUtils.asLanguage(aDbCardVocabulary.getTarget());
 		source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 		target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
-		return new PojoVocabulary(aDbCardBatch.getId(), aDbCardBatch.getName(), aDbCardBatch.getDescription(),
-				aDbCardBatch.getUser(), source, target);
+		return new PojoVocabulary(aDbCardVocabulary.getId(), aDbCardVocabulary.getName(), aDbCardVocabulary.getDescription(),
+				aDbCardVocabulary.getUser(), source, target);
 	}
 
 	@Override
@@ -246,6 +249,7 @@ public class ElasticPersistBatchManager implements PersistVocabularyManager, Ind
 		}
 		builder.endObject();
 		createIndex.mapping("_doc", builder);
+		client.indices().create(createIndex, RequestOptions.DEFAULT);
 	}
 
 	@Override

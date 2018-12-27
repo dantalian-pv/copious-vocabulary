@@ -23,7 +23,7 @@ $(document).ready(
 
 			function Item(data) {
 				this.id = ko.observable(data.id);
-				this.link = ko.observable("/batches/" + data.id)
+				this.link = ko.observable("/vocabularies/" + data.id)
 				this.name = ko.observable(data.name)
 				this.description = ko.observable(data.description);
 				this.sourceId = ko.observable(data.sourceId);
@@ -65,9 +65,9 @@ $(document).ready(
 						this.sourceId('');
 						this.targetId('')
 					},
-					url : '/v1/api/batches',
-					formSelector : '#add_card_batch_form',
-					modalSelector : '#add_card_batch',
+					url : '/v1/api/vocabularies',
+					formSelector : '#add_voc_form',
+					modalSelector : '#add_voc',
 					initItem : function() {
 						this.id = ko.observable();
 						this.name = ko.observable();
@@ -78,7 +78,7 @@ $(document).ready(
 				});
 
 				// Operations
-				self.showEditBatch = function() {
+				self.showEditVoc = function() {
 					
 				};
 				self.showEditView = function() {

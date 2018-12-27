@@ -17,37 +17,37 @@ import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 public class VocabularyController {
 
 	@Autowired
-	private PersistVocabularyManager batchManager;
+	private PersistVocabularyManager vocManager;
 
 	@RequestMapping("/vocabularies/{id}")
-	public String batch(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
+	public String voc(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final Vocabulary batch = batchManager.getVocabulary(user, UUID.fromString(aId));
-		if (batch == null) {
+		final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aId));
+		if (voc == null) {
 			throw new PageNotFoundException();
 		}
 
-		aModel.addAttribute("tpl", "batch");
-		aModel.addAttribute("batch", batch);
+		aModel.addAttribute("tpl", "voc");
+		aModel.addAttribute("voc", voc);
 		aModel.addAttribute("top_menu", true);
-		aModel.addAttribute("title", batch.getName());
+		aModel.addAttribute("title", voc.getName());
 		return "frame";
 	}
 
-	@RequestMapping("/batches/{id}/edit_cards")
-	public String editBatch(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
+	@RequestMapping("/vocabularies/{id}/edit_cards")
+	public String editVoc(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final Vocabulary batch = batchManager.getVocabulary(user, UUID.fromString(aId));
-		if (batch == null) {
+		final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aId));
+		if (voc == null) {
 			throw new PageNotFoundException();
 		}
 
-		aModel.addAttribute("tpl", "batch/edit_cards");
-		aModel.addAttribute("batch", batch);
+		aModel.addAttribute("tpl", "voc/edit_cards");
+		aModel.addAttribute("voc", voc);
 		aModel.addAttribute("top_menu", true);
-		aModel.addAttribute("title", "Edit " + batch.getName());
+		aModel.addAttribute("title", "Edit " + voc.getName());
 		return "frame";
 	}
 

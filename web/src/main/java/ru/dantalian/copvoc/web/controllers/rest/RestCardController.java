@@ -33,18 +33,18 @@ public class RestCardController {
 	@Autowired
 	private PersistCardManager mCardManager;
 
-	@RequestMapping(value = "/{batch_id}", method = RequestMethod.GET)
-	public List<DtoCard> listCards(@PathVariable(value = "batch_id") final String aBatchId,
+	@RequestMapping(value = "/{voc_id}", method = RequestMethod.GET)
+	public List<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
 			final Principal aPrincipal) throws PersistException {
 		final String user = aPrincipal.getName();
 		return mCardManager.queryCards(user, QueryFactory.newCardsQuery()
-				.setVocabularyId(UUID.fromString(aBatchId)).build())
+				.setVocabularyId(UUID.fromString(aVocabularyId)).build())
 				.stream()
 				.map(this::asDtoCard)
 				.collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/{batch_id}/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.GET)
 	public DtoCard getCard(@PathVariable(value = "id") final String aId, final Principal aPrincipal)
 			throws PersistException {
 		final String user = aPrincipal.getName();
@@ -61,7 +61,7 @@ public class RestCardController {
 			throws PersistException {
 		final String user = aPrincipal.getName();
 		final Map<String, String> map = asMap(aCard.getContent());
-		final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getBatchId()), map);
+		final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
 		return asDtoCard(card);
 	}
 

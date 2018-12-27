@@ -23,7 +23,7 @@ $(document).ready(
 
 			function Item(data) {
 				this.id = ko.observable(data.id);
-				this.link = ko.observable("/batches/" + data.id)
+				this.link = ko.observable("/vocabularies/" + data.id)
 				this.name = ko.observable(data.name)
 				this.description = ko.observable(data.description);
 				this.sourceId = ko.observable(data.sourceId);
@@ -67,9 +67,9 @@ $(document).ready(
 						this.sourceId('');
 						this.targetId('')
 					},
-					url : '/v1/api/batches',
-					formSelector : '#add_card_batch_form',
-					modalSelector : '#add_card_batch',
+					url : '/v1/api/vocabularies',
+					formSelector : '#add_voc_form',
+					modalSelector : '#add_voc',
 					initItem : function() {
 						this.id = ko.observable();
 						this.name = ko.observable();
@@ -91,23 +91,23 @@ $(document).ready(
 					self.itemForm.setEmpty();
 					self.itemForm.show(function(data) {
 						self.addItem(data);
-						$('#add_card_batch').modal('hide');
+						$('#add_voc').modal('hide');
 					});
 				};
 
 				self.showEditItemForm = function() {
 					var selectedItem = self.selectedItems()[0];
-					$.getJSON("/v1/api/batches", function(itemForm) {
+					$.getJSON("/v1/api/vocabularies", function(itemForm) {
 						self.itemForm.setItem(new ItemForm(itemForm));
 						self.itemForm.show(function(data) {
 							self.items.replace(self.selectedItem, new Item(data));
-							$('#add_card_batch').modal('hide');
+							$('#add_voc').modal('hide');
 						});
 					});
 				};
 
 				self.showDeleteItems = function() {
-					self.deleteUrl = '/v1/api/batches';
+					self.deleteUrl = '/v1/api/vocabularies';
 
 					self.itemsToDelete.removeAll();
 
@@ -159,7 +159,7 @@ $(document).ready(
 
 				self.updateData = function() {
 					// Load initial state from server
-					$.getJSON('/v1/api/batches', function(allData) {
+					$.getJSON('/v1/api/vocabularies', function(allData) {
 						var mappedItems = $.map(allData, function(item) {
 							return new Item(item)
 						});

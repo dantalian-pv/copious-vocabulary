@@ -16,31 +16,31 @@ import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 
 @Controller
-public class CardBatchViewController {
+public class CardViewController {
 
 	@Autowired
-	private PersistVocabularyManager batchPersist;
+	private PersistVocabularyManager vocPersist;
 
 	@Autowired
-	private PersistVocabularyViewManager batchViewPersist;
+	private PersistVocabularyViewManager viewPersist;
 
-	@RequestMapping("/vocabulary_views/{batch_id}")
-	public String view(@PathVariable("batch_id") final String aVocabularyId, final Principal aPrincipal, final Model aModel)
+	@RequestMapping("/views/{voc_id}")
+	public String view(@PathVariable("voc_id") final String aVocabularyId, final Principal aPrincipal, final Model aModel)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final VocabularyView vocView = batchViewPersist.getVocabularyView(user, UUID.fromString(aVocabularyId));
+		final VocabularyView vocView = viewPersist.getVocabularyView(user, UUID.fromString(aVocabularyId));
 		if (vocView == null) {
 			throw new PageNotFoundException();
 		}
-		final Vocabulary voc = batchPersist.getVocabulary(user, UUID.fromString(aVocabularyId));
+		final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aVocabularyId));
 		if (voc == null) {
 			throw new PageNotFoundException();
 		}
-		aModel.addAttribute("tpl", "batch_view");
+		aModel.addAttribute("tpl", "view");
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", voc.getName());
-		aModel.addAttribute("batch", voc);
-		aModel.addAttribute("batchView", vocView);
+		aModel.addAttribute("voc", voc);
+		aModel.addAttribute("view", vocView);
 		return "frame";
 	}
 

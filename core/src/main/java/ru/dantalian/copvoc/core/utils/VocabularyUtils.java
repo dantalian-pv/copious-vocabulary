@@ -15,22 +15,22 @@ import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 
 @Service
-public class BatchUtils {
+public class VocabularyUtils {
 
-	public VocabularyView getDefaultView(final UUID aBatchId) throws CoreException {
+	public VocabularyView getDefaultView(final UUID aVocabularyId) throws CoreException {
 		try (InputStream cssStream = this.getClass().getClassLoader()
-				.getResourceAsStream(CoreConstants.DEFAULT_CARD_BATCH_VIEW_CSS);
+				.getResourceAsStream(CoreConstants.DEFAULT_CARD_VIEW_CSS);
 				InputStream frontStream = this.getClass().getClassLoader()
-						.getResourceAsStream(CoreConstants.DEFAULT_CARD_BATCH_VIEW_FRONT);
+						.getResourceAsStream(CoreConstants.DEFAULT_CARD_VIEW_FRONT);
 				InputStream backStream = this.getClass().getClassLoader()
-						.getResourceAsStream(CoreConstants.DEFAULT_CARD_BATCH_VIEW_BACK)) {
+						.getResourceAsStream(CoreConstants.DEFAULT_CARD_VIEW_BACK)) {
 			final String css = new BufferedReader(new InputStreamReader(cssStream))
 				  .lines().collect(Collectors.joining("\n"));
 			final String front = new BufferedReader(new InputStreamReader(frontStream))
 				  .lines().collect(Collectors.joining("\n"));
 			final String back = new BufferedReader(new InputStreamReader(backStream))
 				  .lines().collect(Collectors.joining("\n"));
-			return new PojoVocabularyView(aBatchId, css, front, back);
+			return new PojoVocabularyView(aVocabularyId, css, front, back);
 		} catch (final IOException e) {
 			throw new CoreException("Failed to init view", e);
 		}

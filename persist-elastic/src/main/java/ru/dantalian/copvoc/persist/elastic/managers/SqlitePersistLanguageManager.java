@@ -3,6 +3,7 @@ package ru.dantalian.copvoc.persist.elastic.managers;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.elasticsearch.ElasticsearchException;
@@ -18,6 +19,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +52,28 @@ public class SqlitePersistLanguageManager implements PersistLanguageManager, Ind
 			searchSourceBuilder.sort("country");
 			searchSourceBuilder.sort("variant");
 			searchRequest.source(searchSourceBuilder);
+			final BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+			if (aName.isPresent()) {
+				boolQuery.must(QueryBuilders.termQuery("name", aName.get()));
+			}
+			if (aCountry.isPresent()) {
+				boolQuery.must(QueryBuilders.termQuery("country", aCountry.get()));
+			}
+			if (aVariant.isPresent()) {
+				boolQuery.must(QueryBuilders.termQuery("variant", aVariant.get()));
+			}
+			searchSourceBuilder.query(boolQuery);
 
 			final SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
 			final List<Language> list = new LinkedList<>();
 			search.getHits()
-					.forEach(aItem -> list.add(new PojoLanguage(aItem.field("name").getValue(),
-							aItem.field("country").getValue(),
-							aItem.field("variant").getValue(),
-							aItem.field("text").getValue())));
+					.forEach(aItem -> {
+						final Map<String, Object> src = aItem.getSourceAsMap();
+						list.add(new PojoLanguage((String) src.get("name"),
+								(String) src.get("country"),
+								(String) src.get("variant"),
+								(String) src.get("text")));
+					});
 			return list;
 		} catch (final Exception e) {
 			throw new PersistException("Failed list languages", e);
@@ -88,7 +104,7 @@ public class SqlitePersistLanguageManager implements PersistLanguageManager, Ind
 			    builder.field("text", aText);
 			}
 			builder.endObject();
-			final String id = aName + "_" + aCountry + "_" + aVariant;
+			final String id = aName + "_" + aCountry + (aVariant == null || aVariant.isEmpty() ? "" : "_" + aVariant);
 			final IndexRequest indexRequest = new IndexRequest(DEFAULT_INDEX, "_doc", id)
 	        .source(builder);
 			client.index(indexRequest, RequestOptions.DEFAULT);
@@ -162,6 +178,7 @@ public class SqlitePersistLanguageManager implements PersistLanguageManager, Ind
 			}
 			builder.endObject();
 			createIndex.mapping("_doc", builder);
+			client.indices().create(createIndex, RequestOptions.DEFAULT);
 		}
 	}
 

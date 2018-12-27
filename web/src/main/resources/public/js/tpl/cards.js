@@ -127,7 +127,7 @@ $(document).ready(
 
 				self.updateData = function() {
 					// Load initial state from server
-					$.getJSON('/v1/api/cards/' + document.batchId, function(allData) {
+					$.getJSON('/v1/api/cards/' + document.vocabularyId, function(allData) {
 						var mappedItems = $.map(allData, function(item) {
 							return new Item(item)
 						});

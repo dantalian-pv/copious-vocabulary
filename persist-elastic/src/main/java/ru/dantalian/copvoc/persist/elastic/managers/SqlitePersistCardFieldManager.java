@@ -3,6 +3,7 @@ package ru.dantalian.copvoc.persist.elastic.managers;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.elasticsearch.ElasticsearchException;
@@ -111,10 +112,13 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager, I
 			final SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
 			final List<CardField> list = new LinkedList<>();
 			search.getHits()
-					.forEach(aItem -> list.add(new PojoCardField(
-							UUID.fromString(aItem.field("vocabulary_id").getValue()),
-							aItem.field("name").getValue(),
-							CardFiledType.valueOf(aItem.field("type").getValue()))));
+					.forEach(aItem -> {
+						final Map<String, Object> src = aItem.getSourceAsMap();
+						list.add(new PojoCardField(
+							UUID.fromString((String) src.get("vocabulary_id")),
+							(String) src.get("name"),
+							CardFiledType.valueOf((String) src.get("type"))));
+						});
 			return list;
 		} catch (final Exception e) {
 			throw new PersistException("Failed list languages", e);
@@ -152,6 +156,7 @@ public class SqlitePersistCardFieldManager implements PersistCardFieldManager, I
 		}
 		builder.endObject();
 		createIndex.mapping("_doc", builder);
+		client.indices().create(createIndex, RequestOptions.DEFAULT);
 	}
 
 	@Override

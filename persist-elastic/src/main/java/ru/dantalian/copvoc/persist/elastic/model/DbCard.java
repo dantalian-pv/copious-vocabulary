@@ -29,8 +29,8 @@ public class DbCard {
 		return vocabularyId;
 	}
 
-	public void setVocabularyId(final UUID aBatchId) {
-		vocabularyId = aBatchId;
+	public void setVocabularyId(final UUID aVocabularyId) {
+		vocabularyId = aVocabularyId;
 	}
 
 	public Map<String, String> getFieldsContent() {

@@ -30,14 +30,14 @@ public class FieldUtils {
 		om = new ObjectMapper();
 	}
 
-	public List<CardField> getDefaultFields(final UUID aBatchId) throws CoreException {
+	public List<CardField> getDefaultFields(final UUID aVocabularyId) throws CoreException {
 		try (InputStream fieldsStream = this.getClass().getClassLoader()
-				.getResourceAsStream(CoreConstants.DEFAULT_CARD_BATCH_FIELDS)) {
+				.getResourceAsStream(CoreConstants.DEFAULT_CARD_FIELDS)) {
 			final ArrayNode arr = (ArrayNode) om.readTree(fieldsStream).get("fields");
 			final List<CardField> fields = new LinkedList<>();
 			for (final JsonNode node: arr) {
 				final DefaultField field = om.treeToValue(node, DefaultField.class);
-				fields.add(new PojoCardField(aBatchId, field.getName(), field.getType()));
+				fields.add(new PojoCardField(aVocabularyId, field.getName(), field.getType()));
 			}
 			return fields;
 		} catch (final IOException e) {
