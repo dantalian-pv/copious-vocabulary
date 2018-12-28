@@ -9,14 +9,13 @@ import java.util.UUID;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -93,6 +92,7 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 			}
 			builder.endObject();
 			request.doc(builder);
+			request.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
 			client.update(request, RequestOptions.DEFAULT);
 		} catch (final Exception e) {
 			throw new PersistException("Failed to update a card", e);
@@ -250,14 +250,6 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 		builder.endObject();
 		createIndex.mapping("_doc", builder);
 		client.indices().create(createIndex, RequestOptions.DEFAULT);
-	}
-
-	@Override
-	public void commit() throws ElasticsearchException, IOException {
-		final RefreshRequest refresh = new RefreshRequest(DEFAULT_INDEX);
-		client.indices().refresh(refresh, RequestOptions.DEFAULT);
-		final FlushRequest flush = new FlushRequest(DEFAULT_INDEX);
-		client.indices().flush(flush, RequestOptions.DEFAULT);
 	}
 
 }

@@ -1,13 +1,13 @@
 package ru.dantalian.copvoc.persist.elastic.common;
 
-import java.io.IOException;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
-import org.elasticsearch.ElasticsearchException;
+import ru.dantalian.copvoc.persist.api.PersistException;
 
 public interface IndexHandler {
 
-	void initIndex() throws ElasticsearchException, IOException;
+	void initIndex(String aIndex) throws PersistException;
 
-	void commit() throws ElasticsearchException, IOException;
+	XContentBuilder getSettings(String aIndex) throws PersistException;
 
 }

@@ -2,8 +2,11 @@ package ru.dantalian.copvoc.persist.elastic.model;
 
 import java.util.UUID;
 
+import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
+
 public class DbVocabulary {
 
+	@Id
 	private UUID id;
 
 	private String name;
