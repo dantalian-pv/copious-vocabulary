@@ -2,14 +2,23 @@ package ru.dantalian.copvoc.persist.elastic.model;
 
 import java.util.UUID;
 
+import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
+import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
+import ru.dantalian.copvoc.persist.elastic.model.codecs.UUIDCodec;
+
 public class DbVocabularyView {
 
+	@Id
+	@Field(codec = UUIDCodec.class)
 	private UUID vocabularyId;
 
+	@Field(index = false)
 	private String css;
 
+	@Field(index = false)
 	private String frontTpl;
 
+	@Field(index = false)
 	private String backTpl;
 
 	public DbVocabularyView() {

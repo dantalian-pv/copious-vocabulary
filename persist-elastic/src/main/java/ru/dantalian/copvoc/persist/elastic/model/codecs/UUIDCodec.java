@@ -2,16 +2,10 @@ package ru.dantalian.copvoc.persist.elastic.model.codecs;
 
 import java.util.UUID;
 
-public class UUIDCodec implements FieldCodec<UUID, String> {
+public class UUIDCodec extends KnownTypeCodec<UUID, String> {
 
-	@Override
-	public String serialize(final UUID aEntry) {
-		return aEntry == null ? null : aEntry.toString();
-	}
-
-	@Override
-	public UUID deserialize(final String aEntry) {
-		return aEntry == null ? null : UUID.fromString(aEntry);
+	public UUIDCodec(final Class<UUID> aTypeClass, final Class<String> aSerializedClass) {
+		super(UUID.class, String.class);
 	}
 
 }

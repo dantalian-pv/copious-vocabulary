@@ -1,13 +1,24 @@
 package ru.dantalian.copvoc.persist.elastic.model;
 
+import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
+import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
+
 public class DbLanguage {
 
+	@Id
+	@Field
+	private String id;
+
+	@Field
 	private String name;
 
+	@Field
 	private String country;
 
+	@Field
 	private String variant;
 
+	@Field(index = false)
 	private String text;
 
 	public DbLanguage() {
@@ -18,6 +29,15 @@ public class DbLanguage {
 		country = aCountry;
 		variant = aVariant;
 		text = aText;
+		setId();
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(final String aId) {
+		id = aId;
 	}
 
 	public String getName() {
@@ -26,6 +46,7 @@ public class DbLanguage {
 
 	public void setName(final String aName) {
 		name = aName;
+		setId();
 	}
 
 	public String getCountry() {
@@ -34,6 +55,7 @@ public class DbLanguage {
 
 	public void setCountry(final String aCountry) {
 		country = aCountry;
+		setId();
 	}
 
 	public String getVariant() {
@@ -42,6 +64,7 @@ public class DbLanguage {
 
 	public void setVariant(final String aVariant) {
 		variant = aVariant;
+		setId();
 	}
 
 	public String getText() {
@@ -50,6 +73,10 @@ public class DbLanguage {
 
 	public void setText(final String aText) {
 		text = aText;
+	}
+
+	private void setId() {
+		id = name + "_" + country + ((variant == null) ? "" : "_" + variant);
 	}
 
 	@Override
