@@ -40,6 +40,8 @@ public abstract class AbstractPersistManager<T> {
 
 	private static final String DEFAULT_TYPE = "_doc";
 
+	private static final DefaultCodec<?, ?> DEFAULT_CODEC = new DefaultCodec<>();
+
 	private final RestHighLevelClient client;
 
 	private final Class<T> entity;
@@ -223,10 +225,9 @@ public abstract class AbstractPersistManager<T> {
 		final Method method = aClass.getMethod(setterName, aField.getType());
 		final String fieldName = getIndexFieldName(aField, aFieldAnnotation);
 		Object data = aSource.get(fieldName);
-		final FieldCodec<T, ? super Object> codec = codecMap.get(fieldName);
-		if (codec != null) {
-			data = codec.deserialize(data);
-		}
+		final FieldCodec<T, ? super Object> codec = codecMap.getOrDefault(fieldName,
+				(FieldCodec<T, ? super Object>) DEFAULT_CODEC);
+		data = codec.deserialize(data);
 		method.invoke(aInstance, data);
 	}
 
@@ -313,6 +314,8 @@ public abstract class AbstractPersistManager<T> {
 			exists.indices(index);
 			if (client.indices().exists(exists, RequestOptions.DEFAULT)) {
 				saveInCache(index);
+				// In case index was created before, but codecs map is needed
+				addCodecsForClass(entity);
 				return;
 			}
 			final CreateIndexRequest createIndex = new CreateIndexRequest(index);
@@ -342,6 +345,52 @@ public abstract class AbstractPersistManager<T> {
 			saveInCache(index);
 		} catch (final IOException | InstantiationException | IllegalAccessException e) {
 			throw new PersistException("Failed to create index: " + index, e);
+		}
+	}
+
+	protected void addCodecsForClass(final Class<?> aEntity)
+			throws InstantiationException, IllegalAccessException {
+		final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
+		final Method[] methods = aEntity.getDeclaredMethods();
+		for (final java.lang.reflect.Field field: fields) {
+			final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
+			if (fieldAnnotation != null) {
+				addFieldCodec(field, fieldAnnotation);
+			}
+		}
+		for (final Method method: methods) {
+			final Field fieldAnnotation = method.getDeclaredAnnotation(Field.class);
+			if (fieldAnnotation != null) {
+				addMethodCodec(method, fieldAnnotation);
+			}
+		}
+		Class<?> superclass = null;
+		while ((superclass = aEntity.getSuperclass()) != null) {
+			if (superclass.equals(Object.class)) {
+				break;
+			}
+			addCodecsForClass(superclass);
+		}
+	}
+
+	private void addMethodCodec(final Method aMethod, final Field aFieldAnnotation) throws InstantiationException, IllegalAccessException  {
+		String name = "".equals(aFieldAnnotation.name()) || aFieldAnnotation.name() == null
+				? aMethod.getName() : aFieldAnnotation.name();
+		if (!name.startsWith("get")) {
+			return;
+		}
+		name = name.substring(2).toLowerCase();
+		addCodec(name, aFieldAnnotation.codec());
+	}
+
+	private void addFieldCodec(final java.lang.reflect.Field aField, final Field aFieldAnnotation) throws InstantiationException, IllegalAccessException  {
+		final String name = getIndexFieldName(aField, aFieldAnnotation);
+		addCodec(name, aFieldAnnotation.codec());
+	}
+
+	private void addCodec(final String aName, final Class<? extends FieldCodec> aCodec) throws InstantiationException, IllegalAccessException {
+		if (aCodec != null && !aCodec.isAssignableFrom(DefaultCodec.class)) {
+			codecMap.put(aName, aCodec.newInstance());
 		}
 	}
 
@@ -394,9 +443,7 @@ public abstract class AbstractPersistManager<T> {
 			aMappings.field("type", aType);
 			aMappings.field("index", aIndex);
 		aMappings.endObject();
-		if (aCodec != null && !aCodec.isAssignableFrom(DefaultCodec.class)) {
-			codecMap.put(aName, aCodec.newInstance());
-		}
+		addCodec(aName, aCodec);
 	}
 
 	protected boolean isInCache(final String aIndex) {

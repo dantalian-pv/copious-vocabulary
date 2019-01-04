@@ -27,9 +27,11 @@
 		<spring-boot-version>2.1.0.RELEASE</spring-boot-version>
 
 		<elasticsearch-version>6.5.4</elasticsearch-version>
+		<elasticsearch-cluster-runner-version>6.5.4.0</elasticsearch-cluster-runner-version>
 
 		<logback-version>1.2.3</logback-version>
 		<slf4j-version>1.7.25</slf4j-version>
+		<log4j-to-slf4j-version>2.11.1</log4j-to-slf4j-version>
 
 		<junit-version>4.12</junit-version>
 		<hamcrest-version>1.3</hamcrest-version>
@@ -77,9 +79,20 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.elasticsearch</groupId>
+				<artifactId>elasticsearch</artifactId>
+				<version>${elasticsearch-version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.elasticsearch.client</groupId>
 				<artifactId>elasticsearch-rest-high-level-client</artifactId>
 				<version>${elasticsearch-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.codelibs</groupId>
+				<artifactId>elasticsearch-cluster-runner</artifactId>
+				<version>${elasticsearch-cluster-runner-version}</version>
 			</dependency>
 
 			<dependency>
@@ -91,6 +104,11 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-to-slf4j</artifactId>
+				<version>${log4j-to-slf4j-version}</version>
 			</dependency>
 
 			<dependency>
