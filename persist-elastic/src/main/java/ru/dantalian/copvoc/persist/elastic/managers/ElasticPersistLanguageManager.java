@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
+import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbLanguage;
 import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
@@ -26,9 +27,12 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 
 	private static final String DEFAULT_INDEX = "languages";
 
+	private final ElasticSettings settings;
+
 	@Autowired
-	public ElasticPersistLanguageManager(final RestHighLevelClient aClient) {
+	public ElasticPersistLanguageManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
 		super(aClient, DbLanguage.class);
+		settings = aSettings;
 	}
 
 	@Override
@@ -38,7 +42,7 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 
 	@Override
 	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return null;
+		return settings.getDefaultSettings();
 	}
 
 	@Override

@@ -71,6 +71,9 @@ public abstract class AbstractPersistManager<T> {
 			final GetRequest req = new GetRequest(aIndex, DEFAULT_TYPE, aId);
 			final GetResponse response = client.get(req, RequestOptions.DEFAULT);
 			final T entiry = map(response.getSourceAsMap());
+			if (entiry == null) {
+				return null;
+			}
 			fillId(entiry, entity, aId);
 			return entiry;
 		} catch (final Exception e) {

@@ -21,6 +21,7 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
+import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbVocabulary;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 
@@ -32,11 +33,15 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 
 	private final ElasticPersistLanguageManager mLangManager;
 
+	private final ElasticSettings settings;
+
 	@Autowired
 	public ElasticPersistVocabularyManager(final RestHighLevelClient aClient,
-			final ElasticPersistLanguageManager aLangManager) {
+			final ElasticPersistLanguageManager aLangManager,
+			final ElasticSettings aSettings) {
 		super(aClient, DbVocabulary.class);
 		mLangManager = aLangManager;
+		settings = aSettings;
 	}
 
 	@Override
@@ -46,7 +51,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 
 	@Override
 	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return null;
+		return settings.getDefaultSettings();
 	}
 
 	@Override

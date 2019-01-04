@@ -17,6 +17,7 @@ import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCardField;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardField;
 
@@ -26,9 +27,12 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 
 	private static final String DEFAULT_INDEX = "fields";
 
+	private final ElasticSettings settings;
+
 	@Autowired
-	public ElasticPersistCardFieldManager(final RestHighLevelClient aClient) {
+	public ElasticPersistCardFieldManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
 		super(aClient, DbCardField.class);
+		settings = aSettings;
 	}
 
 	@Override
@@ -38,7 +42,7 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 
 	@Override
 	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return null;
+		return settings.getDefaultSettings();
 	}
 
 	@Override

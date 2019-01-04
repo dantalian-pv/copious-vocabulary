@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
+import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbVocabularyView;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 
@@ -19,9 +20,12 @@ public class ElasticPersistVocabularyViewManager extends AbstractPersistManager<
 
 	private static final String DEFAULT_INDEX = "views";
 
+	private final ElasticSettings settings;
+
 	@Autowired
-	public ElasticPersistVocabularyViewManager(final RestHighLevelClient aClient) {
+	public ElasticPersistVocabularyViewManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
 		super(aClient, DbVocabularyView.class);
+		settings = aSettings;
 	}
 
 	@Override
@@ -31,7 +35,7 @@ public class ElasticPersistVocabularyViewManager extends AbstractPersistManager<
 
 	@Override
 	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return null;
+		return settings.getDefaultSettings();
 	}
 
 	@Override
