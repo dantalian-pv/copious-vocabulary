@@ -71,7 +71,7 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 				.forEach(aItem -> {
 					final Map<String, Object> src = aItem.getSourceAsMap();
 					try {
-						list.add(asLanguage(map(src)));
+						list.add(asLanguage(map(aItem.getId(), src)));
 					} catch (final PersistException e) {
 						throw new RuntimeException("Failed to convert an item " + aItem.getId());
 					}

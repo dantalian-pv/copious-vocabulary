@@ -45,10 +45,11 @@ public class RestCardController {
 	}
 
 	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.GET)
-	public DtoCard getCard(@PathVariable(value = "id") final String aId, final Principal aPrincipal)
+	public DtoCard getCard(@PathVariable(value = "voc_id") final String aVocId,
+			@PathVariable(value = "id") final String aId, final Principal aPrincipal)
 			throws PersistException {
 		final String user = aPrincipal.getName();
-		final Card card = mCardManager.getCard(user, UUID.fromString(aId));
+		final Card card = mCardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
 		if (card == null) {
 			throw new PersistException("Card with id: " + aId + " not found");
 		}
@@ -70,7 +71,8 @@ public class RestCardController {
 			throws PersistException {
 		final String user = aPrincipal.getName();
 		final Map<String, String> map = asMap(aCard.getContent());
-		mCardManager.updateCard(user, UUID.fromString(aCard.getId()), map);
+		mCardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
+				UUID.fromString(aCard.getId()), map);
 	}
 
 	private Map<String, String> asMap(final List<DtoCardContent> aContent) {

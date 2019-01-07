@@ -76,7 +76,7 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 				.forEach(aItem -> {
 					final Map<String, Object> src = aItem.getSourceAsMap();
 					try {
-						list.add(map(src));
+						list.add(map(aItem.getId(), src));
 					} catch (final PersistException e) {
 						throw new RuntimeException("Failed to convert item " + aItem.getId());
 					}

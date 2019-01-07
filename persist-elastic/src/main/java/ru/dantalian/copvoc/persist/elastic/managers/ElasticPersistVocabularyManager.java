@@ -121,7 +121,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 					throw new IllegalStateException("Failed to get languge", e);
 				}
 				try {
-					list.add(asVocabulary(map(src)));
+					list.add(asVocabulary(map(aItem.getId(), src)));
 				} catch (final PersistException e) {
 					throw new RuntimeException("Failed to convert " + aItem.getId(), e);
 				}

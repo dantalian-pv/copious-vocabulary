@@ -54,42 +54,46 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			final Map<String, String> aContent) throws PersistException {
 		final UUID id = UUID.randomUUID();
 		final DbCard card = new DbCard(id, aVocabularyId, aContent);
-		add(DEFAULT_INDEX, card, true);
+		add(getIndexId(aVocabularyId), card, true);
 		return asCard(card);
 	}
 
 	@Override
-	public void updateCard(final String aUser, final UUID aId, final Map<String, String> aContent)
+	public void updateCard(final String aUser, final UUID aVocabularyId, final UUID aId, final Map<String, String> aContent)
 			throws PersistException {
-		final Card card = getCard(aUser, aId);
+		final Card card = getCard(aUser, aVocabularyId, aId);
 		if (card == null) {
 			throw new PersistException("Card not found");
 		}
 		final DbCard dbCard = asDbCard(card);
-		update(DEFAULT_INDEX, dbCard, true);
+		update(getIndexId(card.getVocabularyId()), dbCard, true);
 	}
 
 	@Override
-	public Card getCard(final String aUser, final UUID aId) throws PersistException {
-		return asCard(get(DEFAULT_INDEX, aId.toString()));
+	public Card getCard(final String aUser, final UUID aVocabularyId, final UUID aId) throws PersistException {
+		return asCard(get(getIndexId(aVocabularyId), aId.toString()));
 	}
 
 	@Override
-	public void deleteCard(final String aUser, final UUID aId) throws PersistException {
-		delete(DEFAULT_INDEX, aId.toString());
+	public void deleteCard(final String aUser, final UUID aVocabularyId, final UUID aId) throws PersistException {
+		delete(getIndexId(aVocabularyId), aId.toString());
 	}
 
 	@Override
 	public List<Card> queryCards(final String aUser, final CardsQuery aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
-		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
+		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		search.getHits()
 				.forEach(aItem -> list.add(new PojoCard(UUID.fromString(aItem.getId()),
 						UUID.fromString(aItem.field("vocabulary_id").getValue()),
 						aItem.field("fields_content").getValue())));
 		return list;
+	}
+
+	private String getIndexId(final UUID aUuid) {
+		return DEFAULT_INDEX + "-" + aUuid.toString();
 	}
 
 	private DbCard asDbCard(final Card aCard) {

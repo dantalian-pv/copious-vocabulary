@@ -70,11 +70,10 @@ public abstract class AbstractPersistManager<T> {
 			initIndex(aIndex);
 			final GetRequest req = new GetRequest(aIndex, DEFAULT_TYPE, aId);
 			final GetResponse response = client.get(req, RequestOptions.DEFAULT);
-			final T entiry = map(response.getSourceAsMap());
+			final T entiry = map(aId, response.getSourceAsMap());
 			if (entiry == null) {
 				return null;
 			}
-			fillId(entiry, entity, aId);
 			return entiry;
 		} catch (final Exception e) {
 			throw new PersistException("Failed to get an entity id: " + aId + " from: " + aIndex, e);
@@ -169,7 +168,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected T map(final Map<String, Object> aSource) throws PersistException {
+	protected T map(final String aId, final Map<String, Object> aSource) throws PersistException {
 		try {
 			if (aSource == null) {
 				return null;
@@ -177,6 +176,9 @@ public abstract class AbstractPersistManager<T> {
 			final T instance = entity.newInstance();
 			final Class<?> clazz = entity;
 			fillFields(instance, clazz, aSource);
+			if (aId != null) {
+				fillId(instance, entity, aId);
+			}
 			return instance;
 		} catch (final Exception e) {
 			throw new PersistException("Failed to create an entity", e);
