@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
@@ -54,6 +55,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
   public SpringTemplateEngine templateEngine() {
       final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
       templateEngine.setTemplateResolver(thymeleafTemplateResolver());
+      templateEngine.addDialect(securityTemplateDialect());
       return templateEngine;
   }
 
@@ -75,6 +77,11 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 			}
 			resolver.setCheckExistence(this.properties.isCheckTemplate());
       return resolver;
+  }
+
+  @Bean
+  public SpringSecurityDialect securityTemplateDialect() {
+  	return new SpringSecurityDialect();
   }
 
 }
