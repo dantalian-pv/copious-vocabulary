@@ -35,44 +35,60 @@ public class RestCardController {
 
 	@RequestMapping(value = "/{voc_id}", method = RequestMethod.GET)
 	public List<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
-			final Principal aPrincipal) throws PersistException {
-		final String user = aPrincipal.getName();
-		return mCardManager.queryCards(user, QueryFactory.newCardsQuery()
-				.setVocabularyId(UUID.fromString(aVocabularyId)).build())
-				.stream()
-				.map(this::asDtoCard)
-				.collect(Collectors.toList());
+			final Principal aPrincipal) throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			return mCardManager.queryCards(user, QueryFactory.newCardsQuery()
+					.setVocabularyId(UUID.fromString(aVocabularyId)).build())
+					.stream()
+					.map(this::asDtoCard)
+					.collect(Collectors.toList());
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.GET)
 	public DtoCard getCard(@PathVariable(value = "voc_id") final String aVocId,
 			@PathVariable(value = "id") final String aId, final Principal aPrincipal)
-			throws PersistException {
-		final String user = aPrincipal.getName();
-		final Card card = mCardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
-		if (card == null) {
-			throw new PersistException("Card with id: " + aId + " not found");
+					throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Card card = mCardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
+			if (card == null) {
+				throw new PersistException("Card with id: " + aId + " not found");
+			}
+			return asDtoCard(card);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
 		}
-		return asDtoCard(card);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public DtoCard createCard(final Principal aPrincipal, @RequestBody final DtoCard aCard)
-			throws PersistException {
-		final String user = aPrincipal.getName();
-		final Map<String, String> map = asMap(aCard.getContent());
-		final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
-		return asDtoCard(card);
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Map<String, String> map = asMap(aCard.getContent());
+			final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
+			return asDtoCard(card);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void updateCard(final Principal aPrincipal, @RequestBody final DtoCard aCard)
-			throws PersistException {
-		final String user = aPrincipal.getName();
-		final Map<String, String> map = asMap(aCard.getContent());
-		mCardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
-				UUID.fromString(aCard.getId()), map);
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Map<String, String> map = asMap(aCard.getContent());
+			mCardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
+					UUID.fromString(aCard.getId()), map);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	private Map<String, String> asMap(final List<DtoCardContent> aContent) {

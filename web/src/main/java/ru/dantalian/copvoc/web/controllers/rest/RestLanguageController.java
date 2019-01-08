@@ -29,12 +29,16 @@ public class RestLanguageController {
 	public List<DtoLanguage> listLanguages(final Principal aPrincipal,
 			@RequestParam(value = "name", required = false) final String aName,
 			@RequestParam(value = "country", required = false) final String aCountry,
-			@RequestParam(value = "variant", required = false) final String aVariant) throws PersistException {
-		return mLangManager.listLanguages(Optional.ofNullable(aName),
-				Optional.ofNullable(aCountry), Optional.ofNullable(aVariant))
-				.stream()
-				.map(this::asDtoLanguage)
-				.collect(Collectors.toList());
+			@RequestParam(value = "variant", required = false) final String aVariant) throws RestException {
+		try {
+			return mLangManager.listLanguages(Optional.ofNullable(aName),
+					Optional.ofNullable(aCountry), Optional.ofNullable(aVariant))
+					.stream()
+					.map(this::asDtoLanguage)
+					.collect(Collectors.toList());
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	private DtoLanguage asDtoLanguage(final Language aLanguage) {

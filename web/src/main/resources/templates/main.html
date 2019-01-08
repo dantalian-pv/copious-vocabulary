@@ -25,6 +25,10 @@
 				</div>
 			</div>
 		</div>
+		<div data-bind="css: {hidden: !errorMessage()}" class="ui hidden error message">
+			<div data-bind="text: errorHeader" class="header">Success</div>
+			<p data-bind="text: errorMessage" class="info">Vocabulary has been saved</p>
+		</div>
 	</div>
 	<div th:replace="forms/voc_form::body" th:remove="tag"></div>
 </body>

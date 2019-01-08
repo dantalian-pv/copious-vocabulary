@@ -158,12 +158,19 @@ $(document).ready(
 				};
 
 				self.updateData = function() {
+					self.errorHeader('');
+					self.errorMessage('');
 					// Load initial state from server
 					$.getJSON('/v1/api/vocabularies', function(allData) {
 						var mappedItems = $.map(allData, function(item) {
 							return new Item(item)
 						});
 						self.items(mappedItems);
+					})
+					.fail(function(error) {
+						var e = error.responseJSON;
+						self.errorHeader('Failed to receive vocabulary list');
+						self.errorMessage(e.message);
 					});
 				};
 

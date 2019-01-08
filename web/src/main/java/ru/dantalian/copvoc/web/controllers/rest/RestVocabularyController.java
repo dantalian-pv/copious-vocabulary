@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.dantalian.copvoc.core.CoreException;
-import ru.dantalian.copvoc.core.utils.VocabularyUtils;
 import ru.dantalian.copvoc.core.utils.FieldUtils;
+import ru.dantalian.copvoc.core.utils.VocabularyUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
@@ -50,52 +50,68 @@ public class RestVocabularyController {
 	private VocabularyUtils vocUtils;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public List<DtoVocabulary> listVocs(final Principal aPrincipal) throws PersistException {
+	public List<DtoVocabulary> listVocs(final Principal aPrincipal) throws RestException {
+		try {
 		final String user = aPrincipal.getName();
 		return vocPersist.listVocabularies(user)
 				.stream()
 				.map(this::asDtoVocabulary)
 				.collect(Collectors.toList());
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public DtoVocabulary getVoc(final Principal aPrincipal, @PathVariable(value = "id") final String id)
-			throws PersistException {
-		final String user = aPrincipal.getName();
-		final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(id));
-		if (voc == null) {
-			throw new PersistException("Vocabulary with id: " + id + " not found");
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(id));
+			if (voc == null) {
+				throw new PersistException("Vocabulary with id: " + id + " not found");
+			}
+			return asDtoVocabulary(voc);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
 		}
-		return asDtoVocabulary(voc);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public DtoVocabulary createVoc(final Principal aPrincipal, @RequestBody final DtoVocabulary aVocabulary)
-			throws PersistException, CoreException {
-		final String user = aPrincipal.getName();
-		final Vocabulary queryVoc = vocPersist.queryVocabulary(user, aVocabulary.getName());
-		if (queryVoc != null) {
-			throw new BadUserRequestException("Vocabulary with given name already exists");
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Vocabulary queryVoc = vocPersist.queryVocabulary(user, aVocabulary.getName());
+			if (queryVoc != null) {
+				throw new BadUserRequestException("Vocabulary with given name already exists");
+			}
+			final Vocabulary voc = vocPersist.createVocabulary(user, aVocabulary.getName(), aVocabulary.getDescription(),
+					asLanguage(aVocabulary.getSourceId()), asLanguage(aVocabulary.getTargetId()));
+			// Init default fields
+			final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc.getId());
+			for (final CardField field: defaultFields) {
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+			}
+			// Init default view
+			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId());
+			cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
+			return asDtoVocabulary(voc);
+		} catch (final PersistException | CoreException e) {
+			throw new RestException(e.getMessage(), e);
 		}
-		final Vocabulary voc = vocPersist.createVocabulary(user, aVocabulary.getName(), aVocabulary.getDescription(),
-				asLanguage(aVocabulary.getSourceId()), asLanguage(aVocabulary.getTargetId()));
-		// Init default fields
-		final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc.getId());
-		for (final CardField field: defaultFields) {
-			fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
-		}
-		// Init default view
-		final VocabularyView vocView = vocUtils.getDefaultView(voc.getId());
-		cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
-		return asDtoVocabulary(voc);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void updateVoc(final Principal aPrincipal, @RequestBody final DtoVocabulary aVocabulary)
-			throws PersistException {
-		final String user = aPrincipal.getName();
-		vocPersist.updateVocabulary(user, asVocabulary(user, aVocabulary));
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			vocPersist.updateVocabulary(user, asVocabulary(user, aVocabulary));
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
 	}
 
 	private DtoVocabulary asDtoVocabulary(final Vocabulary aVocabulary) {
