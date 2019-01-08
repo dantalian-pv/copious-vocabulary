@@ -21,17 +21,6 @@ $(document).ready(
 				}
 			});
 
-			function Item(data) {
-				this.id = ko.observable(data.id);
-				this.link = ko.observable("/vocabularies/" + data.id)
-				this.name = ko.observable(data.name)
-				this.description = ko.observable(data.description);
-				this.sourceId = ko.observable(data.sourceId);
-				this.targetId = ko.observable(data.targetId);
-				this.sourceName = ko.observable(data.sourceName);
-				this.targetName = ko.observable(data.targetName);
-			}
-
 			function ItemForm(data) {
 				this.id = ko.observable(data.id);
 				this.name = ko.observable(data.name)
@@ -79,10 +68,13 @@ $(document).ready(
 
 				// Operations
 				self.showEditVoc = function() {
-					
-				};
-				self.showEditView = function() {
-					
+					$.getJSON("/v1/api/vocabularies/" + document.vocabularyId, function(itemForm) {
+						self.itemForm.setItem(new ItemForm(itemForm));
+						self.itemForm.show(function(data) {
+							self.items.replace(self.selectedItem, new Item(data));
+							$('#add_voc').modal('hide');
+						});
+					});
 				};
 				self.showEditFields = function() {
 					

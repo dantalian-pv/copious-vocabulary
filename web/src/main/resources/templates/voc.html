@@ -4,6 +4,9 @@
 <head>
 <link th:fragment="headcss" th:remove="tag"></link>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
+	<script type="text/javascript" th:inline="javascript">
+		document.vocabularyId=[[${voc.id}]];
+	</script>
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
 	<script th:src="@{/js/tpl/voc.js}"></script>
@@ -19,10 +22,12 @@
 	<div class="ui divider"></div>
 	<div class="ui basic buttons">
 		<div class="ui button" data-bind="click: showEditVoc">
-			<i class="edit icon"></i>Edit Vocabulary Settings
+			<i class="edit icon"></i>Edit Settings
 		</div>
-		<div class="ui button" data-bind="click: showEditView">
-			<i class="edit icon"></i>Edit View
+		<div class="ui button">
+			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_view'">
+				<i class="edit icon"></i>Edit View
+			</a>
 		</div>
 		<div class="ui button" data-bind="click: showEditFields">
 			<i class="edit icon"></i>Edit Fields
@@ -36,7 +41,7 @@
 	<div class="ui divider"></div>
 	<div class="ui buttons">
 		<a th:href="'/views/' + ${voc.id}" class="ui green button">
-			<i class="save icon"></i>View Cards
+			<i class="save icon"></i>Show Cards
 		</a>
 		<div class="or"></div>
 		<div class="ui orange button" data-bind="click: showTraining">

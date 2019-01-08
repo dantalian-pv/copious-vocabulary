@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<link th:fragment="headcss" th:remove="tag"></link>
+<object type="text/javascript" th:fragment="headscript" th:remove="tag">
+	<script th:src="@{/js/jquery.form.min.js}"></script>
+	<script th:src="@{/js/tpl/root/form.js}"></script>
+	<script th:src="@{/js/tpl/form.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		document.vocabularyId=[[${voc.id}]];
+	</script>
+	<script th:src="@{/js/tpl/view.js}"></script>
+</object>
+</head>
+
+<body th:fragment="body" th:remove="tag">
+	<div class="ui buttons">
+		<a th:href="${'/vocabularies/' + voc.id}" th:text="${'Back to ' + voc.name}" class="ui button"> <i
+			class="save icon"></i>View Cards
+		</a>
+	</div>
+	<div class="ui divider"></div>
+	<div data-bind="css: {hidden: !errorMessage()}" class="ui hidden error message">
+		<div data-bind="text: errorHeader" class="header"></div>
+		<p data-bind="text: errorMessage" class="info"></p>
+	</div>
+	<form class="ui form" id="view_form" method="post" th:action="${'/v1/api/views/' + voc.id}">
+		<div class="field">
+			<label>Css</label>
+			<textarea name="css" th:text="${view.css}"></textarea>
+		</div>
+		<div class="field">
+			<label>Front Template</label>
+			<textarea name="front" th:text="${view.front}"></textarea>
+		</div>
+		<div class="field">
+			<label>Back Template</label>
+			<textarea name="css" th:text="${view.back}"></textarea>
+		</div>
+
+		<button class="ui primary button" type="submit">Save</button>
+	</form>
+</body>
+</html>
