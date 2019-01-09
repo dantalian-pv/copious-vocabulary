@@ -4,7 +4,6 @@
 <head>
 <link th:fragment="headcss" th:remove="tag"></link>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
-	<script th:src="@{/js/jquery.form.min.js}"></script>
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
 	<script type="text/javascript" th:inline="javascript">
@@ -25,7 +24,9 @@
 		<div data-bind="text: errorHeader" class="header"></div>
 		<p data-bind="text: errorMessage" class="info"></p>
 	</div>
-	<form class="ui form" id="view_form" method="post" th:action="${'/v1/api/views/' + voc.id}">
+	<form class="ui form" id="view_form" method="post" action="/v1/api/views">
+		<input type="hidden" name="id" th:value="${voc.id}">
+		<input type="hidden" name="_csrf" th:value="${_csrf.token}">
 		<div class="field">
 			<label>Css</label>
 			<textarea name="css" th:text="${view.css}"></textarea>
@@ -36,7 +37,7 @@
 		</div>
 		<div class="field">
 			<label>Back Template</label>
-			<textarea name="css" th:text="${view.back}"></textarea>
+			<textarea name="back" th:text="${view.back}"></textarea>
 		</div>
 
 		<button class="ui primary button" type="submit">Save</button>

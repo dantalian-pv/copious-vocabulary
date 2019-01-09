@@ -18,6 +18,7 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoView;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 
 @RestController
 @RequestMapping(value = "/v1/api/views", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -30,6 +31,7 @@ public class RestViewController {
 	private PersistVocabularyViewManager viewPersist;
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@ResponseBody
 	public DtoView getView(final Principal aPrincipal,
 			@PathVariable(value = "id") final String aId)
 			throws RestException {
@@ -46,9 +48,9 @@ public class RestViewController {
 		}
 	}
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public void updateView(final Principal aPrincipal, @RequestBody final DtoView aView)
+	public DtoVoid updateView(final Principal aPrincipal, @RequestBody final DtoView aView)
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
@@ -58,6 +60,7 @@ public class RestViewController {
 			}
 			viewPersist.updateVocabularyView(user, UUID.fromString(aView.getId()),
 					aView.getCss(), aView.getFront(), aView.getBack());
+			return DtoVoid.INSTANCE;
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}

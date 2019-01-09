@@ -29,6 +29,7 @@ import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 import ru.dantalian.copvoc.web.controllers.BadUserRequestException;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVocabulary;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 
 @RestController
 @RequestMapping(value = "/v1/api/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +51,7 @@ public class RestVocabularyController {
 	private VocabularyUtils vocUtils;
 
 	@RequestMapping(method = RequestMethod.GET)
+	@ResponseBody
 	public List<DtoVocabulary> listVocs(final Principal aPrincipal) throws RestException {
 		try {
 		final String user = aPrincipal.getName();
@@ -63,6 +65,7 @@ public class RestVocabularyController {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@ResponseBody
 	public DtoVocabulary getVoc(final Principal aPrincipal, @PathVariable(value = "id") final String id)
 			throws RestException {
 		try {
@@ -104,11 +107,13 @@ public class RestVocabularyController {
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateVoc(final Principal aPrincipal, @RequestBody final DtoVocabulary aVocabulary)
+	@ResponseBody
+	public DtoVoid updateVoc(final Principal aPrincipal, @RequestBody final DtoVocabulary aVocabulary)
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
 			vocPersist.updateVocabulary(user, asVocabulary(user, aVocabulary));
+			return new DtoVoid();
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
