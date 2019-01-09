@@ -29,8 +29,10 @@
 				<i class="edit icon"></i>Edit View
 			</a>
 		</div>
-		<div class="ui button" data-bind="click: showEditFields">
-			<i class="edit icon"></i>Edit Fields
+		<div class="ui button">
+			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_fields'">
+				<i class="edit icon"></i>Edit Fields
+			</a>
 		</div>
 		<div class="ui button">
 			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_cards'">

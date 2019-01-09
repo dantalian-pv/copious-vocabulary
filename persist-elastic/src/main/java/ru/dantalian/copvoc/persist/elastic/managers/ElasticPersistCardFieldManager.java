@@ -68,7 +68,7 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 	@Override
 	public List<CardField> listFields(final String aUser, final UUID aVocabularyId) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.query(QueryBuilders.termQuery("vocabulary_id", aVocabularyId.toString()));
+		searchSourceBuilder.query(QueryBuilders.termQuery("vocabularyId", aVocabularyId.toString()));
 
 		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<CardField> list = new LinkedList<>();
@@ -85,6 +85,9 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 	}
 
 	private CardField asCardField(final DbCardField aCardField) {
+		if (aCardField == null) {
+			return null;
+		}
 		return new PojoCardField(aCardField.getVocabularyId(), aCardField.getName(), aCardField.getType());
 	}
 

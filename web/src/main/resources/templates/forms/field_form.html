@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<link th:fragment="css" th:remove="tag" />
+<script type="text/javascript" th:fragment="script" th:remove="tag"></script>
+</head>
+
+<body th:fragment="body" th:remove="tag">
+	<div id="add_field" class="ui modal">
+		<i class="close icon"></i>
+		<div class="header" data-bind="text: (itemForm.id()) ? 'Edit Field' : 'Add New Field'"></div>
+		<div class="content">
+			<form id="add_field_form" class="ui form segment" method="post" th:action="${'/v1/api/fields/' + voc.id}">
+				<div class="ui inverted dimmer">
+					<div class="ui text loader">Loading</div>
+				</div>
+				<div class="ui hidden positive message">
+					<div class="header">Success</div>
+					<p class="info">Field has been saved</p>
+				</div>
+
+				<input name="vocabularyId" type="hidden" th:value="${voc.id}"/>
+				<div class="required field">
+					<label>Name</label>
+					<div class="ui pointing below red label hidden"></div>
+					<div class="ui left icon input">
+						<input name="name" type="text" data-bind="value: itemForm.name" /><i class="user icon"></i>
+					</div>
+				</div>
+				<div class="required field">
+					<label>Type</label>
+						<select class="ui fluid dropdown" name="type">
+							<th:block th:each="type : ${fieldTypes}">
+								<option th:value="${type}" th:text="${type}"></option>
+							</th:block>
+						</select>
+				</div>
+
+				<button class="ui primary button" type="submit">Save</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

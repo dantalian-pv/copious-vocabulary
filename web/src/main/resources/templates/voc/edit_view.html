@@ -14,19 +14,13 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
-	<div class="ui buttons">
-		<a th:href="${'/vocabularies/' + voc.id}" th:text="${'Back to ' + voc.name}" class="ui button"> <i
-			class="save icon"></i>View Cards
-		</a>
-	</div>
-	<div class="ui divider"></div>
 	<div data-bind="css: {hidden: !errorMessage()}" class="ui hidden error message">
 		<div data-bind="text: errorHeader" class="header"></div>
 		<p data-bind="text: errorMessage" class="info"></p>
 	</div>
 	<form class="ui form" id="view_form" method="post" action="/v1/api/views">
-		<input type="hidden" name="id" th:value="${voc.id}">
-		<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+		<input type="hidden" name="id" th:value="${voc.id}"> <input type="hidden" name="_csrf"
+			th:value="${_csrf.token}">
 		<div class="field">
 			<label>Css</label>
 			<textarea name="css" th:text="${view.css}"></textarea>
@@ -41,6 +35,9 @@
 		</div>
 
 		<button class="ui primary button" type="submit">Save</button>
+		<a class="ui button" th:href="${'/vocabularies/' + voc.id}" th:text="${'Back to ' + voc.name}"> <i
+			class="save icon"></i>Back to
+		</a>
 	</form>
 </body>
 </html>
