@@ -32,6 +32,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
+import ru.dantalian.copvoc.persist.elastic.model.annotations.SubField;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.CodecException;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.DefaultCodec;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.FieldCodec;
@@ -331,9 +332,15 @@ public abstract class AbstractPersistManager<T> {
 		    {
 		    	mappings.startObject("properties");
 	        {
-	        	addMappingForClass(mappings, entity);
+	        	addMappingForClass(mappings, entity, false);
 	        }
 	        mappings.endObject();
+	        // dynamic templates
+	        mappings.startArray("dynamic_templates");
+	        {
+	        	addMappingForClass(mappings, entity, true);
+	        }
+	        mappings.endArray();
 		    }
 		    mappings.endObject();
 			}
@@ -399,20 +406,20 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMappingForClass(final XContentBuilder mappings, final Class<?> aEntity)
+	protected void addMappingForClass(final XContentBuilder mappings, final Class<?> aEntity, final boolean aDynamic)
 			throws IOException, InstantiationException, IllegalAccessException {
 		final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
 		final Method[] methods = aEntity.getDeclaredMethods();
 		for (final java.lang.reflect.Field field: fields) {
 			final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
 			if (fieldAnnotation != null) {
-				addFieldIndex(field, fieldAnnotation, mappings);
+				addFieldIndex(field, fieldAnnotation, mappings, aDynamic);
 			}
 		}
 		for (final Method method: methods) {
 			final Field fieldAnnotation = method.getDeclaredAnnotation(Field.class);
 			if (fieldAnnotation != null) {
-				addMethodIndex(method, fieldAnnotation, mappings);
+				addMethodIndex(method, fieldAnnotation, mappings, aDynamic);
 			}
 		}
 		Class<?> superclass = null;
@@ -420,11 +427,12 @@ public abstract class AbstractPersistManager<T> {
 			if (superclass.equals(Object.class)) {
 				break;
 			}
-			addMappingForClass(mappings, superclass);
+			addMappingForClass(mappings, superclass, aDynamic);
 		}
 	}
 
-	protected void addMethodIndex(final Method aMethod, final Field aFieldAnnotation, final XContentBuilder aMappings)
+	protected void addMethodIndex(final Method aMethod, final Field aFieldAnnotation,
+			final XContentBuilder aMappings, final boolean aDynamic)
 			throws InstantiationException, IllegalAccessException, IOException {
 		String name = "".equals(aFieldAnnotation.name()) || aFieldAnnotation.name() == null
 				? aMethod.getName() : aFieldAnnotation.name();
@@ -432,22 +440,45 @@ public abstract class AbstractPersistManager<T> {
 			return;
 		}
 		name = name.substring(2).toLowerCase();
-		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings);
+		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
 	}
 
 	protected void addFieldIndex(final java.lang.reflect.Field aField, final Field aFieldAnnotation,
-			final XContentBuilder aMappings) throws IOException, InstantiationException, IllegalAccessException {
+			final XContentBuilder aMappings, final boolean aDynamic) throws IOException, InstantiationException, IllegalAccessException {
 		final String name = getIndexFieldName(aField, aFieldAnnotation);
-		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings);
+		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
 	}
 
-	protected void addMapping(final String aName, final String aType, final boolean aIndex,
-			final Class<? extends FieldCodec> aCodec, final XContentBuilder aMappings)
+	protected void addMapping(final String aName, final String aType, final SubField[] aSubfields, final boolean aIndex,
+			final Class<? extends FieldCodec> aCodec, final XContentBuilder aMappings, final boolean aDynamic)
 					throws IOException, InstantiationException, IllegalAccessException {
-		aMappings.startObject(aName);
-			aMappings.field("type", aType);
-			aMappings.field("index", aIndex);
-		aMappings.endObject();
+		if ("object".equals(aType) && aDynamic && aSubfields != null) {
+			for (final SubField subField: aSubfields) {
+				aMappings.startObject();
+				{
+					aMappings.startObject(aName + "_dynamic");
+					{
+						aMappings.field("path_match", subField.path_match());
+						if (!subField.path_unmatch().isEmpty()) {
+							aMappings.field("path_unmatch", subField.path_unmatch());
+						}
+						aMappings.startObject("mapping");
+						{
+							aMappings.field("type", subField.type());
+							aMappings.field("index", subField.index());
+						}
+						aMappings.endObject();
+					}
+					aMappings.endObject();
+				}
+				aMappings.endObject();
+			}
+		} else if (!"object".equals(aType) && !aDynamic) {
+			aMappings.startObject(aName);
+				aMappings.field("type", aType);
+				aMappings.field("index", aIndex);
+			aMappings.endObject();
+		}
 		addCodec(aName, aCodec);
 	}
 

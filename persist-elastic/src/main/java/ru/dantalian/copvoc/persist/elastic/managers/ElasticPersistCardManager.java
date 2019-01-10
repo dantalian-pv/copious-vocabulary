@@ -86,9 +86,18 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		search.getHits()
-				.forEach(aItem -> list.add(new PojoCard(UUID.fromString(aItem.getId()),
-						UUID.fromString(aItem.field("vocabulary_id").getValue()),
-						aItem.field("fields_content").getValue())));
+				.forEach(aItem -> {
+					final Map<String, Object> source = aItem.getSourceAsMap();
+					final UUID id = UUID.fromString(aItem.getId());
+					final UUID vocId = UUID.fromString((String) source.get("vocabulary_id"));
+
+					final Map<String, ?> content = (Map<String, ?>) source.get("content");
+					final Map<String, CardFieldContent> map = new HashMap<>();
+					for (final Entry<String, ?> entry: content.entrySet()) {
+						map.put(entry.getKey(), new PojoCardFieldContent(id, vocId, entry.getKey(), (String) entry.getValue()));
+					}
+					list.add(new PojoCard(id, vocId, map));
+					});
 		return list;
 	}
 

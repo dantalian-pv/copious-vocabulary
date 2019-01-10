@@ -61,6 +61,10 @@ function setFormAction(params) {
 								data[x.name] = x.value;
 							}
 						});
+						
+						if (params.convert) {
+							data = params.convert(data);
+						}
 
 						resetForm(form);
 

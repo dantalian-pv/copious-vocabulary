@@ -8,7 +8,8 @@ function Form(params) {
 		formSelector : params.formSelector,
 		uri : params.url,
 		method : 'POST',
-		doneAction : null
+		doneAction : null,
+		convert: params.convert
 	};
 
 	setFormAction(formParams);

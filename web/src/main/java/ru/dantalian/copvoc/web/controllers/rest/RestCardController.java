@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
+import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
@@ -31,14 +34,17 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 public class RestCardController {
 
 	@Autowired
-	private PersistCardManager mCardManager;
+	private PersistCardManager cardManager;
+
+	@Autowired
+	private PersistCardFieldManager fieldManager;
 
 	@RequestMapping(value = "/{voc_id}", method = RequestMethod.GET)
 	public List<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
 			final Principal aPrincipal) throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			return mCardManager.queryCards(user, QueryFactory.newCardsQuery()
+			return cardManager.queryCards(user, QueryFactory.newCardsQuery()
 					.setVocabularyId(UUID.fromString(aVocabularyId)).build())
 					.stream()
 					.map(this::asDtoCard)
@@ -54,7 +60,7 @@ public class RestCardController {
 					throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Card card = mCardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
+			final Card card = cardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
 			if (card == null) {
 				throw new PersistException("Card with id: " + aId + " not found");
 			}
@@ -70,8 +76,9 @@ public class RestCardController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Map<String, String> map = asMap(aCard.getContent());
-			final Card card = mCardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
+			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aCard.getVocabularyId()));
+			final Map<String, String> map = asMap(aCard.getContent(), fields);
+			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
 			return asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
@@ -83,20 +90,44 @@ public class RestCardController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Map<String, String> map = asMap(aCard.getContent());
-			mCardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
+			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aCard.getVocabularyId()));
+			final Map<String, String> map = asMap(aCard.getContent(), fields);
+			cardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
 					UUID.fromString(aCard.getId()), map);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
 	}
 
-	private Map<String, String> asMap(final List<DtoCardContent> aContent) {
+	private Map<String, String> asMap(final List<DtoCardContent> aContent, final List<CardField> aFields) {
+		final Map<String, CardField> fieldMap = asFieldsMap(aFields);
 		final Map<String, String> map = new HashMap<>();
 		for (final DtoCardContent item: aContent) {
-			map.put(item.getName(), item.getText());
+			map.put(asPersistName(item.getName(), fieldMap.get(item.getName())), item.getText());
 		}
 		return map;
+	}
+
+	private Map<String, CardField> asFieldsMap(final List<CardField> aFields) {
+		final Map<String, CardField> fieldMap = new HashMap<>();
+		for (final CardField field: aFields) {
+			fieldMap.put(field.getName(), field);
+		}
+		return fieldMap;
+	}
+
+	private String asPersistName(final String aName, final CardField aCardField) {
+		return aName + "_" + getIndexType(aCardField.getType());
+	}
+
+	private String getIndexType(final CardFiledType aType) {
+		switch (aType) {
+			case MARKUP:
+			case TEXT:
+				return "text";
+			default:
+				return "keyword";
+		}
 	}
 
 	private DtoCard asDtoCard(final Card aCard) {
@@ -106,7 +137,8 @@ public class RestCardController {
 		final List<DtoCardContent> list = new LinkedList<>();
 		final Map<String, CardFieldContent> content = aCard.getFieldsContent();
 		for(final Entry<String, CardFieldContent> entry: content.entrySet()) {
-			list.add(new DtoCardContent(entry.getKey(), entry.getValue().getContent()));
+			final String dtoName = entry.getKey().replaceAll("_\\w+$", "");
+			list.add(new DtoCardContent(dtoName, entry.getValue().getContent()));
 		}
 		return new DtoCard(aCard.getId().toString(),
 				aCard.getVocabularyId().toString(), list);

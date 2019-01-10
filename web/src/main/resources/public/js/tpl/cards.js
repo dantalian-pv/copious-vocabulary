@@ -30,6 +30,23 @@ $(document).ready(
 
 				// Form Data
 				self.itemForm = new Form({
+					convert: function(data) {
+						var card = {};
+						card['content'] = [];
+						for (var key in data) {
+					    if (data.hasOwnProperty(key)) {
+					    	if (key == 'vocabularyId') {
+					    		card['vocabularyId'] = data[key];
+					    	} else {
+					    		card.content.push({
+					    			name: key,
+					    			text: data[key]
+					    		});
+					    	}
+					    }
+						}
+						return card;
+					},
 					setItem : function(data) {
 						this.id(data.id());
 						this.content(data.content());

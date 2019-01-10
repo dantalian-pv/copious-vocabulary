@@ -12,6 +12,7 @@
 		<div class="header" data-bind="text: (itemForm.id()) ? 'Edit Card' : 'Add New Card'"></div>
 		<div class="content">
 			<form id="add_card_form" class="ui form segment" method="post" action="/v1/api/cards">
+				<input th:value="${voc.id}" name="vocabularyId" type="hidden">
 				<div class="ui inverted dimmer">
 					<div class="ui text loader">Loading</div>
 				</div>
@@ -20,20 +21,14 @@
 					<p class="info">Card has been saved</p>
 				</div>
 
-				<div class="required field">
-					<label>Name</label>
-					<div class="ui pointing below red label hidden"></div>
-					<div class="ui left icon input">
-						<input name="name" type="text" data-bind="value: itemForm.name" /><i class="user icon"></i>
+				<th:block th:each="field: ${fields}">
+					<div th:class="${#strings.equals(field.type, 'ANSWER')} ? 'field required' : 'field'">
+						<label th:text="${field.name} + ' (' + ${field.type} + ')'">Name</label>
+						<div class="ui pointing below red label hidden"></div>
+						<textarea th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" data-bind="text: itemForm.name"></textarea>
+						<input th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" data-bind="value: itemForm.name" />
 					</div>
-				</div>
-				<div class="field">
-					<label>Description</label>
-					<div class="ui pointing below red label hidden"></div>
-					<div class="ui input">
-						<input name="description" data-bind="text: itemForm.description" />
-					</div>
-				</div>
+				</th:block>
 
 				<button class="ui primary button" type="submit">Save</button>
 			</form>

@@ -12,9 +12,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
+import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
@@ -29,6 +31,9 @@ public class VocabularyController {
 
 	@Autowired
 	private PersistVocabularyViewManager viewManager;
+
+	@Autowired
+	private PersistCardFieldManager fieldsManager;
 
 	@RequestMapping("/vocabularies/{id}")
 	public String voc(@PathVariable("id") final String aId, final Principal aPrincipal, final Model aModel)
@@ -54,9 +59,11 @@ public class VocabularyController {
 		if (voc == null) {
 			throw new PageNotFoundException();
 		}
+		final List<CardField> fields = fieldsManager.listFields(user, UUID.fromString(aId));
 
 		aModel.addAttribute("tpl", "voc/edit_cards");
 		aModel.addAttribute("voc", voc);
+		aModel.addAttribute("fields", fields);
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", "Edit " + voc.getName());
 		return FRAME;

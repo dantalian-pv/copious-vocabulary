@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
+import ru.dantalian.copvoc.persist.elastic.model.annotations.SubField;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.UUIDCodec;
 
 public class DbCard {
@@ -16,7 +17,10 @@ public class DbCard {
 	@Field(name = "vocabulary_id", codec = UUIDCodec.class)
 	private UUID vocabularyId;
 
-	@Field(name = "content")
+	@Field(name = "content", type = "object", subtype = {
+			@SubField(path_match="content.*_keyword"),
+			@SubField(path_match="content.*_text", type = "text")
+	})
 	private Map<String, String> fieldsContent;
 
 	public DbCard(final UUID aId, final UUID aVocabularyId, final Map<String, String> aFieldsContent) {

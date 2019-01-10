@@ -10,13 +10,13 @@ import ru.dantalian.copvoc.persist.elastic.model.codecs.FieldCodec;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
-public @interface Field {
+public @interface SubField {
 
-	String name() default "";
+	String path_match();
+
+	String path_unmatch() default "";
 
 	String type() default "keyword";
-
-	SubField[] subtype() default @SubField(path_match = "");
 
 	boolean index() default true;
 

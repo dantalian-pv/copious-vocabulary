@@ -14,19 +14,30 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
+	<a class="ui button" th:href="${'/vocabularies/' + voc.id}" th:text="${'Back to ' + voc.name}"> <i
+		class="save icon"></i>Back to
+	</a>
+	<div class="ui divider"></div>
 	<div class="ui top attached button" tabindex="0" data-bind="click: showItemForm">
 		<i class="add icon"></i>Add Card
 	</div>
 	<div class="ui attached segment">
-		<div class="ui relaxed divided list" data-bind="foreach: items">
-			<div class="item">
-				<i class="large github middle aligned icon"></i>
-				<div class="content" data-bind="with: content">
-					<div class="description" data-bind="text: sourceName() + ' -> ' + targetName()"></div>
-					<div class="description" data-bind="text: description"></div>
-				</div>
-			</div>
-		</div>
+		<table class="ui celled table">
+			<thead>
+				<tr>
+					<th:block th:each="field: ${fields}">
+						<th th:text="${field.name + ' (' + field.type + ')'}"></th>
+					</th:block>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: items">
+				<tr>
+					<th:block th:each="field: ${fields}">
+						<td th:attr="data-bind=${'text: ' + field}"></td>
+					</th:block>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 	<div th:replace="forms/card_form::body" th:remove="tag"></div>
 </body>
