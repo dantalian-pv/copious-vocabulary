@@ -5,8 +5,10 @@
 	<style type="text/css" th:text="${view.css}"></style>
 </object>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
-	<script th:src="@{/js/tpl/root/form.js}"></script>
-	<script th:src="@{/js/tpl/form.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		document.vocabularyId=[[${voc.id}]];
+	</script>
+	<script th:src="@{/js/tpl/show_cards.js}"></script>
 </object>
 </head>
 <body th:fragment="body" th:remove="tag">
@@ -17,6 +19,15 @@
 	<div class="ui divider"></div>
 	<div th:replace="${'front/' + view.vocabularyId}::body"></div>
 	<div class="ui divider"></div>
-	<div th:replace="${'back/' + view.vocabularyId}::body"></div>
+	<div class="ui segment dimmable" style="min-height: 400px;">
+	  <div class="ui dimmer" data-bind="css: { 'active': !isShowAnswer() }" style="background-color: #E0E1E2;"></div>
+	  <div th:replace="${'back/' + view.vocabularyId}::body"></div>
+	</div>
+	<div>
+		<button class="ui button" data-bind="click: showAnswer, text: isShowAnswer() ? 'Hide Answer' : 'Show Answer' ">Show Answer</button>
+		<button class="ui button" data-bind="click: showPrevious, css: {disabled: current() <= 0}">Previous</button>
+		<span data-bind="text: current() + 1 + ' of ' + items().length"></span>
+		<button class="ui button" data-bind="click: showNext, css: {disabled: current() >= items().length - 1}">Next</button>
+	</div>
 </body>
 </html>
