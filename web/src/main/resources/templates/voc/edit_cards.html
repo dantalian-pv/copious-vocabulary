@@ -33,7 +33,7 @@
 			<tbody data-bind="foreach: items">
 				<tr>
 					<th:block th:each="field: ${fields}">
-						<td th:attr="data-bind=${'text: ' + field}"></td>
+						<td th:attr="data-bind=${'text: ' + field.name}"></td>
 					</th:block>
 				</tr>
 			</tbody>

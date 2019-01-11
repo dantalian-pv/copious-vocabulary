@@ -8,13 +8,19 @@ $(document).ready(
 			csrf[csrf_name] = $("meta[name='_csrf']").attr("content");
 
 			function Item(data) {
-				this.id = ko.observable(data.id);
-				this.content = ko.observableArray(data.content)
+				for (var key in data) {
+			    if (data.hasOwnProperty(key)) {
+			    	this[key] = ko.observable(data[key]);
+			    }
+				}
 			}
 
 			function ItemForm(data) {
-				this.id = ko.observable(data.id);
-				this.content = ko.observableArray(data.content)
+				for (var key in data) {
+					if (data.hasOwnProperty(key)) {
+						this[key] = ko.observable(data[key]);
+					}
+				}
 			}
 
 			function ItemGroupListViewModel() {
@@ -66,7 +72,7 @@ $(document).ready(
 
 				// Operations
 				self.addItem = function(data) {
-					self.items.splice(0, 0, new Item(data));
+					self.items.splice(0, 0, new Item(self.convertItem(data)));
 				};
 				self.removeItem = function(item) {
 					self.items.remove(item);
@@ -141,12 +147,22 @@ $(document).ready(
 					});
 
 				};
+				
+				self.convertItem = function(data) {
+					var flatItem = {};
+					flatItem['id'] = data.id;
+					flatItem['vocabularyId'] = data.vocabularyId;
+					for (var cnt in data.content) {
+						flatItem[data.content[cnt].name] = data.content[cnt].text;
+					}
+					return flatItem;
+				}
 
 				self.updateData = function() {
 					// Load initial state from server
 					$.getJSON('/v1/api/cards/' + document.vocabularyId, function(allData) {
 						var mappedItems = $.map(allData, function(item) {
-							return new Item(item)
+							return new Item(self.convertItem(item));
 						});
 						self.items(mappedItems);
 					});
