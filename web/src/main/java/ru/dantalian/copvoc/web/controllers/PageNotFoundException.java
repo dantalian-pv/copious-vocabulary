@@ -8,4 +8,16 @@ public class PageNotFoundException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
+	public PageNotFoundException() {
+		super();
+	}
+
+	public PageNotFoundException(final String aMessage, final Throwable aCause) {
+		super(aMessage, aCause);
+	}
+
+	public PageNotFoundException(final String aMessage) {
+		super(aMessage);
+	}
+
 }

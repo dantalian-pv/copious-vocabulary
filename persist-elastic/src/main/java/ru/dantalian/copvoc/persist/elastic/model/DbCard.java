@@ -23,6 +23,9 @@ public class DbCard {
 	})
 	private Map<String, String> fieldsContent;
 
+	public DbCard() {
+	}
+
 	public DbCard(final UUID aId, final UUID aVocabularyId, final Map<String, String> aFieldsContent) {
 		id = aId;
 		vocabularyId = aVocabularyId;

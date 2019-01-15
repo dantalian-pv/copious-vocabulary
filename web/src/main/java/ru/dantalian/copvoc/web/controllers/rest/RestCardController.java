@@ -24,8 +24,8 @@ import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
-import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
+import ru.dantalian.copvoc.web.common.CardUtils;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 
@@ -103,7 +103,7 @@ public class RestCardController {
 		final Map<String, CardField> fieldMap = asFieldsMap(aFields);
 		final Map<String, String> map = new HashMap<>();
 		for (final DtoCardContent item: aContent) {
-			map.put(asPersistName(item.getName(), fieldMap.get(item.getName())), item.getText());
+			map.put(CardUtils.asPersistName(fieldMap.get(item.getName())), item.getText());
 		}
 		return map;
 	}
@@ -114,20 +114,6 @@ public class RestCardController {
 			fieldMap.put(field.getName(), field);
 		}
 		return fieldMap;
-	}
-
-	private String asPersistName(final String aName, final CardField aCardField) {
-		return aName + "_" + getIndexType(aCardField.getType());
-	}
-
-	private String getIndexType(final CardFiledType aType) {
-		switch (aType) {
-			case MARKUP:
-			case TEXT:
-				return "text";
-			default:
-				return "keyword";
-		}
 	}
 
 	private DtoCard asDtoCard(final Card aCard) {

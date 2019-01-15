@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<object th:fragment="headcss" th:remove="tag">
+	<style type="text/css" th:text="${view.css}"></style>
+</object>
+<object type="text/javascript" th:fragment="headscript" th:remove="tag">
+	<script type="text/javascript" th:inline="javascript">
+		document.vocabularyId=[[${voc.id}]];
+		document.cardId=[[${card.id}]];
+		document.nextCardId=[[${nextCard == null ? '' : nextCard.id}]];
+	</script>
+	<script th:src="@{/js/tpl/training.js}"></script>
+</object>
+</head>
+<body th:fragment="body" th:remove="tag">
+	<div class="ui buttons">
+		<a th:href="${'/vocabularies/' + voc.id}" th:text="${'Batck to ' + voc.name}" class="ui button"> <i class="save icon"></i>View Cards
+		</a>
+	</div>
+	<div class="ui divider"></div>
+	<div th:replace="${'front/' + view.vocabularyId}::body"></div>
+	<div class="ui divider"></div>
+  <form id="check_card_form" class="ui form segment" method="post" th:action="${'/v1/api/validate/' + voc.id + '/' + card.id}">
+  	<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+  	<div class="ui inverted dimmer">
+			<div class="ui text loader">Loading</div>
+		</div>
+		<div class="ui hidden positive message" data-bind="css: {hidden: !errorMessage()}">
+			<div class="header" data-bind="text: errorHeader">Success</div>
+			<p class="info" data-bind="text: errorMessage">Checked</p>
+		</div>
+		<div class="required field">
+			<label>Answer</label>
+			<div class="ui pointing below red label hidden"></div>
+			<div class="ui left icon input">
+				<input name="answer" type="text" /><i class="graduation cap icon"></i>
+			</div>
+			<div class="ui left icon input">
+				<button class="ui green button" name="test" type="submit">Check</button>
+				<span th:text="${cards_idx + ' of ' + cards_size}"></span>
+				<button class="ui orange button" data-bind="click: showNext">Skip</button>
+			</div>
+		</div>
+  </form>
+</body>
+</html>

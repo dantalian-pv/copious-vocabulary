@@ -46,9 +46,9 @@
 			<i class="save icon"></i>Show Cards
 		</a>
 		<div class="or"></div>
-		<div class="ui orange button" data-bind="click: showTraining">
+		<a class="ui orange button" th:href="${'/cards/' + voc.id}">
 			<i class="keyboard icon"></i>Training
-		</div>
+		</a>
 	</div>
 	<div th:replace="forms/voc_form::body" th:remove="tag"></div>
 </body>
