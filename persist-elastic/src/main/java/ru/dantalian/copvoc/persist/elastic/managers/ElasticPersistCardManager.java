@@ -10,6 +10,8 @@ import java.util.UUID;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,9 @@ import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.query.CardsExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsQuery;
+import ru.dantalian.copvoc.persist.api.query.TermExpression;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
@@ -82,7 +86,10 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	@Override
 	public List<Card> queryCards(final String aUser, final CardsQuery aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.query(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
+		final QueryBuilder query = asElaticQuery(aQuery);
+		if (aQuery.getVocabularyId() != null) {
+			searchSourceBuilder.query(query);
+		}
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		search.getHits()
@@ -101,7 +108,27 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		return list;
 	}
 
+	private QueryBuilder asElaticQuery(final CardsQuery aQuery) {
+		final BoolQueryBuilder bool = QueryBuilders.boolQuery();
+		if (aQuery.getVocabularyId() != null) {
+			bool.must(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
+		}
+		final CardsExpression expression = aQuery.where();
+		if (expression instanceof TermExpression) {
+			final TermExpression termExpression = (TermExpression) expression;
+			if (termExpression.isWildcard()) {
+				bool.must(QueryBuilders.wildcardQuery(termExpression.getName(), termExpression.getValue()));
+			} else {
+				bool.must(QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue()));
+			}
+		}
+		return bool.must().isEmpty() ? QueryBuilders.matchAllQuery() : bool;
+	}
+
 	private String getIndexId(final UUID aUuid) {
+		if (aUuid == null) {
+			return DEFAULT_INDEX + "-*";
+		}
 		return DEFAULT_INDEX + "-" + aUuid.toString();
 	}
 

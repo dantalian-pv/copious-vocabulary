@@ -14,6 +14,8 @@
 		<module>persist-api</module>
 		<module>persist-sqlite</module>
 		<module>persist-elastic</module>
+		<module>suggester-api</module>
+		<module>suggester-combined</module>
 		<module>core</module>
 		<module>ui</module>
 		<module>web</module>
@@ -62,6 +64,16 @@
 			<dependency>
 				<groupId>ru.dantalian.copvoc</groupId>
 				<artifactId>copious-vocabulary-persist-elastic</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-suggester-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ru.dantalian.copvoc</groupId>
+				<artifactId>copious-vocabulary-suggester-combined</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

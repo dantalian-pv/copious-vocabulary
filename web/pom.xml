@@ -33,6 +33,14 @@
 			<groupId>ru.dantalian.copvoc</groupId>
 			<artifactId>copious-vocabulary-persist-elastic</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ru.dantalian.copvoc</groupId>
+			<artifactId>copious-vocabulary-suggester-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ru.dantalian.copvoc</groupId>
+			<artifactId>copious-vocabulary-suggester-combined</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

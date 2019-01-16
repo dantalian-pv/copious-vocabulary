@@ -8,4 +8,6 @@ public interface CardsQueryBuilder extends Builder<CardsQuery> {
 
 	CardsQueryBuilder setVocabularyId(UUID aVocabularyId);
 
+	CardsQueryBuilder where(CardsExpression aExpression);
+
 }
