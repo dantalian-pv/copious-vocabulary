@@ -64,7 +64,7 @@ public class ElasticSuggester implements Suggester {
 			final CardField field = fieldManager.getField(aUser, aCard.getVocabularyId(), name);
 			final CardFieldContent content = entry.getValue();
 			if (isFits(aType, field)) {
-				suggests.add(new PojoSuggest(URI.create("card://" + aCard.getId() + "/" + name), name, content.getContent(), 1.0d));
+				suggests.add(new PojoSuggest(URI.create("card://" + aCard.getVocabularyId() + "/" + aCard.getId() + "/" + name), name, content.getContent(), 1.0d));
 			}
 		}
 		return suggests;
