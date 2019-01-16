@@ -17,6 +17,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
 import ru.dantalian.copvoc.persist.api.query.CardsQueryBuilder;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.suggester.api.SuggestException;
@@ -41,7 +42,19 @@ public class ElasticSuggester implements Suggester {
 		try {
 			final List<Suggest> suggests = new LinkedList<>();
 			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
-			cardsQuery.where(QueryFactory.term(aQuery.getKey(), aQuery.getValue() + "*", true));
+			final BoolExpressionBuilder bool = QueryFactory.bool();
+			final List<CardField> fields = fieldManager.listFields(aUser, null);
+			final String key = aQuery.getKey().toLowerCase();
+			for (final CardField field: fields) {
+				if (field.getName().toLowerCase().contains(key)) {
+					if (aQuery.getType() == SuggestQueryType.STRING) {
+						bool.should(QueryFactory.term("content." + field.getName() + "_keyword", aQuery.getValue() + "*", true));
+					} else {
+						bool.should(QueryFactory.term("content." + field.getName() + "_text", aQuery.getValue() + "*", true));
+					}
+				}
+			}
+			cardsQuery.where(bool.build());
 			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build());
 			for (final Card card: queryCards) {
 				suggests.addAll(asSuggest(aUser, card, aQuery.getKey(), aQuery.getType()));

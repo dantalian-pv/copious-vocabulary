@@ -1,5 +1,6 @@
 package ru.dantalian.copvoc.persist.impl.query;
 
+import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
 import ru.dantalian.copvoc.persist.api.query.CardsQueryBuilder;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
 
@@ -14,6 +15,10 @@ public class QueryFactory {
 
 	public static TermExpression term(final String aKey, final String aValue, final boolean aWildcard) {
 		return new TermExpressionImpl(aKey, aValue, aWildcard);
+	}
+
+	public static BoolExpressionBuilder bool() {
+		return new BoolExpressionBuilderImpl();
 	}
 
 }

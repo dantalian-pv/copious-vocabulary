@@ -21,6 +21,7 @@ import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsQuery;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
@@ -87,9 +88,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	public List<Card> queryCards(final String aUser, final CardsQuery aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		final QueryBuilder query = asElaticQuery(aQuery);
-		if (aQuery.getVocabularyId() != null) {
-			searchSourceBuilder.query(query);
-		}
+		searchSourceBuilder.query(query);
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		search.getHits()
@@ -113,16 +112,34 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		if (aQuery.getVocabularyId() != null) {
 			bool.must(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
 		}
-		final CardsExpression expression = aQuery.where();
-		if (expression instanceof TermExpression) {
-			final TermExpression termExpression = (TermExpression) expression;
-			if (termExpression.isWildcard()) {
-				bool.must(QueryBuilders.wildcardQuery(termExpression.getName(), termExpression.getValue()));
-			} else {
-				bool.must(QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue()));
-			}
-		}
+		bool.must(asElaticQuery(aQuery.where()));
 		return bool.must().isEmpty() ? QueryBuilders.matchAllQuery() : bool;
+	}
+
+	private QueryBuilder asElaticQuery(final CardsExpression aExpression) {
+		if (aExpression instanceof TermExpression) {
+			final TermExpression termExpression = (TermExpression) aExpression;
+			if (termExpression.isWildcard()) {
+				return QueryBuilders.wildcardQuery(termExpression.getName(), termExpression.getValue());
+			} else {
+				return QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue());
+			}
+		} else if (aExpression instanceof BoolExpression) {
+			final BoolQueryBuilder boolElastic = QueryBuilders.boolQuery();
+			final BoolExpression boolExpression = (BoolExpression) aExpression;
+			for (final CardsExpression exp: boolExpression.must()) {
+				boolElastic.must(asElaticQuery(exp));
+			}
+			for (final CardsExpression exp: boolExpression.should()) {
+				boolElastic.should(asElaticQuery(exp));
+			}
+			for (final CardsExpression exp: boolExpression.not()) {
+				boolElastic.mustNot(asElaticQuery(exp));
+			}
+			return boolElastic;
+		} else {
+			throw new IllegalArgumentException("Unknown expression type: " + aExpression.getClass().getName());
+		}
 	}
 
 	private String getIndexId(final UUID aUuid) {
