@@ -17,9 +17,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
+import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsExpression;
@@ -27,6 +29,7 @@ import ru.dantalian.copvoc.persist.api.query.CardsQuery;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
+import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
 
@@ -38,10 +41,14 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 
 	private final ElasticSettings settings;
 
+	private final PersistCardFieldManager fieldManager;
+
 	@Autowired
-	public ElasticPersistCardManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
+	public ElasticPersistCardManager(final RestHighLevelClient aClient, final ElasticSettings aSettings,
+			final PersistCardFieldManager aFieldManager) {
 		super(aClient, DbCard.class);
 		settings = aSettings;
+		fieldManager = aFieldManager;
 	}
 
 	@Override
@@ -58,7 +65,8 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	public Card createCard(final String aUser, final UUID aVocabularyId,
 			final Map<String, String> aContent) throws PersistException {
 		final UUID id = UUID.randomUUID();
-		final DbCard card = new DbCard(id, aVocabularyId, aContent);
+		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
+		final DbCard card = new DbCard(id, aVocabularyId, asPersistMap(aContent, fields));
 		add(getIndexId(aVocabularyId), card, true);
 		return asCard(card);
 	}
@@ -70,7 +78,8 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		if (card == null) {
 			throw new PersistException("Card not found");
 		}
-		final DbCard dbCard = asDbCard(card);
+		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
+		final DbCard dbCard = asDbCard(card, fields);
 		update(getIndexId(card.getVocabularyId()), dbCard, true);
 	}
 
@@ -100,11 +109,21 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 					final Map<String, ?> content = (Map<String, ?>) source.get("content");
 					final Map<String, CardFieldContent> map = new HashMap<>();
 					for (final Entry<String, ?> entry: content.entrySet()) {
-						map.put(entry.getKey(), new PojoCardFieldContent(id, vocId, entry.getKey(), (String) entry.getValue()));
+						final String pojoName = CardUtils.asPojoName(entry.getKey());
+						map.put(pojoName, new PojoCardFieldContent(id, vocId, pojoName, (String) entry.getValue()));
 					}
 					list.add(new PojoCard(id, vocId, map));
 					});
 		return list;
+	}
+
+	private Map<String, String> asPersistMap(final Map<String, String> aContent, final List<CardField> aFields) {
+		final Map<String, CardField> fieldMap = CardUtils.asFieldsMap(aFields);
+		final Map<String, String> map = new HashMap<>();
+		for (final Entry<String, String> entry: aContent.entrySet()) {
+			map.put(CardUtils.asPersistName(fieldMap.get(entry.getKey())), entry.getValue());
+		}
+		return map;
 	}
 
 	private QueryBuilder asElaticQuery(final CardsQuery aQuery) {
@@ -112,7 +131,9 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		if (aQuery.getVocabularyId() != null) {
 			bool.must(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
 		}
-		bool.must(asElaticQuery(aQuery.where()));
+		if (aQuery.where() != null) {
+			bool.must(asElaticQuery(aQuery.where()));
+		}
 		return bool.must().isEmpty() ? QueryBuilders.matchAllQuery() : bool;
 	}
 
@@ -149,11 +170,13 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		return DEFAULT_INDEX + "-" + aUuid.toString();
 	}
 
-	private DbCard asDbCard(final Card aCard) {
+	private DbCard asDbCard(final Card aCard, final List<CardField> aFields) {
 		final Map<String, CardFieldContent> fieldsContent = aCard.getFieldsContent();
+		final Map<String, CardField> fieldMap = CardUtils.asFieldsMap(aFields);
 		final Map<String, String> content = new HashMap<>();
 		for (final Entry<String, CardFieldContent> entry: fieldsContent.entrySet()) {
-			content.put(entry.getKey(), entry.getValue().getContent());
+			final String persistName = CardUtils.asPersistName(fieldMap.get(entry.getKey()));
+			content.put(persistName, entry.getValue().getContent());
 		}
 		return new DbCard(aCard.getId(), aCard.getVocabularyId(), content);
 	}
@@ -162,8 +185,9 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		final Map<String, String> fieldsContent = aDbCard.getFieldsContent();
 		final Map<String, CardFieldContent> map = new HashMap<>();
 		for (final Entry<String, String> entry: fieldsContent.entrySet()) {
-			map.put(entry.getKey(), new PojoCardFieldContent(aDbCard.getId(), aDbCard.getVocabularyId(),
-					entry.getKey(), entry.getValue()));
+			final String name = CardUtils.asPojoName(entry.getKey());
+			map.put(name, new PojoCardFieldContent(aDbCard.getId(), aDbCard.getVocabularyId(),
+					name, entry.getValue()));
 		}
 		return new PojoCard(aDbCard.getId(), aDbCard.getVocabularyId(), map);
 	}

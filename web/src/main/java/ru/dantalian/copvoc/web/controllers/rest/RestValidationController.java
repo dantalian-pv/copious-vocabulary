@@ -21,7 +21,6 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
-import ru.dantalian.copvoc.web.common.CardUtils;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidation;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidationResult;
 
@@ -52,7 +51,7 @@ public class RestValidationController {
 					.filter(aItem -> aItem.getType() == CardFiledType.ANSWER)
 					.findFirst();
 			if (field.isPresent()) {
-				final CardFieldContent content = card.getContent(CardUtils.asPersistName(field.get()));
+				final CardFieldContent content = card.getContent(field.get().getName());
 				if (content != null && content.getContent().toLowerCase().contains(aValidation.getAnswer().toLowerCase())) {
 					return new DtoValidationResult(true, "valid");
 				} else {

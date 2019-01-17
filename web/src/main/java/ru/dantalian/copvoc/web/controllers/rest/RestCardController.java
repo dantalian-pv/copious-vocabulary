@@ -25,7 +25,6 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
-import ru.dantalian.copvoc.web.common.CardUtils;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 
@@ -100,20 +99,11 @@ public class RestCardController {
 	}
 
 	private Map<String, String> asMap(final List<DtoCardContent> aContent, final List<CardField> aFields) {
-		final Map<String, CardField> fieldMap = asFieldsMap(aFields);
 		final Map<String, String> map = new HashMap<>();
 		for (final DtoCardContent item: aContent) {
-			map.put(CardUtils.asPersistName(fieldMap.get(item.getName())), item.getText());
+			map.put(item.getName(), item.getText());
 		}
 		return map;
-	}
-
-	private Map<String, CardField> asFieldsMap(final List<CardField> aFields) {
-		final Map<String, CardField> fieldMap = new HashMap<>();
-		for (final CardField field: aFields) {
-			fieldMap.put(field.getName(), field);
-		}
-		return fieldMap;
 	}
 
 	private DtoCard asDtoCard(final Card aCard) {
@@ -123,8 +113,7 @@ public class RestCardController {
 		final List<DtoCardContent> list = new LinkedList<>();
 		final Map<String, CardFieldContent> content = aCard.getFieldsContent();
 		for(final Entry<String, CardFieldContent> entry: content.entrySet()) {
-			final String dtoName = entry.getKey().replaceAll("_\\w+$", "");
-			list.add(new DtoCardContent(dtoName, entry.getValue().getContent()));
+			list.add(new DtoCardContent(entry.getKey(), entry.getValue().getContent()));
 		}
 		return new DtoCard(aCard.getId().toString(),
 				aCard.getVocabularyId().toString(), list);
