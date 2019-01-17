@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
-import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
@@ -34,9 +32,6 @@ public class RestCardController {
 
 	@Autowired
 	private PersistCardManager cardManager;
-
-	@Autowired
-	private PersistCardFieldManager fieldManager;
 
 	@RequestMapping(value = "/{voc_id}", method = RequestMethod.GET)
 	public List<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
@@ -75,8 +70,7 @@ public class RestCardController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aCard.getVocabularyId()));
-			final Map<String, String> map = asMap(aCard.getContent(), fields);
+			final Map<String, String> map = asMap(aCard.getContent());
 			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
 			return asDtoCard(card);
 		} catch (final PersistException e) {
@@ -89,8 +83,7 @@ public class RestCardController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aCard.getVocabularyId()));
-			final Map<String, String> map = asMap(aCard.getContent(), fields);
+			final Map<String, String> map = asMap(aCard.getContent());
 			cardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
 					UUID.fromString(aCard.getId()), map);
 		} catch (final PersistException e) {
@@ -98,7 +91,7 @@ public class RestCardController {
 		}
 	}
 
-	private Map<String, String> asMap(final List<DtoCardContent> aContent, final List<CardField> aFields) {
+	private Map<String, String> asMap(final List<DtoCardContent> aContent) {
 		final Map<String, String> map = new HashMap<>();
 		for (final DtoCardContent item: aContent) {
 			map.put(item.getName(), item.getText());
