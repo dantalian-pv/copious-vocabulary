@@ -28,6 +28,12 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 	}
 
 	@Override
+	public SuggestQueryBuilder setType(final SuggestQueryType aType) {
+		type = aType;
+		return this;
+	}
+
+	@Override
 	public SuggestQueryBuilder with(final String aKey, final String aValue) {
 		key = aKey;
 		value = aValue;
@@ -47,6 +53,9 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 	public SuggestQuery build() throws SuggestException {
 		if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
 			throw new IllegalArgumentException("key and value should be defined");
+		}
+		if (type == null) {
+			type = SuggestQueryType.STRING;
 		}
 		return new SuggestQueryImpl(type, key, value, limit);
 	}

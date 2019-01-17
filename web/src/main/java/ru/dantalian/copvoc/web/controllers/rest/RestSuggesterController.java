@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryBuilder;
+import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
 import ru.dantalian.copvoc.suggester.api.Suggester;
 import ru.dantalian.copvoc.suggester.api.model.Suggest;
 import ru.dantalian.copvoc.suggester.api.query.SuggestQueryFactory;
@@ -37,10 +38,13 @@ public class RestSuggesterController {
 		try {
 			final String user = aPrincipal.getName();
 			final SuggestQueryBuilder builder = SuggestQueryFactory.newBuilder();
-			if ("text".equals(aType)) {
-				builder.asText();
-			} else {
-				builder.asString();
+			if (aType != null && !aType.isEmpty()) {
+				try {
+					final SuggestQueryType type = SuggestQueryType.valueOf(aType.toUpperCase());
+					builder.setType(type);
+				} catch (final IllegalArgumentException e) {
+					// just ignore
+				}
 			}
 			builder.with(aKey, aValue);
 

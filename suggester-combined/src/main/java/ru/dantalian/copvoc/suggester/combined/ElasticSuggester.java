@@ -28,7 +28,7 @@ import ru.dantalian.copvoc.suggester.api.model.Suggest;
 import ru.dantalian.copvoc.suggester.combined.model.PojoSuggest;
 
 @Component("elastic")
-@Order(1)
+@Order(10)
 public class ElasticSuggester implements Suggester {
 
 	@Autowired
@@ -38,19 +38,33 @@ public class ElasticSuggester implements Suggester {
 	private PersistCardFieldManager fieldManager;
 
 	@Override
+	public boolean accept(final SuggestQueryType aType) {
+		return aType == SuggestQueryType.STRING || aType == SuggestQueryType.TEXT;
+	}
+
+	@Override
 	public List<Suggest> suggest(final String aUser, final SuggestQuery aQuery) throws SuggestException {
 		try {
 			final List<Suggest> suggests = new LinkedList<>();
-			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
-			final BoolExpressionBuilder bool = QueryFactory.bool();
+
 			final List<CardField> fields = fieldManager.listFields(aUser, null);
 			final String key = aQuery.getKey().toLowerCase();
+			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
+			final BoolExpressionBuilder bool = QueryFactory.bool();
 			for (final CardField field: fields) {
 				if (field.getName().toLowerCase().contains(key)) {
-					if (aQuery.getType() == SuggestQueryType.STRING) {
-						bool.should(QueryFactory.term("content." + field.getName() + "_keyword", aQuery.getValue() + "*", true));
-					} else {
-						bool.should(QueryFactory.term("content." + field.getName() + "_text", aQuery.getValue() + "*", true));
+					switch (aQuery.getType()) {
+						case FIELD:
+							// Just ignore
+							break;
+						case STRING:
+							bool.should(QueryFactory.term("content." + field.getName() + "_keyword", aQuery.getValue() + "*", true));
+							break;
+						case TEXT:
+							bool.should(QueryFactory.term("content." + field.getName() + "_text", aQuery.getValue() + "*", true));
+							break;
+						default:
+							throw new IllegalArgumentException("Unknown query type: " + aQuery.getType());
 					}
 				}
 			}
