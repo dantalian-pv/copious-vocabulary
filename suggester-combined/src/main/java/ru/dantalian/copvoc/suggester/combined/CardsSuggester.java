@@ -27,9 +27,9 @@ import ru.dantalian.copvoc.suggester.api.Suggester;
 import ru.dantalian.copvoc.suggester.api.model.Suggest;
 import ru.dantalian.copvoc.suggester.combined.model.PojoSuggest;
 
-@Component("elastic")
+@Component("cards")
 @Order(10)
-public class ElasticSuggester implements Suggester {
+public class CardsSuggester implements Suggester {
 
 	@Autowired
 	private PersistCardManager cardManager;
