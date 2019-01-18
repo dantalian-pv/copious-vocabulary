@@ -8,7 +8,9 @@ public interface SuggestQueryBuilder extends Builder<SuggestQuery> {
 
 	SuggestQueryBuilder setType(SuggestQueryType aType);
 
-	SuggestQueryBuilder with(String aKey, String aValue);
+	SuggestQueryBuilder where(String aKey, String aValue);
+
+	SuggestQueryBuilder not(String aKey, String aValue);
 
 	SuggestQueryBuilder limit(int aLimit);
 

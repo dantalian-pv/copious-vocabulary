@@ -1,12 +1,14 @@
 package ru.dantalian.copvoc.suggester.api;
 
+import ru.dantalian.copvoc.suggester.api.model.Pair;
+
 public interface SuggestQuery {
 
 	SuggestQueryType getType();
 
-	String getKey();
+	Pair<String, String> getWhere();
 
-	String getValue();
+	Pair<String, String> getNot();
 
 	int limit();
 

@@ -48,34 +48,42 @@ public class ElasticSuggester implements Suggester {
 			final List<Suggest> suggests = new LinkedList<>();
 
 			final List<CardField> fields = fieldManager.listFields(aUser, null);
-			final String key = aQuery.getKey().toLowerCase();
+			final String key = aQuery.getWhere().getKey() == null || aQuery.getWhere().getKey().isEmpty()
+					? null : aQuery.getWhere().getKey().toLowerCase();
 			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
 			final BoolExpressionBuilder bool = QueryFactory.bool();
 			for (final CardField field: fields) {
-				if (field.getName().toLowerCase().contains(key)) {
-					switch (aQuery.getType()) {
-						case FIELD:
-							// Just ignore
-							break;
-						case STRING:
-							bool.should(QueryFactory.term("content." + field.getName() + "_keyword", aQuery.getValue() + "*", true));
-							break;
-						case TEXT:
-							bool.should(QueryFactory.term("content." + field.getName() + "_text", aQuery.getValue() + "*", true));
-							break;
-						default:
-							throw new IllegalArgumentException("Unknown query type: " + aQuery.getType());
-					}
+				if (key == null || field.getName().toLowerCase().contains(key)) {
+					addQueryByType(aQuery, bool, field);
 				}
+			}
+			if (aQuery.getNot() != null) {
+				bool.not(QueryFactory.term(aQuery.getNot().getKey(), aQuery.getNot().getValue(), false));
 			}
 			cardsQuery.where(bool.build());
 			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build());
 			for (final Card card: queryCards) {
-				suggests.addAll(asSuggest(aUser, card, aQuery.getKey(), aQuery.getType()));
+				suggests.addAll(asSuggest(aUser, card, aQuery.getWhere().getKey(), aQuery.getType()));
 			}
 			return suggests;
 		} catch (final PersistException e) {
 			throw new SuggestException("Failed to query cards", e);
+		}
+	}
+
+	private void addQueryByType(final SuggestQuery aQuery, final BoolExpressionBuilder bool, final CardField field) {
+		switch (aQuery.getType()) {
+			case FIELD:
+				// Just ignore
+				break;
+			case STRING:
+				bool.should(QueryFactory.term("content." + field.getName() + "_keyword", aQuery.getWhere().getValue() + "*", true));
+				break;
+			case TEXT:
+				bool.should(QueryFactory.term("content." + field.getName() + "_text", aQuery.getWhere().getValue() + "*", true));
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown query type: " + aQuery.getType());
 		}
 	}
 

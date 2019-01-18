@@ -2,21 +2,22 @@ package ru.dantalian.copvoc.suggester.api.query;
 
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
+import ru.dantalian.copvoc.suggester.api.model.Pair;
 
 public class SuggestQueryImpl implements SuggestQuery {
 
 	private final SuggestQueryType type;
 
-	private final String key;
+	private final Pair<String, String> where;
 
-	private final String value;
+	private final Pair<String, String> not;
 
 	private final int limit;
 
-	public SuggestQueryImpl(final SuggestQueryType aType, final String aKey, final String aValue, final int aLimit) {
+	public SuggestQueryImpl(final SuggestQueryType aType, final Pair<String, String> aWhere, final Pair<String, String> aNot, final int aLimit) {
 		type = aType;
-		key = aKey;
-		value = aValue;
+		where = aWhere;
+		not = aNot;
 		limit = aLimit;
 	}
 
@@ -26,13 +27,13 @@ public class SuggestQueryImpl implements SuggestQuery {
 	}
 
 	@Override
-	public String getKey() {
-		return key;
+	public Pair<String, String> getWhere() {
+		return where;
 	}
 
 	@Override
-	public String getValue() {
-		return value;
+	public Pair<String, String> getNot() {
+		return not;
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class SuggestQueryImpl implements SuggestQuery {
 
 	@Override
 	public String toString() {
-		return "SuggestQueryImpl [type=" + type + ", key=" + key + ", value=" + value + ", limit=" + limit + "]";
+		return "SuggestQueryImpl [type=" + type + ", where=" + where + ", not=" + not + ", limit=" + limit + "]";
 	}
 
 }

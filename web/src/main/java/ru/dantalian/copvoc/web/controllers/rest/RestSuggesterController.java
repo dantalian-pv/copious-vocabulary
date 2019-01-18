@@ -31,8 +31,10 @@ public class RestSuggesterController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public List<DtoSuggest> suggest(final Principal aPrincipal,
-			@RequestParam("key") final String aKey,
-			@RequestParam("value") final String aValue,
+			@RequestParam(value = "key", required = false) final String aKey,
+			@RequestParam(value = "value", required = true) final String aValue,
+			@RequestParam(value = "notKey", required = false) final String aNotKey,
+			@RequestParam(value = "notValue", required = false) final String aNotValue,
 			@RequestParam(value = "type", required = false) final String aType)
 			throws RestException {
 		try {
@@ -46,8 +48,10 @@ public class RestSuggesterController {
 					// just ignore
 				}
 			}
-			builder.with(aKey, aValue);
-
+			builder.where(aKey, aValue);
+			if (aNotKey != null && aNotValue != null) {
+				builder.not(aNotKey, aNotValue);
+			}
 			final List<Suggest> suggests = suggester.suggest(user, builder.build());
 			return suggests.stream()
 					.map(this::asDtoSuggest)

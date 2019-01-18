@@ -3,6 +3,7 @@ package ru.dantalian.copvoc.suggester.combined;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -35,8 +36,14 @@ public class FieldsSuggester implements Suggester {
 		try {
 			final List<Suggest> suggests = new LinkedList<>();
 			final List<CardField> fields = fieldManager.listFields(aUser, null);
+			final String value = aQuery.getWhere().getValue().toLowerCase();
+			UUID vocId = null;
+			if (aQuery.getNot() != null && "vocabularyId".equals(aQuery.getNot().getKey())) {
+				vocId = UUID.fromString(aQuery.getNot().getValue());
+			}
 			for (final CardField field: fields) {
-				if (field.getName().toLowerCase().contains(aQuery.getValue().toLowerCase())) {
+				if (field.getName().toLowerCase().contains(value)
+						&& (vocId == null || !vocId.equals(field.getVocabularyId()))) {
 					suggests.add(asSuggest(field));
 				}
 			}

@@ -4,14 +4,15 @@ import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryBuilder;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
+import ru.dantalian.copvoc.suggester.api.model.Pair;
 
 public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 
 	private SuggestQueryType type;
 
-	private String key;
+	private Pair<String, String> where;
 
-	private String value;
+	private Pair<String, String> not;
 
 	private int limit = 10;
 
@@ -34,9 +35,14 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 	}
 
 	@Override
-	public SuggestQueryBuilder with(final String aKey, final String aValue) {
-		key = aKey;
-		value = aValue;
+	public SuggestQueryBuilder where(final String aKey, final String aValue) {
+		where = Pair.of(aKey, aValue);
+		return this;
+	}
+
+	@Override
+	public SuggestQueryBuilder not(final String aKey, final String aValue) {
+		not = Pair.of(aKey, aValue);
 		return this;
 	}
 
@@ -51,13 +57,13 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 
 	@Override
 	public SuggestQuery build() throws SuggestException {
-		if (key == null || value == null || key.isEmpty() || value.isEmpty()) {
-			throw new IllegalArgumentException("key and value should be defined");
+		if (where == null || where.getValue() == null || where.getValue().isEmpty()) {
+			throw new IllegalArgumentException("value should be defined");
 		}
 		if (type == null) {
 			type = SuggestQueryType.STRING;
 		}
-		return new SuggestQueryImpl(type, key, value, limit);
+		return new SuggestQueryImpl(type, where, not, limit);
 	}
 
 }
