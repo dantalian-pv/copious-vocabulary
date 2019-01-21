@@ -8,6 +8,7 @@
 	<script th:src="@{/js/tpl/form.js}"></script>
 	<script type="text/javascript" th:inline="javascript">
 		document.vocabularyId=[[${voc.id}]];
+		document.cardFields=[[${fields}]];
 	</script>
 	<script th:src="@{/js/tpl/cards.js}"></script>
 </object>

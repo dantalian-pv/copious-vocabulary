@@ -21,12 +21,14 @@
 					<p class="info">Card has been saved</p>
 				</div>
 
-				<th:block th:each="field: ${fields}">
+				<th:block th:each="field,iterStat: ${fields}">
 					<div th:class="${#strings.equals(field.type, 'ANSWER')} ? 'field required' : 'field'">
 						<label th:text="${field.name} + ' (' + ${field.type} + ')'">Name</label>
 						<div class="ui pointing below red label hidden"></div>
-						<textarea th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" data-bind="text: itemForm.name"></textarea>
-						<input th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" data-bind="value: itemForm.name" />
+						<div class="ui search suggester" th:classappend="${iterStat.index == 0}? 'first'">
+							<textarea th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" th:attr="'data-bind'=${'text: itemForm.' + field.name}"></textarea>
+							<input class="prompt" th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" th:attr="'data-bind'=${'value: itemForm.' + field.name}" />
+						</div>
 					</div>
 				</th:block>
 
