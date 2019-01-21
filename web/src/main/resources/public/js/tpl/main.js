@@ -59,13 +59,15 @@ $(document).ready(
 						this.description(data.description());
 						this.sourceId(data.sourceId());
 						this.targetId(data.targetId());
+						$('.languages').dropdown('activate');
 					},
 					setEmpty : function(data) {
 						this.id(null);
 						this.name('');
 						this.description('');
 						this.sourceId('');
-						this.targetId('')
+						this.targetId('');
+						$('.languages').dropdown('clear');
 					},
 					url : '/v1/api/vocabularies',
 					formSelector : '#add_voc_form',

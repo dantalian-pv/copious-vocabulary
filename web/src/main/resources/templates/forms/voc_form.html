@@ -31,7 +31,7 @@
 					<label>Description</label>
 					<div class="ui pointing below red label hidden"></div>
 					<div class="ui input">
-						<input name="description" data-bind="text: itemForm.description" />
+						<input name="description" data-bind="value: itemForm.description" />
 					</div>
 				</div>
 				<div class="required field">
@@ -40,8 +40,8 @@
 					<div class="ui search selection dropdown languages">
 						<input type="hidden" name="sourceId" data-bind="value: itemForm.sourceId" />
 						<i class="dropdown icon"></i> <input type="text" class="search"
-							data-bind="value: itemForm.sourceId" />
-						<div class="default text">Select Source Language...</div>
+							data-bind="value: itemForm.sourceName" />
+						<div class="default text" data-bind="text: itemForm.sourceName() ? '' : 'Select Source Language...'">Select Source Language...</div>
 					</div>
 				</div>
 				<div class="required field">
@@ -50,8 +50,8 @@
 					<div class="ui search selection dropdown languages">
 						<input type="hidden" name="targetId" data-bind="value: itemForm.targetId" />
 						<i class="dropdown icon"></i> <input type="text" class="search"
-							data-bind="value: itemForm.targetId" />
-						<div class="default text">Select Target Language...</div>
+							data-bind="value: itemForm.targetName" />
+						<div class="default text" data-bind="text: itemForm.targetName() ? '' : 'Select Target Language...'">Select Target Language...</div>
 					</div>
 				</div>
 
