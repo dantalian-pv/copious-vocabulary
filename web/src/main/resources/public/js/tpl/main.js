@@ -9,7 +9,7 @@ $(document).ready(
 
 			$('.languages').dropdown({
 				apiSettings : {
-					url : '/v1/api/langs',
+					url : '/v1/api/langs?lang={query}',
 					cache : 'none',
 					onResponse: function(data) {
 						var results = [];
@@ -18,7 +18,9 @@ $(document).ready(
 						});
 						return {"success": true, "results": results};
 					}
-				}
+				},
+				fullTextSearch: true,
+				filterRemoteData: true
 			});
 
 			function Item(data) {
@@ -38,6 +40,8 @@ $(document).ready(
 				this.description = ko.observable(data.description);
 				this.sourceId = ko.observable(data.sourceId);
 				this.targetId = ko.observable(data.targetId);
+				this.sourceName(data.sourceName());
+				this.targetName(data.targetName());
 			}
 
 			function ItemGroupListViewModel() {
@@ -59,7 +63,8 @@ $(document).ready(
 						this.description(data.description());
 						this.sourceId(data.sourceId());
 						this.targetId(data.targetId());
-						$('.languages').dropdown('activate');
+						this.sourceName(data.sourceName());
+						this.targetName(data.targetName());
 					},
 					setEmpty : function(data) {
 						this.id(null);
@@ -67,7 +72,8 @@ $(document).ready(
 						this.description('');
 						this.sourceId('');
 						this.targetId('');
-						$('.languages').dropdown('clear');
+						this.sourceName('');
+						this.targetName('');
 					},
 					url : '/v1/api/vocabularies',
 					formSelector : '#add_voc_form',
@@ -78,6 +84,8 @@ $(document).ready(
 						this.description = ko.observable();
 						this.sourceId = ko.observable();
 						this.targetId = ko.observable();
+						this.sourceName = ko.observable();
+						this.targetName = ko.observable();
 					}
 				});
 

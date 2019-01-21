@@ -9,7 +9,7 @@ $(document).ready(
 
 			$('.languages').dropdown({
 				apiSettings : {
-					url : '/v1/api/langs',
+					url : '/v1/api/langs?lang={query}',
 					cache : 'none',
 					onResponse: function(data) {
 						var results = [];
@@ -18,7 +18,9 @@ $(document).ready(
 						});
 						return {"success": true, "results": results};
 					}
-				}
+				},
+				fullTextSearch: true,
+				filterRemoteData: true
 			});
 
 			function ItemForm(data) {

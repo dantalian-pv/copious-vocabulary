@@ -24,13 +24,15 @@
 				<div class="required field">
 					<label>Name</label>
 					<div class="ui pointing below red label hidden"></div>
-					<div class="ui left icon input">
-						<input name="name" type="text" data-bind="value: itemForm.name" /><i class="user icon"></i>
+					<div class="ui search suggester">
+						<div class="ui left icon input">
+							<input class="prompt" name="name" type="text" data-bind="value: itemForm.name" />
+						</div>
 					</div>
 				</div>
 				<div class="required field">
 					<label>Type</label>
-						<select class="ui fluid dropdown" name="type">
+						<select class="ui fluid dropdown" name="type" data-bind="value: itemForm.type">
 							<th:block th:each="type : ${fieldTypes}">
 								<option th:value="${type}" th:text="${type}"></option>
 							</th:block>

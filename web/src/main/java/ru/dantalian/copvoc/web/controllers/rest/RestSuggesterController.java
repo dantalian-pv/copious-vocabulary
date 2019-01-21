@@ -1,6 +1,7 @@
 package ru.dantalian.copvoc.web.controllers.rest;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,9 @@ public class RestSuggesterController {
 			@RequestParam(value = "type", required = false) final String aType)
 			throws RestException {
 		try {
+			if (aValue == null || aValue.isEmpty()) {
+				return Collections.emptyList();
+			}
 			final String user = aPrincipal.getName();
 			final SuggestQueryBuilder builder = SuggestQueryFactory.newBuilder();
 			if (aType != null && !aType.isEmpty()) {

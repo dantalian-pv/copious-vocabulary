@@ -6,7 +6,7 @@ $(document).ready(
 			var csrf = {};
 			var csrf_name = $("meta[name='_csrf_header']").attr("content");
 			csrf[csrf_name] = $("meta[name='_csrf']").attr("content");
-
+			
 			function Item(data) {
 				this.id = ko.observable(data.id);
 				this.name = ko.observable(data.name)
@@ -50,6 +50,32 @@ $(document).ready(
 						this.name = ko.observable();
 						this.type = ko.observable();
 					}
+				});
+				
+				// Suggester
+				$('.suggester').search({
+					apiSettings : {
+						url : '/v1/api/suggester?value={query}&type=field',
+						cache : 'none',
+						onResponse: function(data) {
+							var results = [];
+							$.each(data, function( i, l ) {
+								results[i] = {"title": l.value, "description": l.key, "source": l.source};
+							});
+							return {"success": true, "results": results};
+						}
+					},
+					onSelect: function(result, response) {
+						var item = new ItemForm({
+							id: null,
+							name: result.title,
+							type: result.description
+						});
+						self.itemForm.setItem(item);
+					},
+					cache: false,
+					maxResults: 10,
+					selectFirstResult: true
 				});
 
 				// Operations
