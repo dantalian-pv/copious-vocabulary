@@ -12,15 +12,19 @@ public class PojoSuggest implements Suggest {
 
 	private String value;
 
+	private String description;
+
 	private Double rank;
 
 	public PojoSuggest() {
 	}
 
-	public PojoSuggest(final URI aSource, final String aKey, final String aValue, final Double aRank) {
+	public PojoSuggest(final URI aSource, final String aKey, final String aValue, final String aDescription,
+			final Double aRank) {
 		source = aSource;
 		key = aKey;
 		value = aValue;
+		description = aDescription;
 		rank = aRank;
 	}
 
@@ -41,6 +45,15 @@ public class PojoSuggest implements Suggest {
 	@Override
 	public String getValue() {
 		return value;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(final String aDescription) {
+		description = aDescription;
 	}
 
 	@Override

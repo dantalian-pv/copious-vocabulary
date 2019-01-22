@@ -67,7 +67,7 @@ public class RestSuggesterController {
 
 	private DtoSuggest asDtoSuggest(final Suggest aSuggest) {
 		return new DtoSuggest(aSuggest.getSource().toString(),
-				aSuggest.getKey(), aSuggest.getValue(), aSuggest.getRank());
+				aSuggest.getKey(), aSuggest.getValue(), aSuggest.getDescription(), aSuggest.getRank());
 	}
 
 }

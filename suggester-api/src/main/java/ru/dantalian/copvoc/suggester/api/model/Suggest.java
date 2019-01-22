@@ -10,6 +10,8 @@ public interface Suggest extends Comparable<Suggest> {
 
 	String getValue();
 
+	String getDescription();
+
 	Double getRank();
 
 }

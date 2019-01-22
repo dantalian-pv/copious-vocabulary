@@ -88,7 +88,7 @@ $(document).ready(
 				// Suggester
 				$('.suggester').search({
 					fields: {
-						description: 'key',
+						description: 'description',
 						title: 'value'
 					},
 					apiSettings : {

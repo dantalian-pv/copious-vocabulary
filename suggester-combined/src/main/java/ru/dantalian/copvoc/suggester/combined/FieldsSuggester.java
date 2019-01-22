@@ -55,7 +55,7 @@ public class FieldsSuggester implements Suggester {
 
 	private Suggest asSuggest(final CardField aField) {
 		return new PojoSuggest(URI.create("field://" + aField.getVocabularyId() + "/" + aField.getName()),
-				aField.getType().name(), aField.getName(), 1.0d);
+				aField.getType().name(), aField.getName(), "", 1.0d);
 	}
 
 }

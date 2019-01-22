@@ -91,15 +91,27 @@ public class CardsSuggester implements Suggester {
 			throws PersistException {
 		final List<Suggest> suggests = new LinkedList<>();
 		final Map<String, CardFieldContent> fieldsContent = aCard.getFieldsContent();
+		final List<CardField> fields = fieldManager.listFields(aUser, aCard.getVocabularyId());
+		CardField answer = null;
+		for (final CardField field: fields) {
+			if (field.getType() == CardFiledType.ANSWER) {
+				answer = field;
+				break;
+			}
+		}
 		for (final Entry<String, CardFieldContent> entry: fieldsContent.entrySet()) {
-			final String name = entry.getKey().replaceAll("_\\w+$", "");
+			final String name = entry.getKey();
 			if (!name.toLowerCase().contains(aKey.toLowerCase())) {
 				continue;
 			}
 			final CardField field = fieldManager.getField(aUser, aCard.getVocabularyId(), name);
 			final CardFieldContent content = entry.getValue();
 			if (isFits(aType, field)) {
-				suggests.add(new PojoSuggest(URI.create("card://" + aCard.getVocabularyId() + "/" + aCard.getId() + "/" + name), name, content.getContent(), 1.0d));
+				final URI uri = URI.create("card://" + aCard.getVocabularyId() + "/" + aCard.getId() + "/" + name);
+				final String description = answer != null && fieldsContent.get(answer.getName()) != null
+						? fieldsContent.get(answer.getName()).getContent() : "";
+				suggests.add(new PojoSuggest(uri,
+						name, content.getContent(), description, 1.0d));
 			}
 		}
 		return suggests;
