@@ -13,10 +13,12 @@ import org.springframework.stereotype.Component;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
 import ru.dantalian.copvoc.persist.api.query.CardsQueryBuilder;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
@@ -36,6 +38,9 @@ public class CardsSuggester implements Suggester {
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
+
+	@Autowired
+	private PersistVocabularyManager vocManager;
 
 	@Override
 	public boolean accept(final SuggestQueryType aType) {
@@ -110,7 +115,8 @@ public class CardsSuggester implements Suggester {
 				final URI uri = URI.create("card://" + aCard.getVocabularyId() + "/" + aCard.getId() + "/" + name);
 				final String description = answer != null && fieldsContent.get(answer.getName()) != null
 						? fieldsContent.get(answer.getName()).getContent() : "";
-				suggests.add(new PojoSuggest(uri,
+				final Vocabulary voc = vocManager.getVocabulary(aUser, aCard.getVocabularyId());
+				suggests.add(new PojoSuggest(uri, voc.getName(),
 						name, content.getContent(), description, 1.0d));
 			}
 		}

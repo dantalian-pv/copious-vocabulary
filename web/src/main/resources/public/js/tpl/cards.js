@@ -91,6 +91,7 @@ $(document).ready(
 						description: 'description',
 						title: 'value'
 					},
+					type: 'category',
 					apiSettings : {
 						url : '/v1/api/suggester?key={key}&value={query}&type=string',
 						cache : 'none',
@@ -100,9 +101,14 @@ $(document).ready(
 				      return settings;
 				    },
 						onResponse: function(data) {
-							var results = [];
+							var results = {};
 							$.each(data, function( i, l ) {
-								results[i] = l;
+								var groupId = l.group.replace(/[^a-z0-9]/g, "_");
+								if (!results[groupId]) {
+									var groupResults = [];
+									results[groupId] = {"name": l.group, "results": groupResults};
+								}
+								results[groupId].results.push(l);
 							});
 							return {"success": true, "results": results};
 						}

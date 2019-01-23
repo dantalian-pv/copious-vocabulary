@@ -4,6 +4,8 @@ public class DtoSuggest {
 
 	private String source;
 
+	private String group;
+
 	private String key;
 
 	private String value;
@@ -15,9 +17,10 @@ public class DtoSuggest {
 	public DtoSuggest() {
 	}
 
-	public DtoSuggest(final String aSource, final String aKey, final String aValue,
+	public DtoSuggest(final String aSource, final String aGroup, final String aKey, final String aValue,
 			final String aDescription, final Double aRank) {
 		source = aSource;
+		group = aGroup;
 		key = aKey;
 		value = aValue;
 		description = aDescription;
@@ -30,6 +33,14 @@ public class DtoSuggest {
 
 	public void setSource(final String aSource) {
 		source = aSource;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(final String aGroup) {
+		group = aGroup;
 	}
 
 	public String getKey() {

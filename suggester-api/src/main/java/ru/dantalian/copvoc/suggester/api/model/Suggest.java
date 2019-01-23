@@ -6,6 +6,8 @@ public interface Suggest extends Comparable<Suggest> {
 
 	URI getSource();
 
+	String getGroup();
+
 	String getKey();
 
 	String getValue();

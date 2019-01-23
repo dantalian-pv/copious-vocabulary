@@ -8,6 +8,8 @@ public class PojoSuggest implements Suggest {
 
 	private URI source;
 
+	private String group;
+
 	private String key;
 
 	private String value;
@@ -19,9 +21,10 @@ public class PojoSuggest implements Suggest {
 	public PojoSuggest() {
 	}
 
-	public PojoSuggest(final URI aSource, final String aKey, final String aValue, final String aDescription,
-			final Double aRank) {
+	public PojoSuggest(final URI aSource, final String aGroup, final String aKey,
+			final String aValue, final String aDescription, final Double aRank) {
 		source = aSource;
+		group = aGroup;
 		key = aKey;
 		value = aValue;
 		description = aDescription;
@@ -35,6 +38,15 @@ public class PojoSuggest implements Suggest {
 
 	public void setSource(final URI aSource) {
 		source = aSource;
+	}
+
+	@Override
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(final String aGroup) {
+		group = aGroup;
 	}
 
 	@Override
@@ -77,7 +89,7 @@ public class PojoSuggest implements Suggest {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + ((rank == null) ? 0 : rank.hashCode());
+		result = prime * result + ((source == null) ? 0 : source.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
@@ -101,11 +113,11 @@ public class PojoSuggest implements Suggest {
 		} else if (!key.equals(other.key)) {
 			return false;
 		}
-		if (rank == null) {
-			if (other.rank != null) {
+		if (source == null) {
+			if (other.source != null) {
 				return false;
 			}
-		} else if (!rank.equals(other.rank)) {
+		} else if (!source.equals(other.source)) {
 			return false;
 		}
 		if (value == null) {
@@ -120,7 +132,8 @@ public class PojoSuggest implements Suggest {
 
 	@Override
 	public String toString() {
-		return "PojoSuggest [key=" + key + ", value=" + value + ", rank=" + rank + "]";
+		return "PojoSuggest [source=" + source + ", group=" + group + ", key=" + key
+				+ ", value=" + value + ", description=" + description + ", rank=" + rank + "]";
 	}
 
 }
