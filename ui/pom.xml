@@ -71,6 +71,8 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
 				<configuration>
+					<configurationSourceDirectory>target/classes/config</configurationSourceDirectory>
+					<copyConfigurationDirectory>true</copyConfigurationDirectory>
 					<programs>
 						<program>
 							<id>copious-vocabulary-ui</id>
