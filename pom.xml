@@ -169,6 +169,46 @@
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
 				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>appassembler-maven-plugin</artifactId>
+					<version>${maven-appassembler-plugin-version}</version>
+					<configuration>
+						<configurationDirectory>config</configurationDirectory>
+						<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+						<logsDirectory>logs</logsDirectory>
+						<repositoryLayout>flat</repositoryLayout>
+						<repositoryName>lib</repositoryName>
+						<tempDirectory>tmp</tempDirectory>
+						<useWildcardClassPath>true</useWildcardClassPath>
+						<extraJvmArguments>-XX:+HeapDumpOnOutOfMemoryError
+							-XX:HeapDumpPath=@BASEDIR@/tmp</extraJvmArguments>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>${maven-assembly-plugin}</version>
+					<executions>
+						<execution>
+							<id>assemble</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<configuration>
+								<descriptors>
+									<descriptor>application-assemble.xml</descriptor>
+								</descriptors>
+								<recompressZippedFiles>true</recompressZippedFiles>
+								<finalName>${project.build.finalName}</finalName>
+								<appendAssemblyId>false</appendAssemblyId>
+								<outputDirectory>${project.build.directory}</outputDirectory>
+								<workDirectory>${project.build.directory}/assembly/work</workDirectory>
+								<tarLongFileMode>gnu</tarLongFileMode>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

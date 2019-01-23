@@ -13,6 +13,10 @@
 	<packaging>jar</packaging>
 
 	<name>Copious Vocabulary: UI</name>
+	
+	<properties>
+		<ui-main-class>ru.dantalian.copvoc.ui.CopiousVocabularyUIMain</ui-main-class>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -60,5 +64,33 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<configuration>
+					<programs>
+						<program>
+							<id>copious-vocabulary-ui</id>
+							<mainClass>${ui-main-class}</mainClass>
+						</program>
+					</programs>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
