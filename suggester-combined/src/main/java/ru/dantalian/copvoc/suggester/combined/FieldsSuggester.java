@@ -43,7 +43,7 @@ public class FieldsSuggester implements Suggester {
 			final List<CardField> fields = fieldManager.listFields(aUser, null);
 			final String value = aQuery.getWhere().getValue().toLowerCase();
 			UUID vocId = null;
-			if (aQuery.getNot() != null && "vocabularyId".equals(aQuery.getNot().getKey())) {
+			if (aQuery.getNot() != null && "vocabulary_id".equals(aQuery.getNot().getKey())) {
 				vocId = UUID.fromString(aQuery.getNot().getValue());
 			}
 			for (final CardField field: fields) {
