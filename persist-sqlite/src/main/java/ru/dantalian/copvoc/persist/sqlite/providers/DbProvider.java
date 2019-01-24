@@ -24,7 +24,8 @@ public class DbProvider extends AbstractFactoryBean<JdbcTemplate> {
 
 	@Override
 	protected JdbcTemplate createInstance() throws Exception {
-		final File dbPath = this.settings.getDataDir().toPath().resolve("user_db").toFile();
+		settings.getDataDir().mkdirs();
+		final File dbPath = settings.getDataDir().toPath().resolve("user_db").toFile();
 		final SQLiteDataSource dataSource = new SQLiteDataSource();
 		dataSource.setUrl("jdbc:sqlite:" + dbPath.getPath());
 		// Schema migration
