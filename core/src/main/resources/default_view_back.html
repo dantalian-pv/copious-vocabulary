@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body th:fragment="body" th:remove="tag">
-	<p th:text="${translation}"></p>
+	<div data-bind="with: item">
+		<p data-bind="text: translation"></p>
+	</div>
 </body>
 </html>
