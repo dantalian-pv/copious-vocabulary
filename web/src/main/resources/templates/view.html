@@ -17,11 +17,11 @@
 		</a>
 	</div>
 	<div class="ui divider"></div>
-	<div th:replace="${'front/' + view.vocabularyId}::body"></div>
+	<div th:replace="${'front/' + view.id}::body"></div>
 	<div class="ui divider"></div>
 	<div class="ui segment dimmable" style="min-height: 400px;">
 	  <div class="ui dimmer" data-bind="css: { 'active': !isShowAnswer() }" style="background-color: #E0E1E2;"></div>
-	  <div th:replace="${'back/' + view.vocabularyId}::body"></div>
+	  <div th:replace="${'back/' + view.id}::body"></div>
 	</div>
 	<div>
 		<button class="ui button" data-bind="click: showAnswer, text: isShowAnswer() ? 'Hide Answer' : 'Show Answer' ">Show Answer</button>
