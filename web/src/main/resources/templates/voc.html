@@ -16,7 +16,7 @@
 <body th:fragment="body" th:remove="tag">
 	<div class="content">
 		<h1 class="header" th:text="${voc.name}"></h1>
-		<h2 class="description" th:text="${voc.source.text + ' -> ' + voc.target.text}"></h2>
+		<h2 class="description" th:text="${voc.sourceName + ' -> ' + voc.targetName}"></h2>
 		<h2 class="description" th:text="${voc.description}"></h2>
 	</div>
 	<div class="ui divider"></div>

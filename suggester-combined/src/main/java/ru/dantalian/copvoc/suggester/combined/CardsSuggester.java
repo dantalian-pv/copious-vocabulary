@@ -65,6 +65,8 @@ public class CardsSuggester implements Suggester {
 			if (aQuery.getNot() != null) {
 				bool.not(QueryFactory.term(aQuery.getNot().getKey(), aQuery.getNot().getValue(), false));
 			}
+			bool.must(QueryFactory.term("source", aQuery.getSourceTarget().getKey() + "*", true));
+			bool.must(QueryFactory.term("target", aQuery.getSourceTarget().getValue() + "*", true));
 			cardsQuery.where(bool.build());
 			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build());
 			for (final Card card: queryCards) {

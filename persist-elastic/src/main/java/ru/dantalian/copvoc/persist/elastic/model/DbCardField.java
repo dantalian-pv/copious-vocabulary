@@ -15,7 +15,7 @@ public class DbCardField implements CardField {
 	@Field
 	private String id;
 
-	@Field(codec = UUIDCodec.class)
+	@Field(name = "vocabulary_id", codec = UUIDCodec.class)
 	private UUID vocabularyId;
 
 	@Field

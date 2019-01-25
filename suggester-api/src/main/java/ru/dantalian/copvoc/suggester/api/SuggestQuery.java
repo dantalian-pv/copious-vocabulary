@@ -10,6 +10,8 @@ public interface SuggestQuery {
 
 	Pair<String, String> getNot();
 
+	Pair<String, String> getSourceTarget();
+
 	int limit();
 
 }

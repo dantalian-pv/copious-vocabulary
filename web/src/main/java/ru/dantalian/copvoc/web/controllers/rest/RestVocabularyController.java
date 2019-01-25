@@ -22,14 +22,12 @@ import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.CardField;
-import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
-import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 import ru.dantalian.copvoc.web.controllers.BadUserRequestException;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVocabulary;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,7 +55,7 @@ public class RestVocabularyController {
 		final String user = aPrincipal.getName();
 		return vocPersist.listVocabularies(user)
 				.stream()
-				.map(this::asDtoVocabulary)
+				.map(DtoCodec::asDtoVocabulary)
 				.collect(Collectors.toList());
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
@@ -74,7 +72,7 @@ public class RestVocabularyController {
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + id + " not found");
 			}
-			return asDtoVocabulary(voc);
+			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -90,8 +88,10 @@ public class RestVocabularyController {
 			if (queryVoc != null) {
 				throw new BadUserRequestException("Vocabulary with given name already exists");
 			}
-			final Vocabulary voc = vocPersist.createVocabulary(user, aVocabulary.getName(), aVocabulary.getDescription(),
-					asLanguage(aVocabulary.getSourceId()), asLanguage(aVocabulary.getTargetId()));
+			final Vocabulary voc = vocPersist.createVocabulary(user, aVocabulary.getName(),
+					aVocabulary.getDescription(),
+					DtoCodec.asLanguage(aVocabulary.getSourceId()),
+					DtoCodec.asLanguage(aVocabulary.getTargetId()));
 			// Init default fields
 			final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc.getId());
 			for (final CardField field: defaultFields) {
@@ -100,7 +100,7 @@ public class RestVocabularyController {
 			// Init default view
 			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId());
 			cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
-			return asDtoVocabulary(voc);
+			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException | CoreException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -112,30 +112,11 @@ public class RestVocabularyController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			vocPersist.updateVocabulary(user, asVocabulary(user, aVocabulary));
+			vocPersist.updateVocabulary(user, DtoCodec.asVocabulary(user, aVocabulary));
 			return new DtoVoid();
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
-	}
-
-	private DtoVocabulary asDtoVocabulary(final Vocabulary aVocabulary) {
-		if (aVocabulary == null) {
-			return null;
-		}
-		return new DtoVocabulary(aVocabulary.getId().toString(), aVocabulary.getName(), aVocabulary.getDescription(),
-				LanguageUtils.asString(aVocabulary.getSource()), aVocabulary.getSource().getText(),
-				LanguageUtils.asString(aVocabulary.getTarget()), aVocabulary.getTarget().getText());
-	}
-
-	private Language asLanguage(final String aLanguage) {
-		return LanguageUtils.asLanguage(aLanguage);
-	}
-
-	private Vocabulary asVocabulary(final String aUser, final DtoVocabulary aDtoVocabulary) {
-		return new PojoVocabulary(UUID.fromString(aDtoVocabulary.getId()), aDtoVocabulary.getName(),
-				aDtoVocabulary.getDescription(), aUser,
-				asLanguage(aDtoVocabulary.getSourceId()), asLanguage(aDtoVocabulary.getTargetId()));
 	}
 
 }

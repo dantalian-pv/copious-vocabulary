@@ -12,12 +12,19 @@ public class SuggestQueryImpl implements SuggestQuery {
 
 	private final Pair<String, String> not;
 
+	private final Pair<String, String> sourceTarget;
+
 	private final int limit;
 
-	public SuggestQueryImpl(final SuggestQueryType aType, final Pair<String, String> aWhere, final Pair<String, String> aNot, final int aLimit) {
+	public SuggestQueryImpl(final SuggestQueryType aType,
+			final Pair<String, String> aWhere,
+			final Pair<String, String> aNot,
+			final Pair<String, String> aSourceTarget,
+			final int aLimit) {
 		type = aType;
 		where = aWhere;
 		not = aNot;
+		sourceTarget = aSourceTarget;
 		limit = aLimit;
 	}
 
@@ -37,13 +44,19 @@ public class SuggestQueryImpl implements SuggestQuery {
 	}
 
 	@Override
+	public Pair<String, String> getSourceTarget() {
+		return sourceTarget;
+	}
+
+	@Override
 	public int limit() {
 		return limit;
 	}
 
 	@Override
 	public String toString() {
-		return "SuggestQueryImpl [type=" + type + ", where=" + where + ", not=" + not + ", limit=" + limit + "]";
+		return "SuggestQueryImpl [type=" + type + ", where=" + where + ", not=" + not
+				+ ", sourceTarget=" + sourceTarget + ", limit=" + limit + "]";
 	}
 
 }

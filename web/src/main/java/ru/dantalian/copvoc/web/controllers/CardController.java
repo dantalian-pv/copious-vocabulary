@@ -19,6 +19,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @Controller
 public class CardController {
@@ -88,12 +89,12 @@ public class CardController {
 		aModel.addAttribute("tpl", "training");
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", voc.getName());
-		aModel.addAttribute("voc", voc);
-		aModel.addAttribute("view", vocView);
-		aModel.addAttribute("card", card);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
+		aModel.addAttribute("view", DtoCodec.asDtoView(vocView));
+		aModel.addAttribute("card", DtoCodec.asDtoCard(card));
 		aModel.addAttribute("cards_size", cards.size());
 		aModel.addAttribute("cards_idx", idx);
-		aModel.addAttribute("nextCard", nextCard);
+		aModel.addAttribute("nextCard", DtoCodec.asDtoCard(nextCard));
 		return "frame";
 	}
 

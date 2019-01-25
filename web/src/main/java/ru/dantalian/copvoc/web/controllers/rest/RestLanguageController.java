@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
-import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoLanguage;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/langs", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,19 +33,13 @@ public class RestLanguageController {
 			return mLangManager.listLanguages(Optional.ofNullable(aName),
 					Optional.ofNullable(aCountry), Optional.ofNullable(aVariant))
 					.stream()
-					.map(this::asDtoLanguage)
+					.map(DtoCodec::asDtoLanguage)
 					.collect(Collectors.toList());
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
 	}
 
-	private DtoLanguage asDtoLanguage(final Language aLanguage) {
-		if (aLanguage == null) {
-			return null;
-		}
-		return new DtoLanguage(LanguageUtils.asString(aLanguage), aLanguage.getName(), aLanguage.getCountry(),
-				aLanguage.getVariant(), aLanguage.getText());
-	}
+
 
 }

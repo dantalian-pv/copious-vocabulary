@@ -12,6 +12,8 @@ public interface SuggestQueryBuilder extends Builder<SuggestQuery> {
 
 	SuggestQueryBuilder not(String aKey, String aValue);
 
+	SuggestQueryBuilder setSourceTarget(String aSource, String aTarget);
+
 	SuggestQueryBuilder limit(int aLimit);
 
 }

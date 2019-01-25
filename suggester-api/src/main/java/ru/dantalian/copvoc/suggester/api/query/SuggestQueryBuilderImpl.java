@@ -14,6 +14,8 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 
 	private Pair<String, String> not;
 
+	private Pair<String, String> sourceTarget;
+
 	private int limit = 10;
 
 	@Override
@@ -47,6 +49,12 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 	}
 
 	@Override
+	public SuggestQueryBuilder setSourceTarget(final String aSource, final String aTarget) {
+		sourceTarget = Pair.of(aSource, aTarget);
+		return this;
+	}
+
+	@Override
 	public SuggestQueryBuilder limit(final int aLimit) {
 		if (aLimit < 1) {
 			throw new IllegalArgumentException("limit cannot be less than 1");
@@ -63,7 +71,7 @@ public class SuggestQueryBuilderImpl implements SuggestQueryBuilder {
 		if (type == null) {
 			type = SuggestQueryType.STRING;
 		}
-		return new SuggestQueryImpl(type, where, not, limit);
+		return new SuggestQueryImpl(type, where, not, sourceTarget, limit);
 	}
 
 }

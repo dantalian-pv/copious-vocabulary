@@ -36,6 +36,8 @@ public class RestSuggesterController {
 			@RequestParam(value = "value", required = true) final String aValue,
 			@RequestParam(value = "notKey", required = false) final String aNotKey,
 			@RequestParam(value = "notValue", required = false) final String aNotValue,
+			@RequestParam(value = "source", required = true) final String aSource,
+			@RequestParam(value = "target", required = true) final String aTarget,
 			@RequestParam(value = "type", required = false) final String aType)
 			throws RestException {
 		try {
@@ -56,6 +58,7 @@ public class RestSuggesterController {
 			if (aNotKey != null && aNotValue != null) {
 				builder.not(aNotKey, aNotValue);
 			}
+			builder.setSourceTarget(aSource, aTarget);
 			final List<Suggest> suggests = suggester.suggest(user, builder.build());
 			return suggests.stream()
 					.map(this::asDtoSuggest)

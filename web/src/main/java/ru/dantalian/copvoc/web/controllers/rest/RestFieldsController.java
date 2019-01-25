@@ -22,13 +22,14 @@ import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoField;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/fields", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestFieldsController {
 
 	@Autowired
-	private PersistVocabularyManager vocPersist;
+	private PersistVocabularyManager vocManager;
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
@@ -39,13 +40,13 @@ public class RestFieldsController {
 			@PathVariable(value = "id") final String aId) throws RestException {
 		try {
 		final String user = aPrincipal.getName();
-		final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
+		final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aId));
 		if (voc == null) {
 			throw new PersistException("Vocabulary with id: " + aId + " not found");
 		}
 		return fieldManager.listFields(user, UUID.fromString(aId))
 				.stream()
-				.map(this::asDtoField)
+				.map(DtoCodec::asDtoField)
 				.collect(Collectors.toList());
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
@@ -58,12 +59,12 @@ public class RestFieldsController {
 			@PathVariable(value = "name") final String aName) throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
+			final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aId));
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + aId + " not found");
 			}
 			final CardField field = fieldManager.getField(user, UUID.fromString(aId), aName);
-			return asDtoField(field);
+			return DtoCodec.asDtoField(field);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -75,7 +76,7 @@ public class RestFieldsController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aDtoField.getVocabularyId()));
+			final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aDtoField.getVocabularyId()));
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + aDtoField.getVocabularyId() + " not found");
 			}
@@ -86,7 +87,7 @@ public class RestFieldsController {
 			}
 			final CardField createdField = fieldManager.createField(user, UUID.fromString(aDtoField.getVocabularyId()),
 					aDtoField.getName(), CardFiledType.valueOf(aDtoField.getType()));
-			return asDtoField(createdField);
+			return DtoCodec.asDtoField(createdField);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -99,7 +100,7 @@ public class RestFieldsController {
 			@PathVariable(value = "name") final String aName) throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
+			final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aId));
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + aId + " not found");
 			}
@@ -108,13 +109,6 @@ public class RestFieldsController {
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
-	}
-
-	private DtoField asDtoField(final CardField aField) {
-		if (aField == null) {
-			return null;
-		}
-		return new DtoField(aField.getVocabularyId().toString(), aField.getName(), aField.getType().name());
 	}
 
 }

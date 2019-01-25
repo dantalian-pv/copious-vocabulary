@@ -2,10 +2,8 @@ package ru.dantalian.copvoc.web.controllers.rest;
 
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
-import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/cards", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -41,7 +39,7 @@ public class RestCardController {
 			return cardManager.queryCards(user, QueryFactory.newCardsQuery()
 					.setVocabularyId(UUID.fromString(aVocabularyId)).build())
 					.stream()
-					.map(this::asDtoCard)
+					.map(DtoCodec::asDtoCard)
 					.collect(Collectors.toList());
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
@@ -58,7 +56,7 @@ public class RestCardController {
 			if (card == null) {
 				throw new PersistException("Card with id: " + aId + " not found");
 			}
-			return asDtoCard(card);
+			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -72,7 +70,7 @@ public class RestCardController {
 			final String user = aPrincipal.getName();
 			final Map<String, String> map = asMap(aCard.getContent());
 			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
-			return asDtoCard(card);
+			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -97,19 +95,6 @@ public class RestCardController {
 			map.put(item.getName(), item.getText());
 		}
 		return map;
-	}
-
-	private DtoCard asDtoCard(final Card aCard) {
-		if (aCard == null) {
-			return null;
-		}
-		final List<DtoCardContent> list = new LinkedList<>();
-		final Map<String, CardFieldContent> content = aCard.getFieldsContent();
-		for(final Entry<String, CardFieldContent> entry: content.entrySet()) {
-			list.add(new DtoCardContent(entry.getKey(), entry.getValue().getContent()));
-		}
-		return new DtoCard(aCard.getId().toString(),
-				aCard.getVocabularyId().toString(), list);
 	}
 
 }

@@ -14,14 +14,22 @@ public class PojoCard implements Card {
 
 	private UUID vocabularyId;
 
+	private String source;
+
+	private String target;
+
 	private Map<String, CardFieldContent> fieldsContent;
 
 	public PojoCard() {
 	}
 
-	public PojoCard(final UUID aId, final UUID aVocabularyId, final Map<String, CardFieldContent> aFieldsContent) {
+	public PojoCard(final UUID aId, final UUID aVocabularyId,
+			final String aSource, final String aTarget,
+			final Map<String, CardFieldContent> aFieldsContent) {
 		id = aId;
 		vocabularyId = aVocabularyId;
+		source = aSource;
+		target = aTarget;
 		fieldsContent = aFieldsContent;
 	}
 
@@ -41,6 +49,24 @@ public class PojoCard implements Card {
 
 	public void setVocabularyId(final UUID aVocabularyId) {
 		vocabularyId = aVocabularyId;
+	}
+
+	@Override
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(final String aSource) {
+		source = aSource;
+	}
+
+	@Override
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(final String aTarget) {
+		target = aTarget;
 	}
 
 	@Override

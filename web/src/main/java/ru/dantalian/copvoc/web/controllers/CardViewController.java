@@ -14,6 +14,7 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @Controller
 public class CardViewController {
@@ -39,8 +40,8 @@ public class CardViewController {
 		aModel.addAttribute("tpl", "view");
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", voc.getName());
-		aModel.addAttribute("voc", voc);
-		aModel.addAttribute("view", vocView);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
+		aModel.addAttribute("view", DtoCodec.asDtoView(vocView));
 		return "frame";
 	}
 

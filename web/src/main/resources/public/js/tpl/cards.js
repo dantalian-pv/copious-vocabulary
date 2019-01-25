@@ -93,7 +93,7 @@ $(document).ready(
 					},
 					type: 'category',
 					apiSettings : {
-						url : '/v1/api/suggester?key={key}&value={query}&type=string&notKey=vocabulary_id&notValue=' + document.vocabularyId,
+						url : '/v1/api/suggester?key={key}&value={query}&type=string&notKey=vocabulary_id&notValue=' + document.vocabularyId + "&source=" + document.source + "&target=" + document.target,
 						cache : 'none',
 						beforeSend: function(settings) {
 							var fieldName = $(this).find('.prompt').attr('name');

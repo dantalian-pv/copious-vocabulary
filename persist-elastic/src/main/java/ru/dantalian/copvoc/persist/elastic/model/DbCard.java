@@ -17,6 +17,12 @@ public class DbCard {
 	@Field(name = "vocabulary_id", codec = UUIDCodec.class)
 	private UUID vocabularyId;
 
+	@Field
+	private String source;
+
+	@Field
+	private String target;
+
 	@Field(name = "content", type = "object", subtype = {
 			@SubField(path_match="content.*_keyword"),
 			@SubField(path_match="content.*_text", type = "text")
@@ -26,9 +32,12 @@ public class DbCard {
 	public DbCard() {
 	}
 
-	public DbCard(final UUID aId, final UUID aVocabularyId, final Map<String, String> aFieldsContent) {
+	public DbCard(final UUID aId, final UUID aVocabularyId, final String aSource, final String aTarget,
+			final Map<String, String> aFieldsContent) {
 		id = aId;
 		vocabularyId = aVocabularyId;
+		source = aSource;
+		target = aTarget;
 		fieldsContent = aFieldsContent;
 	}
 
@@ -46,6 +55,22 @@ public class DbCard {
 
 	public void setVocabularyId(final UUID aVocabularyId) {
 		vocabularyId = aVocabularyId;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(final String aSource) {
+		source = aSource;
+	}
+
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(final String aTarget) {
+		target = aTarget;
 	}
 
 	public Map<String, String> getFieldsContent() {

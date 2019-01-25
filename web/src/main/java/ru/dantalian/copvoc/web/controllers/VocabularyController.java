@@ -16,10 +16,11 @@ import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
-import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoField;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @Controller
 public class VocabularyController {
@@ -45,7 +46,7 @@ public class VocabularyController {
 		}
 
 		aModel.addAttribute("tpl", "voc");
-		aModel.addAttribute("voc", voc);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", voc.getName());
 		return FRAME;
@@ -59,10 +60,13 @@ public class VocabularyController {
 		if (voc == null) {
 			throw new PageNotFoundException();
 		}
-		final List<CardField> fields = fieldsManager.listFields(user, UUID.fromString(aId));
+		final List<DtoField> fields = fieldsManager.listFields(user, UUID.fromString(aId))
+				.stream()
+				.map(DtoCodec::asDtoField)
+				.collect(Collectors.toList());
 
 		aModel.addAttribute("tpl", "voc/edit_cards");
-		aModel.addAttribute("voc", voc);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
 		aModel.addAttribute("fields", fields);
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", "Edit " + voc.getName());
@@ -80,8 +84,8 @@ public class VocabularyController {
 		final VocabularyView view = viewManager.getVocabularyView(user, UUID.fromString(aId));
 
 		aModel.addAttribute("tpl", "voc/edit_view");
-		aModel.addAttribute("voc", voc);
-		aModel.addAttribute("view", view);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
+		aModel.addAttribute("view", DtoCodec.asDtoView(view));
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", "Edit View " + voc.getName());
 		return FRAME;
@@ -102,7 +106,7 @@ public class VocabularyController {
 				.collect(Collectors.toList());
 
 		aModel.addAttribute("tpl", "voc/edit_fields");
-		aModel.addAttribute("voc", voc);
+		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
 		aModel.addAttribute("fieldTypes", fieldTypes);
 		aModel.addAttribute("top_menu", true);
 		aModel.addAttribute("title", "Edit Fields " + voc.getName());

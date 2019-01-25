@@ -19,6 +19,7 @@ import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoView;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/views", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,7 +43,7 @@ public class RestViewController {
 				throw new PersistException("Vocabulary with id: " + aId + " not found");
 			}
 			final VocabularyView view = viewPersist.getVocabularyView(user, UUID.fromString(aId));
-			return asDtoView(view);
+			return DtoCodec.asDtoView(view);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
@@ -64,13 +65,6 @@ public class RestViewController {
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
-	}
-
-	private DtoView asDtoView(final VocabularyView aView) {
-		if (aView == null) {
-			return null;
-		}
-		return new DtoView(aView.getVocabularyId().toString(), aView.getCss(), aView.getFront(), aView.getBack());
 	}
 
 }

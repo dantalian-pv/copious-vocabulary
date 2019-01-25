@@ -20,13 +20,16 @@ import org.springframework.stereotype.Service;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsExpression;
 import ru.dantalian.copvoc.persist.api.query.CardsQuery;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
@@ -43,12 +46,15 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 
 	private final PersistCardFieldManager fieldManager;
 
+	private final PersistVocabularyManager vocManager;
+
 	@Autowired
 	public ElasticPersistCardManager(final RestHighLevelClient aClient, final ElasticSettings aSettings,
-			final PersistCardFieldManager aFieldManager) {
+			final PersistCardFieldManager aFieldManager, final PersistVocabularyManager aVocManager) {
 		super(aClient, DbCard.class);
 		settings = aSettings;
 		fieldManager = aFieldManager;
+		vocManager = aVocManager;
 	}
 
 	@Override
@@ -66,9 +72,13 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			final Map<String, String> aContent) throws PersistException {
 		final UUID id = UUID.randomUUID();
 		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
-		final DbCard card = new DbCard(id, aVocabularyId, asPersistMap(aContent, fields));
+		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aVocabularyId);
+		final DbCard card = new DbCard(id, aVocabularyId,
+			LanguageUtils.asString(vocabulary.getSource()),
+			LanguageUtils.asString(vocabulary.getTarget()),
+			asPersistMap(aContent, fields));
 		add(getIndexId(aVocabularyId), card, true);
-		return asCard(card);
+		return asCard(card, vocabulary);
 	}
 
 	@Override
@@ -79,13 +89,15 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			throw new PersistException("Card not found");
 		}
 		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
-		final DbCard dbCard = asDbCard(card, fields);
+		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aVocabularyId);
+		final DbCard dbCard = asDbCard(card, fields, vocabulary);
 		update(getIndexId(card.getVocabularyId()), dbCard, true);
 	}
 
 	@Override
 	public Card getCard(final String aUser, final UUID aVocabularyId, final UUID aId) throws PersistException {
-		return asCard(get(getIndexId(aVocabularyId), aId.toString()));
+		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aVocabularyId);
+		return asCard(get(getIndexId(aVocabularyId), aId.toString()), vocabulary);
 	}
 
 	@Override
@@ -100,6 +112,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		searchSourceBuilder.query(query);
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
+		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aQuery.getVocabularyId());
 		search.getHits()
 				.forEach(aItem -> {
 					final Map<String, Object> source = aItem.getSourceAsMap();
@@ -112,7 +125,10 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 						final String pojoName = CardUtils.asPojoName(entry.getKey());
 						map.put(pojoName, new PojoCardFieldContent(id, vocId, pojoName, (String) entry.getValue()));
 					}
-					list.add(new PojoCard(id, vocId, map));
+					list.add(new PojoCard(id, vocId,
+							LanguageUtils.asString(vocabulary.getSource()),
+							LanguageUtils.asString(vocabulary.getTarget()),
+							map));
 					});
 		return list;
 	}
@@ -170,7 +186,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		return DEFAULT_INDEX + "-" + aUuid.toString();
 	}
 
-	private DbCard asDbCard(final Card aCard, final List<CardField> aFields) {
+	private DbCard asDbCard(final Card aCard, final List<CardField> aFields, final Vocabulary aVocabulary) {
 		final Map<String, CardFieldContent> fieldsContent = aCard.getFieldsContent();
 		final Map<String, CardField> fieldMap = CardUtils.asFieldsMap(aFields);
 		final Map<String, String> content = new HashMap<>();
@@ -178,10 +194,13 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			final String persistName = CardUtils.asPersistName(fieldMap.get(entry.getKey()));
 			content.put(persistName, entry.getValue().getContent());
 		}
-		return new DbCard(aCard.getId(), aCard.getVocabularyId(), content);
+		return new DbCard(aCard.getId(), aCard.getVocabularyId(),
+			LanguageUtils.asString(aVocabulary.getSource()),
+			LanguageUtils.asString(aVocabulary.getTarget()),
+			content);
 	}
 
-	private Card asCard(final DbCard aDbCard) {
+	private Card asCard(final DbCard aDbCard, final Vocabulary aVocabulary) {
 		final Map<String, String> fieldsContent = aDbCard.getFieldsContent();
 		final Map<String, CardFieldContent> map = new HashMap<>();
 		for (final Entry<String, String> entry: fieldsContent.entrySet()) {
@@ -189,7 +208,10 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			map.put(name, new PojoCardFieldContent(aDbCard.getId(), aDbCard.getVocabularyId(),
 					name, entry.getValue()));
 		}
-		return new PojoCard(aDbCard.getId(), aDbCard.getVocabularyId(), map);
+		return new PojoCard(aDbCard.getId(), aDbCard.getVocabularyId(),
+				LanguageUtils.asString(aVocabulary.getSource()),
+				LanguageUtils.asString(aVocabulary.getTarget()),
+				map);
 	}
 
 }

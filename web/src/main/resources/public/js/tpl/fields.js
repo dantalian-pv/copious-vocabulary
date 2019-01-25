@@ -55,7 +55,7 @@ $(document).ready(
 				// Suggester
 				$('.suggester').search({
 					apiSettings : {
-						url : '/v1/api/suggester?value={query}&type=field',
+						url : '/v1/api/suggester?value={query}&type=field&notKey=vocabulary_id&notValue=' + document.vocabularyId + "&source=" + document.source + "&target=" + document.target,
 						cache : 'none',
 						onResponse: function(data) {
 							var results = [];
