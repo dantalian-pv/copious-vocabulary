@@ -2,6 +2,7 @@ package ru.dantalian.copvoc.web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.client.RestTemplate;
 import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
@@ -83,5 +85,10 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
   public SpringSecurityDialect securityTemplateDialect() {
   	return new SpringSecurityDialect();
   }
+
+  @Bean
+	public RestTemplate restTemplate(final RestTemplateBuilder builder) {
+		return builder.build();
+	}
 
 }

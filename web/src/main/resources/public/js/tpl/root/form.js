@@ -35,8 +35,10 @@ function Form(params) {
 
 		params.setItem.call(self,item);
 
-		formParams.uri = params.url + "/" + self.id();
-		formParams.method = "PUT";
+		if (self.id()) {
+			formParams.uri = params.url + "/" + self.id();
+			formParams.method = "PUT";
+		}
 	}
 
 	self.show = function(callback) {

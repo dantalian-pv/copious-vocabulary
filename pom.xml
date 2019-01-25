@@ -30,6 +30,7 @@
 
 		<elasticsearch-version>6.5.4</elasticsearch-version>
 		<elasticsearch-cluster-runner-version>6.5.4.0</elasticsearch-cluster-runner-version>
+		<jsoup-version>1.11.3</jsoup-version>
 
 		<logback-version>1.2.3</logback-version>
 		<slf4j-version>1.7.25</slf4j-version>
@@ -105,6 +106,12 @@
 				<groupId>org.codelibs</groupId>
 				<artifactId>elasticsearch-cluster-runner</artifactId>
 				<version>${elasticsearch-cluster-runner-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>${jsoup-version}</version>
 			</dependency>
 
 			<dependency>

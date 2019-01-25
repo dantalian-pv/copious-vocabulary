@@ -26,6 +26,7 @@ import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
 import ru.dantalian.copvoc.suggester.api.Suggester;
+import ru.dantalian.copvoc.suggester.api.model.Pair;
 import ru.dantalian.copvoc.suggester.api.model.Suggest;
 import ru.dantalian.copvoc.suggester.combined.model.PojoSuggest;
 
@@ -43,7 +44,7 @@ public class CardsSuggester implements Suggester {
 	private PersistVocabularyManager vocManager;
 
 	@Override
-	public boolean accept(final SuggestQueryType aType) {
+	public boolean accept(final Pair<String, String> aSourceTarget, final SuggestQueryType aType) {
 		return aType == SuggestQueryType.STRING || aType == SuggestQueryType.TEXT;
 	}
 

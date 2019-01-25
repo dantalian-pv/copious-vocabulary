@@ -13,6 +13,7 @@ import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
 import ru.dantalian.copvoc.suggester.api.Suggester;
+import ru.dantalian.copvoc.suggester.api.model.Pair;
 import ru.dantalian.copvoc.suggester.api.model.Suggest;
 
 @Component("root")
@@ -23,7 +24,7 @@ public class CombinedSuggester implements Suggester {
 	private List<Suggester> suggesters;
 
 	@Override
-	public boolean accept(final SuggestQueryType aType) {
+	public boolean accept(final Pair<String, String> aSourceTarget, final SuggestQueryType aType) {
 		return true;
 	}
 
@@ -34,7 +35,7 @@ public class CombinedSuggester implements Suggester {
 			if (suggester == this) {
 				continue;
 			}
-			if (!suggester.accept(aQuery.getType())) {
+			if (!suggester.accept(aQuery.getSourceTarget(), aQuery.getType())) {
 				continue;
 			}
 			suggests.addAll(suggester.suggest(aUser, aQuery));

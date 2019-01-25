@@ -2,6 +2,7 @@ package ru.dantalian.copvoc.web.controllers.rest;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -30,7 +31,8 @@ public class RestRetrievalController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final URI uri = URI.create(aUri);
+			final String decodedUri = new String(Base64.getDecoder().decode(aUri));
+			final URI uri = URI.create(decodedUri);
 			return retrieval.retrieve(user, uri);
 		} catch (final SuggestException e) {
 			throw new RestException(e.getMessage(), e);

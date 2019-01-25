@@ -1,6 +1,7 @@
 package ru.dantalian.copvoc.persist.elastic.managers;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -112,24 +114,25 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		searchSourceBuilder.query(query);
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
-		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aQuery.getVocabularyId());
-		search.getHits()
-				.forEach(aItem -> {
-					final Map<String, Object> source = aItem.getSourceAsMap();
-					final UUID id = UUID.fromString(aItem.getId());
-					final UUID vocId = UUID.fromString((String) source.get("vocabulary_id"));
+		final Iterator<SearchHit> iterator = search.getHits().iterator();
+		while(iterator.hasNext()) {
+			final SearchHit hit = iterator.next();
+			final Map<String, Object> source = hit.getSourceAsMap();
+			final UUID id = UUID.fromString(hit.getId());
+			final UUID vocId = UUID.fromString((String) source.get("vocabulary_id"));
+			final Vocabulary vocabulary = vocManager.getVocabulary(aUser, vocId);
 
-					final Map<String, ?> content = (Map<String, ?>) source.get("content");
-					final Map<String, CardFieldContent> map = new HashMap<>();
-					for (final Entry<String, ?> entry: content.entrySet()) {
-						final String pojoName = CardUtils.asPojoName(entry.getKey());
-						map.put(pojoName, new PojoCardFieldContent(id, vocId, pojoName, (String) entry.getValue()));
-					}
-					list.add(new PojoCard(id, vocId,
-							LanguageUtils.asString(vocabulary.getSource()),
-							LanguageUtils.asString(vocabulary.getTarget()),
-							map));
-					});
+			final Map<String, ?> content = (Map<String, ?>) source.get("content");
+			final Map<String, CardFieldContent> map = new HashMap<>();
+			for (final Entry<String, ?> entry: content.entrySet()) {
+				final String pojoName = CardUtils.asPojoName(entry.getKey());
+				map.put(pojoName, new PojoCardFieldContent(id, vocId, pojoName, (String) entry.getValue()));
+			}
+			list.add(new PojoCard(id, vocId,
+					LanguageUtils.asString(vocabulary.getSource()),
+					LanguageUtils.asString(vocabulary.getTarget()),
+					map));
+		}
 		return list;
 	}
 

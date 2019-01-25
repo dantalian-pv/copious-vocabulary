@@ -92,6 +92,7 @@ $(document).ready(
 						title: 'value'
 					},
 					type: 'category',
+					searchDelay: 300,
 					apiSettings : {
 						url : '/v1/api/suggester?key={key}&value={query}&type=string&notKey=vocabulary_id&notValue=' + document.vocabularyId + "&source=" + document.source + "&target=" + document.target,
 						cache : 'none',
@@ -117,7 +118,7 @@ $(document).ready(
 						if (this.className.indexOf('first') == -1) {
 							return;
 						}
-						$.getJSON("https://localhost:8443/v1/api/retrieval?uri=" + result.source, function(data) {
+						$.getJSON("https://localhost:8443/v1/api/retrieval?uri=" + encodeURIComponent(btoa(result.source)), function(data) {
 							data['id'] = null;
 							data['vocabularyId'] = document.vocabularyId;
 
