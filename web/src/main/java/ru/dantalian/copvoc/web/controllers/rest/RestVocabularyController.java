@@ -93,12 +93,23 @@ public class RestVocabularyController {
 					DtoCodec.asLanguage(aVocabulary.getSourceId()),
 					DtoCodec.asLanguage(aVocabulary.getTargetId()));
 			// Init default fields
-			final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc.getId());
+			final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc);
 			for (final CardField field: defaultFields) {
 				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
 			}
+			// Init target language specific fields
+			final List<CardField> targetLangFields = fieldUtils.getLanguageFields(voc.getId(), voc.getTarget());
+			for (final CardField field: targetLangFields) {
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+			}
+			// Init source language specific fields
+			final List<CardField> sourceLangFields = fieldUtils.getLanguageFields(voc.getId(), voc.getSource());
+			for (final CardField field: sourceLangFields) {
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+			}
+
 			// Init default view
-			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId());
+			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId(), sourceLangFields, targetLangFields);
 			cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
 			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException | CoreException e) {

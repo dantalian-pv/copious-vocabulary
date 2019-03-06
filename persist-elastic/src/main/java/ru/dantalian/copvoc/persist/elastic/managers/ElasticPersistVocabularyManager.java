@@ -90,11 +90,11 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 			return null;
 		}
 		final SearchHit hit = iterator.next();
-		Language source = LanguageUtils.asLanguage(hit.field("source").getValue());
-		Language target = LanguageUtils.asLanguage(hit.field("target").getValue());
+		final Map<String, Object> src = hit.getSourceAsMap();
+		Language source = LanguageUtils.asLanguage((String) src.get("source"));
+		Language target = LanguageUtils.asLanguage((String) src.get("target"));
 		source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 		target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
-		final Map<String, Object> src = hit.getSourceAsMap();
 		return new PojoVocabulary(UUID.fromString(hit.getId()),
 				(String) src.get("name"),
 				(String) src.get("description"),
