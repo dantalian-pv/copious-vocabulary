@@ -117,11 +117,15 @@ public abstract class AbstractPersistManager<T> {
 			}
 			final Class<?> clazz = aEntity.getClass();
 			final XContentBuilder builder = XContentFactory.jsonBuilder();
-			builder.startObject();
+			if (!Map.class.isAssignableFrom(aEntity.getClass())) {
+				builder.startObject();
+			}
 			{
 				addFiledsForClass(aEntity, clazz, builder);
 			}
-			builder.endObject();
+			if (!Map.class.isAssignableFrom(aEntity.getClass())) {
+				builder.endObject();
+			}
 			final String id = getId(aEntity, clazz);
 			if (id == null) {
 				throw new IllegalArgumentException("No id field found in " + clazz.getName());
@@ -147,11 +151,15 @@ public abstract class AbstractPersistManager<T> {
 			}
 			final Class<?> clazz = aEntity.getClass();
 			final XContentBuilder builder = XContentFactory.jsonBuilder();
-			builder.startObject();
+			if (!Map.class.isAssignableFrom(aEntity.getClass())) {
+				builder.startObject();
+			}
 			{
 				addFiledsForClass(aEntity, clazz, builder);
 			}
-			builder.endObject();
+			if (!Map.class.isAssignableFrom(aEntity.getClass())) {
+				builder.endObject();
+			}
 			final String id = getId(aEntity, clazz);
 			if (id == null) {
 				throw new IllegalArgumentException("No id field found in " + clazz.getName());
@@ -173,6 +181,9 @@ public abstract class AbstractPersistManager<T> {
 		try {
 			if (aSource == null) {
 				return null;
+			}
+			if (entity == Map.class) {
+				return (T) aSource;
 			}
 			final T instance = entity.newInstance();
 			final Class<?> clazz = entity;
@@ -238,6 +249,9 @@ public abstract class AbstractPersistManager<T> {
 	}
 
 	protected String getId(final T aEntity, final Class<?> aClass) throws Exception {
+		if (Map.class.isAssignableFrom(aEntity.getClass())) {
+			return (String) ((Map<String, ?>) aEntity).get("id");
+		}
 		final java.lang.reflect.Field[] fields = aClass.getDeclaredFields();
 		for (final java.lang.reflect.Field field: fields) {
 			final Id idAnnotation = field.getDeclaredAnnotation(Id.class);
@@ -261,6 +275,10 @@ public abstract class AbstractPersistManager<T> {
 
 	protected void addFiledsForClass(final T aEntity, final Class<?> aClass, final XContentBuilder aBuilder)
 			throws Exception {
+		if (Map.class.isAssignableFrom(aEntity.getClass())) {
+			aBuilder.map((Map<String, ?>) aEntity);
+			return;
+		}
 		final java.lang.reflect.Field[] fields = aClass.getDeclaredFields();
 		for (final java.lang.reflect.Field field: fields) {
 			final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
@@ -362,6 +380,9 @@ public abstract class AbstractPersistManager<T> {
 
 	protected void addCodecsForClass(final Class<?> aEntity)
 			throws InstantiationException, IllegalAccessException {
+		if (aEntity == Map.class) {
+			return;
+		}
 		final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
 		final Method[] methods = aEntity.getDeclaredMethods();
 		for (final java.lang.reflect.Field field: fields) {
@@ -408,6 +429,9 @@ public abstract class AbstractPersistManager<T> {
 
 	protected void addMappingForClass(final XContentBuilder mappings, final Class<?> aEntity, final boolean aDynamic)
 			throws IOException, InstantiationException, IllegalAccessException {
+		if (aEntity == Map.class) {
+			return;
+		}
 		final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
 		final Method[] methods = aEntity.getDeclaredMethods();
 		for (final java.lang.reflect.Field field: fields) {
