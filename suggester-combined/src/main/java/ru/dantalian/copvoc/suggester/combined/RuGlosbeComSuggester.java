@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import ru.dantalian.copvoc.persist.api.PersistCacheManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.utils.CommonUtils;
 import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
@@ -54,7 +55,7 @@ public class RuGlosbeComSuggester implements Suggester {
 			final String[] suggestKeys;
 
 			final String cacheId = serialize(aQuery);
-			final String cacheHash = hash(cacheId);
+			final String cacheHash = CommonUtils.hash(cacheId);
 			Map<String, Object> map = cache.load(cacheHash);
 			if (map == null) {
 				// Cache miss
@@ -67,7 +68,7 @@ public class RuGlosbeComSuggester implements Suggester {
 				map.put(PersistCacheManager.ID, cacheHash);
 				map.put("query", cacheId);
 				map.put("suggests", Arrays.asList(suggestKeys));
-				cache.save(cacheHash, map);
+				cache.save(map);
 			} else {
 				suggestKeys = ((List<String>) map.get("suggests")).toArray(new String[0]);
 			}
@@ -96,10 +97,6 @@ public class RuGlosbeComSuggester implements Suggester {
 		final String target = aQuery.getSourceTarget().getValue().contains("ru") ? "ru" : "ja";
 		final String phrase = aQuery.getWhere().getValue();
 		return "RuGlosbe_suggest_" + source + "_" + target + "_" + phrase;
-	}
-
-	private String hash(final String aSirialized) {
-		return Integer.toHexString(aSirialized.hashCode());
 	}
 
 }

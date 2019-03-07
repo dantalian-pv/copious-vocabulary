@@ -12,7 +12,7 @@ public interface PersistCacheManager {
 	 * @param aMap
 	 * @throws PersistException any connection issue
 	 */
-	void save(String aHashCode, Map<String, Object> aMap) throws PersistException;
+	void save(Map<String, Object> aMap) throws PersistException;
 
 	/**
 	 * Retrieve cached data

@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import ru.dantalian.copvoc.persist.api.PersistCacheManager;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardField;
+import ru.dantalian.copvoc.persist.api.utils.CommonUtils;
 import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.UniversalRetrieval;
 import ru.dantalian.copvoc.suggester.combined.utils.UrlUtils;
@@ -27,6 +29,9 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
+
+	@Autowired
+	private PersistCacheManager cache;
 
 	@Override
 	public boolean accept(final URI aSource) {
@@ -45,29 +50,44 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 		try {
 			final List<CardField> fields = fieldManager.listFields(aUser, vocabularyId);
 
-			final Document doc = Jsoup.connect("https://ru.glosbe.com/"
-				+ source + "/" + target + "/" + word).get();
-			final Element ja = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.examples > div > div:nth-child(2) > div:nth-child(2)").first();
+			final String url = "https://ru.glosbe.com/"
+					+ source + "/" + target + "/" + word;
+			final String urlHash = CommonUtils.hash(url);
 
-			final Element answer = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.text-info > strong")
-					.first();
+			final Map<String, Object> map;
+			Map<String, Object> cacheMap = cache.load(urlHash);
+			if (cacheMap == null) {
+				map = new HashMap<>();
+				final Document doc = Jsoup.connect(url).get();
 
-			final Map<String, Object> map = new HashMap<>();
-			for (final CardField field: fields) {
-				switch (field.getType()) {
-					case ANSWER:
-						map.put(field.getName(), answer.text());
-						break;
-					case STRING:
-						map.put(field.getName(), word);
-						break;
-					case MARKUP:
-					case TEXT:
-						map.put(field.getName(), ja.text().replaceAll("(" + answer.text() + ")", "[$1]"));
-						break;
-					default:
-						throw new IllegalArgumentException("Unknown field type");
+				final Element ja = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.examples > div > div:nth-child(2) > div:nth-child(2)").first();
+				final Element answer = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.text-info > strong")
+						.first();
+
+				for (final CardField field: fields) {
+					switch (field.getType()) {
+						case ANSWER:
+							map.put(field.getName(), answer.text());
+							break;
+						case STRING:
+							map.put(field.getName(), word);
+							break;
+						case MARKUP:
+						case TEXT:
+							map.put(field.getName(), ja.text().replaceAll("(" + answer.text() + ")", "[$1]"));
+							break;
+						default:
+							throw new IllegalArgumentException("Unknown field type");
+					}
 				}
+				cacheMap = new HashMap<>();
+				cacheMap.put(PersistCacheManager.ID, urlHash);
+				cacheMap.put("url", url);
+				cacheMap.put("map", map);
+
+				cache.save(cacheMap);
+			} else {
+				map = (Map<String, Object>) cacheMap.get("map");
 			}
 			return map;
 		} catch (final IOException | PersistException e) {

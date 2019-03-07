@@ -36,7 +36,7 @@ public class ElasticPersistCacheManager extends AbstractPersistManager<Map<Strin
 	}
 
 	@Override
-	public void save(final String aHashCode, final Map<String, Object> aMap) throws PersistException {
+	public void save(final Map<String, Object> aMap) throws PersistException {
 		add(getDefaultIndex(), aMap, true);
 	}
 
