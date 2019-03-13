@@ -86,7 +86,7 @@ $(document).ready(
 				});
 
 				// Suggester
-				$('.suggester').search({
+				$('.suggester.first').search({
 					fields: {
 						description: 'description',
 						title: 'value'

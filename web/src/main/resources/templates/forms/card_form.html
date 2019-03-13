@@ -25,7 +25,7 @@
 					<div th:class="${#strings.equals(field.type, 'ANSWER')} ? 'field required' : 'field'">
 						<label th:text="${field.name} + ' (' + ${field.type} + ')'">Name</label>
 						<div class="ui pointing below red label hidden"></div>
-						<div class="ui search suggester" th:classappend="${iterStat.index == 0}? 'first'">
+						<div class="ui" th:classappend="${iterStat.index == 0}? 'search suggester first'">
 							<textarea th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" th:attr="'data-bind'=${'text: itemForm.' + field.name}"></textarea>
 							<input class="prompt" th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" th:attr="'data-bind'=${'value: itemForm.' + field.name}" />
 						</div>
