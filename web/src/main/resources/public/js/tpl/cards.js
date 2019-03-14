@@ -2,7 +2,7 @@
 
 $(document).ready(
 		function() {
-
+			
 			var csrf = {};
 			var csrf_name = $("meta[name='_csrf_header']").attr("content");
 			csrf[csrf_name] = $("meta[name='_csrf']").attr("content");
@@ -14,6 +14,8 @@ $(document).ready(
 			    if (data.hasOwnProperty(key)) {
 			    	if (key == 'vocabularyId') {
 			    		card['vocabularyId'] = data[key];
+			    	} else if (key == 'id') {
+			    		card['id'] = data[key];
 			    	} else {
 			    		card.content.push({
 			    			name: key,
@@ -54,6 +56,7 @@ $(document).ready(
 
 				// Form Data
 				self.itemForm = new Form({
+					noUrlChange: true,
 					convert: convert,
 					setItem : function(data) {
 						for (var key in data) {
@@ -147,12 +150,11 @@ $(document).ready(
 					});
 				};
 
-				self.showEditItemForm = function() {
-					var selectedItem = self.selectedItems()[0];
-					$.getJSON("/v1/api/cards", function(itemForm) {
-						self.itemForm.setItem(new ItemForm(itemForm));
+				self.showEditItemForm = function(item) {
+					$.getJSON("/v1/api/cards/" + item.vocabularyId() + '/' + item.id(), function(itemForm) {
+						self.itemForm.setItem(new Item(self.convertItem(itemForm)));
 						self.itemForm.show(function(data) {
-							self.items.replace(self.selectedItem, new Item(data));
+							self.items.replace(item, new Item(self.convertItem(data)));
 							$('#add_card').modal('hide');
 						});
 					});
@@ -172,41 +174,19 @@ $(document).ready(
 					$('#delete_items').modal('show');
 				};
 
-				self.deleteItems = function(model, evt) {
-					self.deleteInProgress(true);
-					self.errorHeader('');
-					self.errorMessage('');
-
-					var initialSize = self.itemsToDelete().length;
-
-					var deffers = [];
-
-					self.itemsToDelete().forEach(function(item) {
-						deffers.push($.ajax({
-							url : self.deleteUrl + item.id(),
-							contentType : "application/json; charset=utf-8",
-							method : 'DELETE',
-							headers : csrf,
-							dataType : 'json'
-						}));
-					});
-
-					$.when.apply(self, deffers).done(function() {
-						self.itemsToDelete().forEach(function(item) {
-							if (self.deleteUrl.indexOf('group') != -1) {
-								self.groups.remove(item);
-							} else {
-								self.items.remove(item);
-							}
-						});
-						$('#delete_items').modal('hide');
+				self.deleteItem = function(item) {
+					$.ajax({
+						url : '/v1/api/cards/' + item.vocabularyId() + '/' + item.id(),
+						contentType : "application/json; charset=utf-8",
+						method : 'DELETE',
+						headers : csrf,
+						dataType : 'json'
+					}).done(function() {
+						self.items.remove(item);
 					}).fail(function(deffer, type, message) {
 						self.errorHeader(type);
 						self.errorMessage(message);
-					}).always(function() {
-						self.deleteInProgress(false);
 					});
-
 				};
 				
 				self.convertItem = function(data) {

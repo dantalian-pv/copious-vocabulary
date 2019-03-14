@@ -84,7 +84,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	}
 
 	@Override
-	public void updateCard(final String aUser, final UUID aVocabularyId, final UUID aId, final Map<String, String> aContent)
+	public Card updateCard(final String aUser, final UUID aVocabularyId, final UUID aId, final Map<String, String> aContent)
 			throws PersistException {
 		final Card card = getCard(aUser, aVocabularyId, aId);
 		if (card == null) {
@@ -92,8 +92,12 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		}
 		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
 		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aVocabularyId);
-		final DbCard dbCard = asDbCard(card, fields, vocabulary);
+		final DbCard dbCard = new DbCard(aId, aVocabularyId,
+				LanguageUtils.asString(vocabulary.getSource()),
+				LanguageUtils.asString(vocabulary.getTarget()),
+				asPersistMap(aContent, fields));
 		update(getIndexId(card.getVocabularyId()), dbCard, true);
+		return asCard(dbCard, vocabulary);
 	}
 
 	@Override

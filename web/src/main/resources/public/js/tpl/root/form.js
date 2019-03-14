@@ -24,7 +24,7 @@ function Form(params) {
 	self.setEmpty = function() {
 		self.resetForm();
 
-		params.setEmpty.call(self)
+		params.setEmpty.call(self);
 
 		formParams.uri = params.url;
 		formParams.method = "POST";
@@ -33,10 +33,12 @@ function Form(params) {
 	self.setItem = function(item) {
 		self.resetForm();
 
-		params.setItem.call(self,item);
+		params.setItem.call(self, item);
 
 		if (self.id()) {
-			formParams.uri = params.url + "/" + self.id();
+			if (!params.noUrlChange) {
+				formParams.uri = params.url + "/" + self.id();
+			}
 			formParams.method = "PUT";
 		}
 	}

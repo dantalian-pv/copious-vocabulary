@@ -11,7 +11,7 @@ public interface PersistCardManager {
 
 	Card createCard(String aUser, UUID aVocabularyId, Map<String, String> aContent) throws PersistException;
 
-	void updateCard(String aUser, UUID aVocabularyId, UUID aId, Map<String, String> aContent) throws PersistException;
+	Card updateCard(String aUser, UUID aVocabularyId, UUID aId, Map<String, String> aContent) throws PersistException;
 
 	Card getCard(String aUser, UUID aVocabularyId, UUID aId) throws PersistException;
 

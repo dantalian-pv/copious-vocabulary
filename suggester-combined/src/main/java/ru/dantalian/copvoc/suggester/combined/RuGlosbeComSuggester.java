@@ -61,7 +61,7 @@ public class RuGlosbeComSuggester implements Suggester {
 				// Cache miss
 				suggestKeys = restTemplate.getForObject(
 						URI.create("https://ru.glosbe.com/ajax/phrasesAutosuggest?from=" + source + "&dest=" + target + "&phrase="
-								+ aQuery.getWhere().getValue()),
+								+ URLEncoder.encode(aQuery.getWhere().getValue(), "UTF-8")),
 						String[].class);
 				// Also save in cache
 				map = new HashMap<>();
@@ -87,7 +87,7 @@ public class RuGlosbeComSuggester implements Suggester {
 				}
 			}
 			return suggests;
-		} catch (PersistException | RestClientException e1) {
+		} catch (PersistException | RestClientException | UnsupportedEncodingException e1) {
 			throw new SuggestException("Failed to retrieve suggests", e1);
 		}
 	}

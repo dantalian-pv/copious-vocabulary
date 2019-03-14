@@ -22,6 +22,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
@@ -77,13 +78,29 @@ public class RestCardController {
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateCard(final Principal aPrincipal, @RequestBody final DtoCard aCard)
+	public DtoCard updateCard(final Principal aPrincipal, @RequestBody final DtoCard aCard)
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
 			final Map<String, String> map = asMap(aCard.getContent());
-			cardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
+			final Card card = cardManager.updateCard(user, UUID.fromString(aCard.getVocabularyId()),
 					UUID.fromString(aCard.getId()), map);
+			return DtoCodec.asDtoCard(card);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
+	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.DELETE)
+	public DtoVoid deleteCard(@PathVariable(value = "voc_id") final String aVocId,
+			@PathVariable(value = "id") final String aId, final Principal aPrincipal)
+			throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final UUID vocId = UUID.fromString(aVocId);
+			final UUID id = UUID.fromString(aId);
+			cardManager.deleteCard(user, vocId, id);
+			return DtoVoid.INSTANCE;
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}

@@ -12,7 +12,8 @@
 		<div class="header" data-bind="text: (itemForm.id()) ? 'Edit Card' : 'Add New Card'"></div>
 		<div class="content">
 			<form id="add_card_form" class="ui form segment" method="post" action="/v1/api/cards">
-				<input th:value="${voc.id}" name="vocabularyId" type="hidden">
+				<input th:value="${voc.id}" name="vocabularyId" type="hidden" />
+				<input name="id" data-bind="value: itemForm.id" type="hidden" />
 				<div class="ui inverted dimmer">
 					<div class="ui text loader">Loading</div>
 				</div>

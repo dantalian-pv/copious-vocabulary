@@ -28,16 +28,28 @@
 		<table class="ui celled table">
 			<thead>
 				<tr>
+					<th></th>
 					<th:block th:each="field: ${fields}">
 						<th th:text="${field.name + ' (' + field.type + ')'}"></th>
 					</th:block>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody data-bind="foreach: items">
 				<tr>
+					<td>
+						<div class="ui small icon button edit" data-bind="click: $parent.showEditItemForm">
+							<i class="edit icon"></i>
+						</div>
+					</td>
 					<th:block th:each="field: ${fields}">
 						<td th:attr="data-bind=${'text: ' + field.name}"></td>
 					</th:block>
+					<td>
+						<div class="ui small icon button delete" data-bind="click: $parent.deleteItem">
+							<i class="trash icon"></i>
+						</div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
