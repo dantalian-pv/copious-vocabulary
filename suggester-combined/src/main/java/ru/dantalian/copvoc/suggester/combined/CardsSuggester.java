@@ -58,11 +58,13 @@ public class CardsSuggester implements Suggester {
 					? null : aQuery.getWhere().getKey().toLowerCase();
 			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
 			final BoolExpressionBuilder bool = QueryFactory.bool();
+			final BoolExpressionBuilder nestedBool = QueryFactory.bool();
 			for (final CardField field: fields) {
 				if (key == null || field.getName().toLowerCase().contains(key)) {
-					addQueryByType(aQuery, bool, field);
+					addQueryByType(aQuery, nestedBool, field);
 				}
 			}
+			bool.must(nestedBool.build());
 			if (aQuery.getNot() != null) {
 				bool.not(QueryFactory.term(aQuery.getNot().getKey(), aQuery.getNot().getValue(), false));
 			}

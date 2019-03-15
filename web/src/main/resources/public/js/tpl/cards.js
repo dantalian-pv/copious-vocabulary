@@ -96,6 +96,7 @@ $(document).ready(
 					},
 					type: 'category',
 					searchDelay: 300,
+					searchOnFocus: false,
 					apiSettings : {
 						url : '/v1/api/suggester?key={key}&value={query}&type=string&notKey=vocabulary_id&notValue=' + document.vocabularyId + "&source=" + document.source + "&target=" + document.target,
 						cache : 'none',

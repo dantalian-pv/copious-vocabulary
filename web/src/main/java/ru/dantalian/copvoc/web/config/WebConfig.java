@@ -1,5 +1,7 @@
 package ru.dantalian.copvoc.web.config;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -88,7 +90,10 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
 	public RestTemplate restTemplate(final RestTemplateBuilder builder) {
-		return builder.build();
+		return builder
+				.setConnectTimeout(Duration.ofSeconds(10))
+				.setReadTimeout(Duration.ofSeconds(10))
+				.build();
 	}
 
 }

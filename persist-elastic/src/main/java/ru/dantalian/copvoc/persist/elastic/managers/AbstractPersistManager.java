@@ -33,6 +33,7 @@ import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.SubField;
+import ru.dantalian.copvoc.persist.elastic.model.annotations.SubFieldFactory;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.CodecException;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.DefaultCodec;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.FieldCodec;
@@ -427,31 +428,44 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMappingForClass(final XContentBuilder mappings, final Class<?> aEntity, final boolean aDynamic)
+	protected void addMappingForClass(final XContentBuilder aMappings, final Class<?> aEntity, final boolean aDynamic)
 			throws IOException, InstantiationException, IllegalAccessException {
 		if (aEntity == Map.class) {
-			return;
-		}
-		final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
-		final Method[] methods = aEntity.getDeclaredMethods();
-		for (final java.lang.reflect.Field field: fields) {
-			final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
-			if (fieldAnnotation != null) {
-				addFieldIndex(field, fieldAnnotation, mappings, aDynamic);
+			if (!aDynamic) {
+				return;
 			}
-		}
-		for (final Method method: methods) {
-			final Field fieldAnnotation = method.getDeclaredAnnotation(Field.class);
-			if (fieldAnnotation != null) {
-				addMethodIndex(method, fieldAnnotation, mappings, aDynamic);
+			for (final String type: new String[] {"keyword", "text",
+					"long", "integer", "short", "byte", "double",
+					"date",
+					"boolean",
+					"binary",
+					}) {
+				addMapping("map", "object",
+						new SubField[] {SubFieldFactory.create("*_" + type, null, type, true, false, null)},
+						true, null, aMappings, true);
 			}
-		}
-		Class<?> superclass = null;
-		while ((superclass = aEntity.getSuperclass()) != null) {
-			if (superclass.equals(Object.class)) {
-				break;
+		} else {
+			final java.lang.reflect.Field[] fields = aEntity.getDeclaredFields();
+			final Method[] methods = aEntity.getDeclaredMethods();
+			for (final java.lang.reflect.Field field: fields) {
+				final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
+				if (fieldAnnotation != null) {
+					addFieldIndex(field, fieldAnnotation, aMappings, aDynamic);
+				}
 			}
-			addMappingForClass(mappings, superclass, aDynamic);
+			for (final Method method: methods) {
+				final Field fieldAnnotation = method.getDeclaredAnnotation(Field.class);
+				if (fieldAnnotation != null) {
+					addMethodIndex(method, fieldAnnotation, aMappings, aDynamic);
+				}
+			}
+			Class<?> superclass = null;
+			while ((superclass = aEntity.getSuperclass()) != null) {
+				if (superclass.equals(Object.class)) {
+					break;
+				}
+				addMappingForClass(aMappings, superclass, aDynamic);
+			}
 		}
 	}
 

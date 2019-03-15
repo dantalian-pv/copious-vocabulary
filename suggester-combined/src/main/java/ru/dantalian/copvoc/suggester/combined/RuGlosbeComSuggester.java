@@ -32,6 +32,10 @@ import ru.dantalian.copvoc.suggester.combined.model.PojoSuggest;
 @Order(20)
 public class RuGlosbeComSuggester implements Suggester {
 
+	private static final String SUGGESTS_KEYWORD = "suggests_keyword";
+
+	private static final String QUERY_KEYWORD = "query_keyword";
+
 	private static final Logger logger = LoggerFactory.getLogger(RuGlosbeComSuggester.class);
 
 	@Autowired
@@ -66,11 +70,11 @@ public class RuGlosbeComSuggester implements Suggester {
 				// Also save in cache
 				map = new HashMap<>();
 				map.put(PersistCacheManager.ID, cacheHash);
-				map.put("query", cacheId);
-				map.put("suggests", Arrays.asList(suggestKeys));
+				map.put(QUERY_KEYWORD, cacheId);
+				map.put(SUGGESTS_KEYWORD, Arrays.asList(suggestKeys));
 				cache.save(map);
 			} else {
-				suggestKeys = ((List<String>) map.get("suggests")).toArray(new String[0]);
+				suggestKeys = ((List<String>) map.get(SUGGESTS_KEYWORD)).toArray(new String[0]);
 			}
 
 			final List<Suggest> suggests = new LinkedList<>();
