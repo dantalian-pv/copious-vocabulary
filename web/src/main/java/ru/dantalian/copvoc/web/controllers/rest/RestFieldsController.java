@@ -111,6 +111,10 @@ public class RestFieldsController {
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + aId + " not found");
 			}
+			final CardField field = fieldManager.getField(user, voc.getId(), aName);
+			if (field != null && field.isSystem()) {
+				throw new PersistException("Cannot delete system field in voc: " + aId + " with name " + aName);
+			}
 			fieldManager.deleteField(user, UUID.fromString(aId), aName);
 			return DtoVoid.INSTANCE;
 		} catch (final PersistException e) {

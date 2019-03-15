@@ -137,7 +137,7 @@ $(document).ready(
 
 				// Operations
 				self.addItem = function(data) {
-					self.items.splice(0, 0, new Item(self.convertItem(data)));
+					self.items.splice(self.items().length, 0, new Item(self.convertItem(data)));
 				};
 				self.removeItem = function(item) {
 					self.items.remove(item);
@@ -159,20 +159,6 @@ $(document).ready(
 							$('#add_card').modal('hide');
 						});
 					});
-				};
-
-				self.showDeleteItems = function() {
-					self.deleteUrl = '/v1/api/cards';
-
-					self.itemsToDelete.removeAll();
-
-					self.errorHeader('');
-					self.errorMessage('');
-
-					self.itemsToDelete([].concat(self.itemsToDelete()).concat(
-							self.selectedItems()));
-
-					$('#delete_items').modal('show');
 				};
 
 				self.deleteItem = function(item) {

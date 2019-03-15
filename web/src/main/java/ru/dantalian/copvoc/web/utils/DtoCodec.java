@@ -64,7 +64,8 @@ public final class DtoCodec {
 		if (aField == null) {
 			return null;
 		}
-		return new DtoField(aField.getVocabularyId().toString(), aField.getName(), aField.getType().name());
+		return new DtoField(aField.getVocabularyId().toString(), aField.getName(), aField.getType().name(),
+				aField.getOrder(), aField.isSystem());
 	}
 
 	public static DtoCard asDtoCard(final Card aCard) {

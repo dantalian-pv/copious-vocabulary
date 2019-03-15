@@ -11,6 +11,8 @@ $(document).ready(
 				this.id = ko.observable(data.id);
 				this.name = ko.observable(data.name)
 				this.type = ko.observable(data.type);
+				this.order = ko.observable(data.order);
+				this.system = ko.observable(data.system);
 			}
 
 			function ItemForm(data) {
@@ -80,10 +82,7 @@ $(document).ready(
 
 				// Operations
 				self.addItem = function(data) {
-					self.items.splice(self.items.length - 1, 0, new Item(data));
-				};
-				self.removeItem = function(item) {
-					self.items.remove(item);
+					self.items.splice(self.items().length - 1, 0, new Item(data));
 				};
 
 				self.showItemForm = function() {
@@ -93,56 +92,20 @@ $(document).ready(
 						$('#add_field').modal('hide');
 					});
 				};
-
-				self.showDeleteItems = function() {
-					self.deleteUrl = '/v1/api/fields';
-
-					self.itemsToDelete.removeAll();
-
-					self.errorHeader('');
-					self.errorMessage('');
-
-					self.itemsToDelete([].concat(self.itemsToDelete()).concat(
-							self.selectedItems()));
-
-					$('#delete_items').modal('show');
-				};
-
-				self.deleteItems = function(model, evt) {
-					self.deleteInProgress(true);
-					self.errorHeader('');
-					self.errorMessage('');
-
-					var initialSize = self.itemsToDelete().length;
-
-					var deffers = [];
-
-					self.itemsToDelete().forEach(function(item) {
-						deffers.push($.ajax({
-							url : self.deleteUrl + item.id(),
-							contentType : "application/json; charset=utf-8",
-							method : 'DELETE',
-							headers : csrf,
-							dataType : 'json'
-						}));
-					});
-
-					$.when.apply(self, deffers).done(function() {
-						self.itemsToDelete().forEach(function(item) {
-							if (self.deleteUrl.indexOf('group') != -1) {
-								self.groups.remove(item);
-							} else {
-								self.items.remove(item);
-							}
-						});
-						$('#delete_items').modal('hide');
+				
+				self.deleteItem = function(item) {
+					$.ajax({
+						url : '/v1/api/fields/' + document.vocabularyId + '/' + item.name(),
+						contentType : "application/json; charset=utf-8",
+						method : 'DELETE',
+						headers : csrf,
+						dataType : 'json'
+					}).done(function() {
+						self.items.remove(item);
 					}).fail(function(deffer, type, message) {
 						self.errorHeader(type);
 						self.errorMessage(message);
-					}).always(function() {
-						self.deleteInProgress(false);
 					});
-
 				};
 
 				self.updateData = function() {
