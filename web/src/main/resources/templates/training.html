@@ -19,7 +19,7 @@
 		</a>
 	</div>
 	<div class="ui divider"></div>
-	<div th:replace="${'front/' + view.vocabularyId}::body"></div>
+	<div th:replace="${'front/' + view.id}::body"></div>
 	<div class="ui divider"></div>
   <form id="check_card_form" class="ui form segment" method="post" th:action="${'/v1/api/validate/' + voc.id + '/' + card.id}">
   	<input type="hidden" name="_csrf" th:value="${_csrf.token}">
