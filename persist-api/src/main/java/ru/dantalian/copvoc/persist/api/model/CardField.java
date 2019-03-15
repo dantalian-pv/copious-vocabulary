@@ -10,4 +10,8 @@ public interface CardField {
 
 	CardFiledType getType();
 
+	Integer getOrder();
+
+	boolean isSystem();
+
 }

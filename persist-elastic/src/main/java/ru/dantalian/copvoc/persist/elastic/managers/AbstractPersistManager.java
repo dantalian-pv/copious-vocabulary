@@ -318,7 +318,13 @@ public abstract class AbstractPersistManager<T> {
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, CodecException {
 		final String name = aField.getName();
 		final String getterName = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-		final Method method = aClass.getMethod(getterName);
+		Method method = null;
+		try {
+			method = aClass.getMethod(getterName);
+		} catch (final NoSuchMethodException e) {
+			final String isName = "is" + name.substring(0, 1).toUpperCase() + name.substring(1);
+			method = aClass.getMethod(isName);
+		}
 		Object data = method.invoke(aEntity);
 		final String fieldName = getIndexFieldName(aField, aFieldAnnotation);
 		final FieldCodec<T, ? super Object> codec = codecMap.get(fieldName);

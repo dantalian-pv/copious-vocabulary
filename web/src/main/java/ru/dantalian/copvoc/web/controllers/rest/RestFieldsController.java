@@ -85,8 +85,15 @@ public class RestFieldsController {
 			if (field != null) {
 				throw new RestException("Field with a given name already exists");
 			}
+			final List<CardField> fields = fieldManager.listFields(user, voc.getId())
+					.stream()
+					.filter(aItem -> aItem.getOrder() < 1000)
+					.collect(Collectors.toList());
+			final CardField lastField = fields.get(fields.size() - 1);
+
 			final CardField createdField = fieldManager.createField(user, UUID.fromString(aDtoField.getVocabularyId()),
-					aDtoField.getName(), CardFiledType.valueOf(aDtoField.getType()));
+					aDtoField.getName(), CardFiledType.valueOf(aDtoField.getType()),
+					lastField.getOrder() + 1, false);
 			return DtoCodec.asDtoField(createdField);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);

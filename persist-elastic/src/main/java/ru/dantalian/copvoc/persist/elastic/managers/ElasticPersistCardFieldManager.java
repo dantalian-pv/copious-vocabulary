@@ -10,6 +10,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,21 +49,21 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 
 	@Override
 	public CardField createField(final String aUser, final UUID aVocabularyId, final String aName,
-			final CardFiledType aType) throws PersistException {
-		final DbCardField cardField = new DbCardField(aVocabularyId, aName, aType);
+			final CardFiledType aType, final Integer aOrder, final boolean aSystem) throws PersistException {
+		final DbCardField cardField = new DbCardField(aVocabularyId, aName, aType, aOrder, aSystem);
 		add(DEFAULT_INDEX, cardField, true);
 		return asCardField(cardField);
 	}
 
 	@Override
 	public CardField getField(final String aUser, final UUID aVocabularyId, final String aName) throws PersistException {
-		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null);
+		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null, null, false);
 		return asCardField(get(DEFAULT_INDEX, cardField.getId()));
 	}
 
 	@Override
 	public void deleteField(final String aUser, final UUID aVocabularyId, final String aName) throws PersistException {
-		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null);
+		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null, null, false);
 		delete(DEFAULT_INDEX, cardField.getId());
 	}
 
@@ -71,6 +73,8 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 		if (aVocabularyId != null) {
 			searchSourceBuilder.query(QueryBuilders.termQuery("vocabulary_id", aVocabularyId.toString()));
 		}
+		// Sort fields by order
+		searchSourceBuilder.sort(SortBuilders.fieldSort("order").order(SortOrder.ASC));
 
 		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<CardField> list = new LinkedList<>();
@@ -90,7 +94,8 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 		if (aCardField == null) {
 			return null;
 		}
-		return new PojoCardField(aCardField.getVocabularyId(), aCardField.getName(), aCardField.getType());
+		return new PojoCardField(aCardField.getVocabularyId(), aCardField.getName(),
+				aCardField.getType(), aCardField.getOrder(), aCardField.isSystem());
 	}
 
 }

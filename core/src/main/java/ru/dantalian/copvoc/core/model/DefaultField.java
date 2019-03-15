@@ -12,6 +12,12 @@ public class DefaultField {
 	@JsonProperty("type")
 	private CardFiledType type;
 
+	@JsonProperty("order")
+	private Integer order;
+
+	@JsonProperty("system")
+	private boolean system;
+
 	public String getName() {
 		return name;
 	}
@@ -26,6 +32,22 @@ public class DefaultField {
 
 	public void setType(final CardFiledType aType) {
 		type = aType;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(final Integer aOrder) {
+		order = aOrder;
+	}
+
+	public boolean isSystem() {
+		return system;
+	}
+
+	public void setSystem(final boolean aSystem) {
+		system = aSystem;
 	}
 
 }

@@ -55,7 +55,8 @@ public class FieldUtils {
 				final List<CardField> fields = new LinkedList<>();
 				for (final JsonNode node: arr) {
 					final DefaultField field = om.treeToValue(node, DefaultField.class);
-					fields.add(new PojoCardField(aVocabularyId, field.getName(), field.getType()));
+					fields.add(new PojoCardField(aVocabularyId, field.getName(), field.getType(), field.getOrder(),
+							field.isSystem()));
 				}
 				return fields;
 			} finally {

@@ -24,14 +24,23 @@ public class DbCardField implements CardField {
 	@Field(codec = CardFiledTypeCodec.class)
 	private CardFiledType	type;
 
+	@Field(type = "integer")
+	private Integer order;
+
+	@Field(type = "boolean")
+	private boolean system;
+
 	public DbCardField() {
 	}
 
 	public DbCardField(final UUID aVocabularyId, final String aName,
-			final CardFiledType aType) {
+			final CardFiledType aType, final Integer aOrder,
+			final boolean aSystem) {
 		vocabularyId = aVocabularyId;
 		name = aName;
 		type = aType;
+		order = aOrder;
+		system = aSystem;
 		setId();
 	}
 
@@ -77,8 +86,27 @@ public class DbCardField implements CardField {
 	}
 
 	@Override
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(final Integer aOrder) {
+		order = aOrder;
+	}
+
+	@Override
+	public boolean isSystem() {
+		return system;
+	}
+
+	public void setSystem(final boolean aSystem) {
+		system = aSystem;
+	}
+
+	@Override
 	public String toString() {
-		return "DbCardField [vocabularyId=" + vocabularyId + ", name=" + name + ", type=" + type + "]";
+		return "DbCardField [vocabularyId=" + vocabularyId + ", name=" + name + ", type=" + type
+				+ ", order=" + order + ", system=" + system + "]";
 	}
 
 }

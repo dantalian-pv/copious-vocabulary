@@ -95,17 +95,17 @@ public class RestVocabularyController {
 			// Init default fields
 			final List<CardField> defaultFields = fieldUtils.getDefaultFields(voc);
 			for (final CardField field: defaultFields) {
-				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType(), field.getOrder(), field.isSystem());
 			}
 			// Init target language specific fields
 			final List<CardField> targetLangFields = fieldUtils.getLanguageFields(voc.getId(), voc.getTarget());
 			for (final CardField field: targetLangFields) {
-				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType(), field.getOrder(), field.isSystem());
 			}
 			// Init source language specific fields
 			final List<CardField> sourceLangFields = fieldUtils.getLanguageFields(voc.getId(), voc.getSource());
 			for (final CardField field: sourceLangFields) {
-				fieldManager.createField(user, voc.getId(), field.getName(), field.getType());
+				fieldManager.createField(user, voc.getId(), field.getName(), field.getType(), field.getOrder(), field.isSystem());
 			}
 
 			// Init default view

@@ -13,14 +13,20 @@ public class PojoCardField implements CardField {
 
 	private CardFiledType	type;
 
+	private Integer order;
+
+	private boolean system;
+
 	public PojoCardField() {
 	}
 
 	public PojoCardField(final UUID aVocabularyId, final String aName,
-			final CardFiledType aType) {
+			final CardFiledType aType, final Integer aOrder, final boolean aSystem) {
 		vocabularyId = aVocabularyId;
 		name = aName;
 		type = aType;
+		order = aOrder;
+		system = aSystem;
 	}
 
 	@Override
@@ -51,8 +57,27 @@ public class PojoCardField implements CardField {
 	}
 
 	@Override
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(final Integer aOrder) {
+		order = aOrder;
+	}
+
+	@Override
+	public boolean isSystem() {
+		return system;
+	}
+
+	public void setSystem(final boolean aSystem) {
+		system = aSystem;
+	}
+
+	@Override
 	public String toString() {
-		return "PojoCardField [vocabularyId=" + vocabularyId + ", name=" + name + ", type=" + type + "]";
+		return "PojoCardField [vocabularyId=" + vocabularyId + ", name=" + name + ", type=" + type
+				+ ", order=" + order + ", system=" + system + "]";
 	}
 
 }

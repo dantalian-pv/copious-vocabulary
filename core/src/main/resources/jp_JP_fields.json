@@ -2,11 +2,15 @@
 	"fields": [
 		{
 			"name": "onyomi",
-			"type": "STRING"
+			"type": "STRING",
+			"order": 10,
+			"system": true
 		},
 		{
 			"name": "kunyomi",
-			"type": "STRING"
+			"type": "STRING",
+			"order": 20,
+			"system": true
 		}
 	]
 }

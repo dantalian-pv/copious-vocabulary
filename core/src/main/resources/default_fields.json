@@ -2,15 +2,21 @@
 	"fields": [
 		{
 			"name": "word",
-			"type": "STRING"
+			"type": "STRING",
+			"order": 1,
+			"system": true
 		},
 		{
 			"name": "translation",
-			"type": "ANSWER"
+			"type": "ANSWER",
+			"order": 2,
+			"system": true
 		},
 		{
 			"name": "example",
-			"type": "TEXT"
+			"type": "TEXT",
+			"order": 1000,
+			"system": true
 		}
 	]
 }

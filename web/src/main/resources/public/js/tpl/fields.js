@@ -80,7 +80,7 @@ $(document).ready(
 
 				// Operations
 				self.addItem = function(data) {
-					self.items.splice(0, 0, new Item(data));
+					self.items.splice(self.items.length - 1, 0, new Item(data));
 				};
 				self.removeItem = function(item) {
 					self.items.remove(item);
