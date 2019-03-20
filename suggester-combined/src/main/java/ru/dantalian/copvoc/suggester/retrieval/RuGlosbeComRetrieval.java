@@ -66,26 +66,14 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 				final Element answer = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.text-info > strong")
 						.first();
 
-				for (final CardField field: fields) {
-					switch (field.getType()) {
-						case ANSWER:
-							map.put(field.getName(), answer.text());
-							mapForCache.put(field.getName() + "_keyword", answer.text());
-							break;
-						case STRING:
-							map.put(field.getName(), word);
-							mapForCache.put(field.getName() + "_keyword", word);
-							break;
-						case MARKUP:
-						case TEXT:
-							final String text = ja.text().replaceAll("(" + answer.text() + ")", "[$1]");
-							map.put(field.getName(), text);
-							mapForCache.put(field.getName() + "_text", text);
-							break;
-						default:
-							throw new IllegalArgumentException("Unknown field type");
-					}
-				}
+				map.put("translation", answer.text());
+				mapForCache.put("translation_keyword", answer.text());
+				map.put("word", word);
+				mapForCache.put("word_keyword", word);
+				final String text = ja.text().replaceAll("(" + answer.text() + ")", "[$1]");
+				map.put("example", text);
+				mapForCache.put("example_text", text);
+
 				cacheMap = new HashMap<>();
 				cacheMap.put(PersistCacheManager.ID, urlHash);
 				cacheMap.put("url_keyword", url);
