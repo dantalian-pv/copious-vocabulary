@@ -12,4 +12,6 @@ public interface CardFieldContent {
 
 	String getContent();
 
+	void setContent(String aContent);
+
 }

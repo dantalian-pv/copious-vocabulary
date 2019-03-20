@@ -112,7 +112,7 @@ $(document).ready(
 				
 				self.updateData = function() {
 					// Load initial state from server
-					$.getJSON('/v1/api/cards/' + document.vocabularyId + '/' + document.cardId, function(allData) {
+					$.getJSON('/v1/api/validate/' + document.vocabularyId + '/' + document.cardId, function(allData) {
 						self.item(new Item(self.convertItem(allData)));
 					});
 				};

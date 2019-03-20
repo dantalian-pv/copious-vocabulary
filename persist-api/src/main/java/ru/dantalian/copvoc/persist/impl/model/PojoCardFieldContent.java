@@ -56,6 +56,7 @@ public class PojoCardFieldContent implements CardFieldContent {
 		return content;
 	}
 
+	@Override
 	public void setContent(final String aContent) {
 		content = aContent;
 	}

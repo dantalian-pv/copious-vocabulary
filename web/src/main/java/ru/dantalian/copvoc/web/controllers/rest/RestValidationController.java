@@ -21,8 +21,10 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidation;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidationResult;
+import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
 @RequestMapping(value = "/v1/api/validate", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,6 +35,43 @@ public class RestValidationController {
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
+
+	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.GET)
+	public DtoCard getCard(@PathVariable(value = "voc_id") final String aVocId,
+			@PathVariable(value = "id") final String aId, final Principal aPrincipal)
+					throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final Card card = cardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
+
+			if (card == null) {
+				throw new PersistException("Card with id: " + aId + " not found");
+			}
+			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aVocId));
+			final Optional<CardField> field = fields.stream()
+					.filter(aItem -> aItem.getType() == CardFiledType.ANSWER)
+					.findFirst();
+			if (field.isPresent()) {
+				final String answer = card.getContent(field.get().getName()).getContent();
+				String word = card.getContent("word").getContent();
+				word = word == null ? "" : word;
+				// Replace in all text fields the answer
+				for (final CardField fld: fields) {
+					if (fld.getType() == CardFiledType.MARKUP || fld.getType() == CardFiledType.TEXT) {
+						final CardFieldContent content = card.getContent(fld.getName());
+						if (content != null && content.getContent() != null) {
+							final String cnt = content.getContent().replaceAll("\\b"+answer+"\\b", word);
+							content.setContent(cnt);
+						}
+					}
+				}
+				return DtoCodec.asDtoCard(card);
+			}
+			throw new RestException("No answer field found in " + aId);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
 
 	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
