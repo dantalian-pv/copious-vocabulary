@@ -3,6 +3,9 @@ package ru.dantalian.copvoc.persist.elastic.managers;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -43,6 +47,12 @@ public abstract class AbstractPersistManager<T> {
 	private static final String DEFAULT_TYPE = "_doc";
 
 	private static final DefaultCodec<?, ?> DEFAULT_CODEC = new DefaultCodec<>();
+
+	private static final Set<String> DEFAULT_DATA_TYPES = new HashSet<>(Arrays.asList("keyword", "text",
+		  "long", "integer", "short", "byte", "double",
+		  "date",
+		  "boolean",
+		  "binary"));
 
 	private final RestHighLevelClient client;
 
@@ -344,45 +354,68 @@ public abstract class AbstractPersistManager<T> {
 			final GetIndexRequest exists = new GetIndexRequest();
 			exists.indices(index);
 			if (client.indices().exists(exists, RequestOptions.DEFAULT)) {
+				updateIndexMappings(index);
 				saveInCache(index);
 				// In case index was created before, but codecs map is needed
 				addCodecsForClass(entity);
 				return;
 			}
-			final CreateIndexRequest createIndex = new CreateIndexRequest(index);
-			final XContentBuilder mappings = XContentFactory.jsonBuilder();
-			mappings.startObject();
-			{
-				mappings.startObject(DEFAULT_TYPE);
-		    {
-		    	mappings.startObject("properties");
-	        {
-	        	addMappingForClass(mappings, entity, false);
-	        }
-	        mappings.endObject();
-	        // dynamic templates
-	        mappings.startArray("dynamic_templates");
-	        {
-	        	addMappingForClass(mappings, entity, true);
-	        }
-	        mappings.endArray();
-		    }
-		    mappings.endObject();
-			}
-			mappings.endObject();
-
-			final XContentBuilder settings = getSettings(index);
-			if (mappings != null) {
-				createIndex.mapping(DEFAULT_TYPE, mappings);
-			}
-			if (settings != null) {
-				createIndex.settings(settings);
-			}
-			client.indices().create(createIndex, RequestOptions.DEFAULT);
+			createIndex(index);
 			saveInCache(index);
 		} catch (final IOException | InstantiationException | IllegalAccessException e) {
 			throw new PersistException("Failed to create index: " + index, e);
 		}
+	}
+
+	private void updateIndexMappings(final String aIndex)
+			throws InstantiationException, IllegalAccessException, IOException {
+		final PutMappingRequest putMappings = new PutMappingRequest(aIndex);
+		putMappings.type(DEFAULT_TYPE);
+		final XContentBuilder mappings = createMappings();
+		if (mappings == null) {
+			return;
+		}
+		putMappings.source(mappings);
+		client.indices().putMapping(putMappings, RequestOptions.DEFAULT);
+	}
+
+	private void createIndex(final String aIndex)
+			throws IOException, InstantiationException, IllegalAccessException, PersistException {
+		final CreateIndexRequest createIndex = new CreateIndexRequest(aIndex);
+		final XContentBuilder mappings = createMappings();
+
+		final XContentBuilder settings = getSettings(aIndex);
+		if (mappings != null) {
+			createIndex.mapping(DEFAULT_TYPE, mappings);
+		}
+		if (settings != null) {
+			createIndex.settings(settings);
+		}
+		client.indices().create(createIndex, RequestOptions.DEFAULT);
+	}
+
+	private XContentBuilder createMappings() throws IOException, InstantiationException, IllegalAccessException {
+		final XContentBuilder mappings = XContentFactory.jsonBuilder();
+		mappings.startObject();
+		{
+			mappings.startObject(DEFAULT_TYPE);
+		  {
+		  	mappings.startObject("properties");
+		    {
+		    	addMappingForClass(mappings, entity, false);
+		    }
+		    mappings.endObject();
+		    // dynamic templates
+		    mappings.startArray("dynamic_templates");
+		    {
+		    	addMappingForClass(mappings, entity, true);
+		    }
+		    mappings.endArray();
+		  }
+		  mappings.endObject();
+		}
+		mappings.endObject();
+		return mappings;
 	}
 
 	protected void addCodecsForClass(final Class<?> aEntity)
@@ -475,22 +508,56 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMethodIndex(final Method aMethod, final Field aFieldAnnotation,
+	protected void addMethodIndex(final Method aMethod, final Field aMethodAnnotation,
 			final XContentBuilder aMappings, final boolean aDynamic)
 			throws InstantiationException, IllegalAccessException, IOException {
-		String name = "".equals(aFieldAnnotation.name()) || aFieldAnnotation.name() == null
-				? aMethod.getName() : aFieldAnnotation.name();
+		String name = "".equals(aMethodAnnotation.name()) || aMethodAnnotation.name() == null
+				? aMethod.getName() : aMethodAnnotation.name();
 		if (!name.startsWith("get")) {
 			return;
 		}
 		name = name.substring(2).toLowerCase();
-		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
+		final String type = getMethodType(aMethod, aMethodAnnotation);
+		addMapping(name, type, aMethodAnnotation.subtype(), aMethodAnnotation.index(), aMethodAnnotation.codec(), aMappings, aDynamic);
+	}
+
+	private String getMethodType(final Method aMethod, final Field aFieldAnnotation) {
+		final Class<?> methodType = aMethod.getReturnType();
+		return getDataType(aFieldAnnotation.type(), methodType);
 	}
 
 	protected void addFieldIndex(final java.lang.reflect.Field aField, final Field aFieldAnnotation,
 			final XContentBuilder aMappings, final boolean aDynamic) throws IOException, InstantiationException, IllegalAccessException {
 		final String name = getIndexFieldName(aField, aFieldAnnotation);
-		addMapping(name, aFieldAnnotation.type(), aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
+		final String type = getFieldType(aField, aFieldAnnotation);
+		addMapping(name, type, aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
+	}
+
+	protected String getFieldType(final java.lang.reflect.Field aField, final Field aFieldAnnotation) {
+		final Class<?> fieldType = aField.getType();
+		return getDataType(aFieldAnnotation.type(), fieldType);
+	}
+
+	private String getDataType(final String aAnotationType, final Class<?> fieldType) {
+		final String type  = aAnotationType;
+		final String typeName = fieldType.getSimpleName().toLowerCase();
+		if (type == null || type.isEmpty()) {
+			if (fieldType.isPrimitive()) {
+				return typeName;
+			} else if (DEFAULT_DATA_TYPES.contains(typeName) && fieldType.getName().startsWith("java.lang")) {
+				return typeName;
+			} else if (fieldType.isArray()) {
+				return getDataType(aAnotationType, fieldType.getComponentType());
+			} else if (Collection.class.isAssignableFrom(fieldType)) {
+				final ParameterizedType paramType = (ParameterizedType) fieldType.getGenericSuperclass();
+        final Class<?> genericColletionClass = (Class<?>) paramType.getActualTypeArguments()[0];
+        return getDataType(aAnotationType, genericColletionClass);
+			} else {
+				return "keyword";
+			}
+		} else {
+			return type;
+		}
 	}
 
 	protected void addMapping(final String aName, final String aType, final SubField[] aSubfields, final boolean aIndex,

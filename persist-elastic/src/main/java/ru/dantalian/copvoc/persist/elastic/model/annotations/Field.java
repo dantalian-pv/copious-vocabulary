@@ -14,7 +14,7 @@ public @interface Field {
 
 	String name() default "";
 
-	String type() default "keyword";
+	String type() default "";
 
 	SubField[] subtype() default @SubField(path_match = "");
 
