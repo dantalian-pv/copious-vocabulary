@@ -54,6 +54,8 @@ public final class CardUtils {
 
 	private static String getIndexSuffix(final CardStatType aType) {
 		switch (aType) {
+			case DATE:
+				return "date";
 			case DOUBLE:
 				return "double";
 			case LONG:
