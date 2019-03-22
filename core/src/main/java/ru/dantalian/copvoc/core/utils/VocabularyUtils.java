@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,7 +32,6 @@ import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 public class VocabularyUtils {
 
 	public VocabularyView getDefaultView(final UUID aVocabularyId,
-			final List<CardField> aSourceLangFields,
 			final List<CardField> aTargetLangFields) throws CoreException {
 		try (InputStream cssStream = this.getClass().getClassLoader()
 				.getResourceAsStream(CoreConstants.DEFAULT_CARD_VIEW_CSS);
@@ -48,7 +48,7 @@ public class VocabularyUtils {
 
 			// Front
 			final Document frontXml = XmlUtils.readAsXml(front);
-			replaceFieldsPlaceholder(frontXml, aSourceLangFields);
+			replaceFieldsPlaceholder(frontXml, Collections.emptyList());
 			final String frontResult = XmlUtils.xmlToString(frontXml);
 			// Back
 			final Document backXml = XmlUtils.readAsXml(back);

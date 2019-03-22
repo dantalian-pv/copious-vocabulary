@@ -102,14 +102,8 @@ public class RestVocabularyController {
 			for (final CardField field: targetLangFields) {
 				fieldManager.createField(user, voc.getId(), field.getName(), field.getType(), field.getOrder(), field.isSystem());
 			}
-			// Init source language specific fields
-			final List<CardField> sourceLangFields = fieldUtils.getLanguageFields(voc.getId(), voc.getSource());
-			for (final CardField field: sourceLangFields) {
-				fieldManager.createField(user, voc.getId(), field.getName(), field.getType(), field.getOrder(), field.isSystem());
-			}
-
 			// Init default view
-			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId(), sourceLangFields, targetLangFields);
+			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId(), targetLangFields);
 			cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
 			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException | CoreException e) {
