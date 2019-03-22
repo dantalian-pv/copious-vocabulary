@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.model.CardStat;
 
 public class PojoCard implements Card {
 
@@ -20,17 +21,21 @@ public class PojoCard implements Card {
 
 	private Map<String, CardFieldContent> fieldsContent;
 
+	private Map<String, CardStat> stats;
+
 	public PojoCard() {
 	}
 
 	public PojoCard(final UUID aId, final UUID aVocabularyId,
 			final String aSource, final String aTarget,
-			final Map<String, CardFieldContent> aFieldsContent) {
+			final Map<String, CardFieldContent> aFieldsContent,
+			final Map<String, CardStat> aStats) {
 		id = aId;
 		vocabularyId = aVocabularyId;
 		source = aSource;
 		target = aTarget;
 		fieldsContent = aFieldsContent;
+		stats = aStats;
 	}
 
 	@Override
@@ -98,6 +103,15 @@ public class PojoCard implements Card {
 			fieldsContent = new HashMap<>();
 		}
 		fieldsContent.put(aField, aContent);
+	}
+
+	@Override
+	public Map<String, CardStat> getStats() {
+		return stats == null ? Collections.emptyMap() : stats;
+	}
+
+	public void setStats(final Map<String, CardStat> aStats) {
+		stats = aStats;
 	}
 
 	@Override

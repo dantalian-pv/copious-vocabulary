@@ -29,16 +29,24 @@ public class DbCard {
 	})
 	private Map<String, String> fieldsContent;
 
+	@Field(name = "stats", type = "object", subtype = {
+			@SubField(path_match="stats.*_long", type = "long"),
+			@SubField(path_match="stats.*_double", type = "double"),
+			@SubField(path_match="stats.*_date", type = "date")
+	})
+	private Map<String, Object> stats;
+
 	public DbCard() {
 	}
 
 	public DbCard(final UUID aId, final UUID aVocabularyId, final String aSource, final String aTarget,
-			final Map<String, String> aFieldsContent) {
+			final Map<String, String> aFieldsContent, final Map<String, Object> aStats) {
 		id = aId;
 		vocabularyId = aVocabularyId;
 		source = aSource;
 		target = aTarget;
 		fieldsContent = aFieldsContent;
+		stats = aStats;
 	}
 
 	public UUID getId() {
@@ -79,6 +87,14 @@ public class DbCard {
 
 	public void setFieldsContent(final Map<String, String> aFieldsContent) {
 		fieldsContent = aFieldsContent;
+	}
+
+	public Map<String, Object> getStats() {
+		return stats;
+	}
+
+	public void setStats(final Map<String, Object> aStats) {
+		stats = aStats;
 	}
 
 }

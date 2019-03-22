@@ -6,6 +6,8 @@ import java.util.Map;
 
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatType;
 
 public final class CardUtils {
 
@@ -16,8 +18,20 @@ public final class CardUtils {
 		return aCardField.getName() + "_" + getIndexType(aCardField.getType());
 	}
 
+	public static String asPersistStatName(final CardStat aStat) {
+		return aStat.getName() + "_" + getIndexSuffix(aStat.getType());
+	}
+
 	public static String asPojoName(final String aName) {
 		return aName.replaceAll("_\\w+$", "");
+	}
+
+	public static String getSuffix(final String aName) {
+		final int indexOf = aName.lastIndexOf("_");
+		if (indexOf == -1) {
+			throw new IllegalArgumentException("No suffix found in " + aName);
+		}
+		return aName.substring(indexOf + 1);
 	}
 
 	public static Map<String, CardField> asFieldsMap(final List<CardField> aFields) {
@@ -35,6 +49,17 @@ public final class CardUtils {
 				return "text";
 			default:
 				return "keyword";
+		}
+	}
+
+	private static String getIndexSuffix(final CardStatType aType) {
+		switch (aType) {
+			case DOUBLE:
+				return "double";
+			case LONG:
+				return "long";
+			default:
+				return "long";
 		}
 	}
 

@@ -23,4 +23,6 @@ public interface Card {
 
 	void addFieldContent(String aFieldName, CardFieldContent aContent);
 
+	Map<String, CardStat> getStats();
+
 }

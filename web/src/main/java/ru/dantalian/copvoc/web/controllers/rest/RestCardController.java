@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.stats.DefaultCardStats;
+import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
+import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
@@ -70,7 +73,11 @@ public class RestCardController {
 		try {
 			final String user = aPrincipal.getName();
 			final Map<String, String> map = asMap(aCard.getContent());
-			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map);
+			final Map<String, CardStat> stats = new HashMap<>();
+			for (final DefaultCardStats defStat: DefaultCardStats.values()) {
+				stats.put(defStat.getName(), CardStatFactory.newStat(defStat.getName(), null, defStat.getType()));
+			}
+			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map, stats);
 			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
