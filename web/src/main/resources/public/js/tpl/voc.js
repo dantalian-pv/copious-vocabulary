@@ -86,19 +86,21 @@ $(document).ready(
 						});
 					});
 				};
-				self.showEditFields = function() {
-					
+				self.deleteItem = function() {
+					// TODO Show warning dialog
+					$.ajax({
+						url : '/v1/api/vocabularies/' + document.vocabularyId,
+						contentType : "application/json; charset=utf-8",
+						method : 'DELETE',
+						headers : csrf,
+						dataType : 'json'
+					}).done(function() {
+						window.location.href = '/';
+					}).fail(function(deffer, type, message) {
+						self.errorHeader(type);
+						self.errorMessage(message);
+					});
 				};
-				self.showEditCards = function() {
-					
-				};
-				self.showListCards = function() {
-					
-				};
-				self.showTraining = function() {
-					
-				};
-
 			}
 
 			ko.applyBindings(new ItemGroupListViewModel());

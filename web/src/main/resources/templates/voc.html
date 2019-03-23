@@ -14,10 +14,20 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
-	<div class="content">
-		<h1 class="header" th:text="${voc.name}"></h1>
-		<h2 class="description" th:text="${voc.sourceName + ' -> ' + voc.targetName}"></h2>
-		<h2 class="description" th:text="${voc.description}"></h2>
+	<div class="ui vertically divided grid">
+		<div class="sexteen column row">
+			<div class="fourteen wide column">
+				<h1 class="header" th:text="${voc.name}"></h1>
+				<h2 class="description" th:text="${voc.sourceName + ' -> ' + voc.targetName}"></h2>
+				<h2 class="description" th:text="${voc.description}"></h2>
+			</div>
+			<div class="two wide column right aligned">
+				<div class="ui small icon basic button delete" data-bind="click: deleteItem">
+					<i class="trash alternate outline icon"></i>
+				</div>
+			</div>
+		</div>
+		
 	</div>
 	<div class="ui divider"></div>
 	<div class="ui basic buttons">

@@ -58,6 +58,11 @@ public class ElasticPersistVocabularyViewManager extends AbstractPersistManager<
 		return asVocabularyView(get(DEFAULT_INDEX, aId.toString()));
 	}
 
+	@Override
+	public void deleteVocabularyView(final String aUser, final UUID aVocabularyId) throws PersistException {
+		delete(DEFAULT_INDEX, aVocabularyId.toString());
+	}
+
 	private VocabularyView asVocabularyView(final DbVocabularyView aDbCardVocabularyView) {
 		if (aDbCardVocabularyView == null) {
 			return null;

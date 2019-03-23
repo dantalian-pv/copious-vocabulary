@@ -14,4 +14,6 @@ public interface PersistVocabularyViewManager {
 
 	VocabularyView getVocabularyView(String aUser, UUID aVocabularyId) throws PersistException;
 
+	void deleteVocabularyView(String aUser, UUID aVocabularyId) throws PersistException;
+
 }

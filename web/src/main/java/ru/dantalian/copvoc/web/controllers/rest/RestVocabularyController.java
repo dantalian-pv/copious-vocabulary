@@ -37,7 +37,7 @@ public class RestVocabularyController {
 	private PersistVocabularyManager vocPersist;
 
 	@Autowired
-	private PersistVocabularyViewManager cardViewPersist;
+	private PersistVocabularyViewManager viewPersist;
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
@@ -64,13 +64,13 @@ public class RestVocabularyController {
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public DtoVocabulary getVoc(final Principal aPrincipal, @PathVariable(value = "id") final String id)
+	public DtoVocabulary getVoc(final Principal aPrincipal, @PathVariable(value = "id") final String aId)
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(id));
+			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
 			if (voc == null) {
-				throw new PersistException("Vocabulary with id: " + id + " not found");
+				throw new PersistException("Vocabulary with id: " + aId + " not found");
 			}
 			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException e) {
@@ -104,7 +104,7 @@ public class RestVocabularyController {
 			}
 			// Init default view
 			final VocabularyView vocView = vocUtils.getDefaultView(voc.getId(), targetLangFields);
-			cardViewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
+			viewPersist.createVocabularyView(user, voc.getId(), vocView.getCss(), vocView.getFront(), vocView.getBack());
 			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException | CoreException e) {
 			throw new RestException(e.getMessage(), e);
@@ -118,6 +118,26 @@ public class RestVocabularyController {
 		try {
 			final String user = aPrincipal.getName();
 			vocPersist.updateVocabulary(user, DtoCodec.asVocabulary(user, aVocabulary));
+			return new DtoVoid();
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public DtoVoid deleteVoc(final Principal aPrincipal, @PathVariable(value = "id") final String aId)
+			throws RestException {
+		try {
+			// Delete all related data, but keep cards themself
+			final String user = aPrincipal.getName();
+			final UUID vocId = UUID.fromString(aId);
+			final List<CardField> fields = fieldManager.listFields(user, vocId);
+			for (final CardField field: fields) {
+				fieldManager.deleteField(user, vocId, field.getName());
+			}
+			viewPersist.deleteVocabularyView(user, vocId);
+			vocPersist.deleteVocabulary(user, vocId);
 			return new DtoVoid();
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);

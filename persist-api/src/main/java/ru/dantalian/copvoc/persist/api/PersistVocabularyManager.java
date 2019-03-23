@@ -19,4 +19,6 @@ public interface PersistVocabularyManager {
 
 	List<Vocabulary> listVocabularies(String aUser) throws PersistException;
 
+	void deleteVocabulary(String aUser, UUID aId) throws PersistException;
+
 }

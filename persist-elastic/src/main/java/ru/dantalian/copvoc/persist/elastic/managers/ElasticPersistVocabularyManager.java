@@ -129,6 +129,11 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 		return list;
 	}
 
+	@Override
+	public void deleteVocabulary(final String aUser, final UUID aId) throws PersistException {
+		delete(DEFAULT_INDEX, aId.toString());
+	}
+
 	private Vocabulary asVocabulary(final DbVocabulary aDbCardVocabulary) throws PersistException {
 		if (aDbCardVocabulary == null) {
 			return null;
