@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body th:fragment="body" th:remove="tag">
-	<div data-bind="with: item">
-		<p data-bind="text: word"></p>
-		<p data-bind="text: example"></p>
-		<p data-bind="__FIELDS__"></p>
-	</div>
-</body>
-</html>
+<div data-bind="with: item">
+	<p data-bind="text: word"></p>
+	<p data-bind="text: example"></p>
+	<p data-bind="__FIELDS__"></p>
+</div>

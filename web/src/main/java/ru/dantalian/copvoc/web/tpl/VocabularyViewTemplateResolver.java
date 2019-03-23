@@ -10,6 +10,8 @@ import org.thymeleaf.templateresolver.StringTemplateResolver;
 import org.thymeleaf.templateresource.ITemplateResource;
 import org.thymeleaf.templateresource.StringTemplateResource;
 
+import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.core.utils.ViewUtils;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
@@ -35,14 +37,18 @@ public class VocabularyViewTemplateResolver extends StringTemplateResolver {
 				throw new PageNotFoundException();
 			}
 			switch (tplName) {
-				case "front":
-					return new StringTemplateResource(view.getFront());
-				case "back":
-					return new StringTemplateResource(view.getBack());
+				case "front": {
+					final String frontTpl = ViewUtils.getHead() + view.getFront() + ViewUtils.getBottom();
+					return new StringTemplateResource(frontTpl);
+				}
+				case "back": {
+					final String backTpl = ViewUtils.getHead() + view.getBack() + ViewUtils.getBottom();
+					return new StringTemplateResource(backTpl);
+				}
 				default:
 					throw new PageNotFoundException();
 			}
-		} catch (final PersistException e) {
+		} catch (final PersistException | CoreException e) {
 			throw new RuntimeException("Failed to get view for " + viewId);
 		}
 	}
