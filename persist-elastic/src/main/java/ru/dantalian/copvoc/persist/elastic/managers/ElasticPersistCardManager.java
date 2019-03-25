@@ -142,6 +142,11 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	}
 
 	@Override
+	public void deleteAllCards(final String aUser, final UUID aVocabularyId) throws PersistException {
+		deleteIndex(getIndexId(aVocabularyId));
+	}
+
+	@Override
 	public List<Card> queryCards(final String aUser, final CardsQuery aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		final QueryBuilder query = asElaticQuery(aQuery);

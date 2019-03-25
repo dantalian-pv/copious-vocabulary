@@ -18,6 +18,7 @@ import ru.dantalian.copvoc.core.CoreException;
 import ru.dantalian.copvoc.core.utils.FieldUtils;
 import ru.dantalian.copvoc.core.utils.VocabularyUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
+import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
@@ -41,6 +42,9 @@ public class RestVocabularyController {
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
+
+	@Autowired
+	private PersistCardManager cardsManager;
 
 	@Autowired
 	private FieldUtils fieldUtils;
@@ -129,9 +133,13 @@ public class RestVocabularyController {
 	public DtoVoid deleteVoc(final Principal aPrincipal, @PathVariable(value = "id") final String aId)
 			throws RestException {
 		try {
-			// Delete all related data, but keep cards themself
 			final String user = aPrincipal.getName();
 			final UUID vocId = UUID.fromString(aId);
+			final Vocabulary vocabulary = vocPersist.getVocabulary(user, vocId);
+			if (!vocabulary.getUser().equals(user)) {
+				throw new RestException("Operation is not allowed");
+			}
+			cardsManager.deleteAllCards(user, vocId);
 			final List<CardField> fields = fieldManager.listFields(user, vocId);
 			for (final CardField field: fields) {
 				fieldManager.deleteField(user, vocId, field.getName());

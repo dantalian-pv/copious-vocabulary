@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -31,6 +32,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
@@ -100,6 +103,28 @@ public abstract class AbstractPersistManager<T> {
 			client.delete(req, RequestOptions.DEFAULT);
 		} catch (final Exception e) {
 			throw new PersistException("Failed to delete an entity id: " + aId + " from: " + aIndex, e);
+		}
+	}
+
+	protected void deleteByQuery(final String aIndex, final QueryBuilder aQuery) throws PersistException {
+		try {
+			initIndex(aIndex);
+			final DeleteByQueryRequest req = new DeleteByQueryRequest(aIndex);
+			req.setQuery(aQuery);
+			req.setRefresh(true);
+			client.deleteByQuery(req, RequestOptions.DEFAULT);
+		} catch (final Exception e) {
+			throw new PersistException("Failed to delete by query: " + aQuery + " from: " + aIndex, e);
+		}
+	}
+
+	protected void deleteIndex(final String aIndex) throws PersistException {
+		try {
+			initIndex(aIndex);
+			final DeleteIndexRequest req = new DeleteIndexRequest(aIndex);
+			client.indices().delete(req, RequestOptions.DEFAULT);
+		} catch (final Exception e) {
+			throw new PersistException("Failed to delete an index: " + aIndex + " from: " + aIndex, e);
 		}
 	}
 

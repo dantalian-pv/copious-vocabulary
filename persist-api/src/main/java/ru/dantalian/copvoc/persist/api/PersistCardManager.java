@@ -21,6 +21,8 @@ public interface PersistCardManager {
 
 	void deleteCard(String aUser, UUID aVocabularyId, UUID aId) throws PersistException;
 
+	void deleteAllCards(String aUser, UUID aVocabularyId) throws PersistException;
+
 	List<Card> queryCards(String aUser, CardsQuery aQuery) throws PersistException;
 
 }
