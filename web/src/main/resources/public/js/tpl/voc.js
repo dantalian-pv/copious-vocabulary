@@ -87,19 +87,27 @@ $(document).ready(
 					});
 				};
 				self.deleteItem = function() {
-					// TODO Show warning dialog
-					$.ajax({
-						url : '/v1/api/vocabularies/' + document.vocabularyId,
-						contentType : "application/json; charset=utf-8",
-						method : 'DELETE',
-						headers : csrf,
-						dataType : 'json'
-					}).done(function() {
-						window.location.href = '/';
-					}).fail(function(deffer, type, message) {
-						self.errorHeader(type);
-						self.errorMessage(message);
-					});
+					$('.ui.basic.yesno.modal')
+				  .modal({
+				    closable  : false,
+				    onDeny    : function(){
+				    },
+				    onApprove : function() {
+				    	$.ajax({
+								url : '/v1/api/vocabularies/' + document.vocabularyId,
+								contentType : "application/json; charset=utf-8",
+								method : 'DELETE',
+								headers : csrf,
+								dataType : 'json'
+							}).done(function() {
+								window.location.href = '/';
+							}).fail(function(deffer, type, message) {
+								self.errorHeader(type);
+								self.errorMessage(message);
+							});
+				    }
+				  })
+				  .modal('show');
 				};
 			}
 
