@@ -48,10 +48,8 @@ public class CardController {
 		final List<Card> cards = cardPersist.queryCards(user, QueryFactory.newCardsQuery()
 				.setVocabularyId(UUID.fromString(aVocabularyId)).build());
 		if (cards.isEmpty()) {
-			throw new PageNotFoundException("No cards in vocabulary");
+			return "redirect:/vocabularies/" + voc.getId().toString() + "?error=No cards found.";
 		}
-
-
 		return "redirect:/cards/" + voc.getId().toString() + "/" + cards.get(0).getId().toString();
 	}
 

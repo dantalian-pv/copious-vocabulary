@@ -22,13 +22,13 @@ import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
-import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidation;
-import ru.dantalian.copvoc.web.controllers.rest.model.DtoValidationResult;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoTraining;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingResult;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @RestController
-@RequestMapping(value = "/v1/api/validate", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestValidationController {
+@RequestMapping(value = "/v1/api/train", produces = MediaType.APPLICATION_JSON_VALUE)
+public class RestTrainingController {
 
 	@Autowired
 	private PersistCardManager cardManager;
@@ -75,9 +75,9 @@ public class RestValidationController {
 
 	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public DtoValidationResult getCard(@PathVariable(value = "voc_id") final String aVocId,
+	public DtoTrainingResult getCard(@PathVariable(value = "voc_id") final String aVocId,
 			@PathVariable(value = "id") final String aId, final Principal aPrincipal,
-			@RequestBody final DtoValidation aValidation)
+			@RequestBody final DtoTraining aValidation)
 					throws RestException {
 		try {
 			final String user = aPrincipal.getName();
@@ -92,9 +92,9 @@ public class RestValidationController {
 			if (field.isPresent()) {
 				final CardFieldContent content = card.getContent(field.get().getName());
 				if (content != null && content.getContent().toLowerCase().contains(aValidation.getAnswer().toLowerCase())) {
-					return new DtoValidationResult(true, "valid");
+					return new DtoTrainingResult(true, "valid");
 				} else {
-					return new DtoValidationResult(false, "Not valid answer");
+					return new DtoTrainingResult(false, "Not valid answer");
 				}
 			}
 			throw new RestException("No answer field found in " + aId);

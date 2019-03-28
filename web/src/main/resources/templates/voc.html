@@ -14,6 +14,10 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
+	<div class="ui warning message" th:classappend="${param.error == null ? 'hidden' : ''}">
+		<div class="header">Error</div>
+		<p class="info" th:text="${param.error}"></p>
+	</div>
 	<div class="ui vertically divided grid">
 		<div class="sexteen column row">
 			<div class="fourteen wide column">
@@ -62,7 +66,7 @@
 	</div>
 	<div th:replace="forms/voc_form::body" th:remove="tag"></div>
 	<div class="ui basic yesno modal">
-  	<div class="header" th:text="'Do you want to delete ' + ${voc.name}" + '?'></div>
+  	<div class="header" th:text="'Do you want to delete ' + ${voc.name} + '?'"></div>
   	<div class="actions">
 	    <div class="ui approve green button">Delete</div>
 	    <div class="ui cancel button">Cancel</div>

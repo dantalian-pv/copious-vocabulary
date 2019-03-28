@@ -2,7 +2,7 @@ package ru.dantalian.copvoc.web.controllers.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DtoValidationResult {
+public class DtoTrainingResult {
 
 	@JsonProperty("valid")
 	private boolean valid;
@@ -10,10 +10,10 @@ public class DtoValidationResult {
 	@JsonProperty("message")
 	private String message;
 
-	public DtoValidationResult() {
+	public DtoTrainingResult() {
 	}
 
-	public DtoValidationResult(final boolean aValid, final String aMessage) {
+	public DtoTrainingResult(final boolean aValid, final String aMessage) {
 		super();
 		valid = aValid;
 		message = aMessage;
@@ -37,7 +37,7 @@ public class DtoValidationResult {
 
 	@Override
 	public String toString() {
-		return "DtoValidationResult [valid=" + valid + ", message=" + message + "]";
+		return "DtoTrainingResult [valid=" + valid + ", message=" + message + "]";
 	}
 
 }

@@ -21,7 +21,7 @@
 	<div class="ui divider"></div>
 	<div th:replace="${'front/' + view.id}::body"></div>
 	<div class="ui divider"></div>
-  <form id="check_card_form" class="ui form segment" method="post" th:action="${'/v1/api/validate/' + voc.id + '/' + card.id}">
+  <form id="check_card_form" class="ui form segment" method="post" th:action="${'/v1/api/train/' + voc.id + '/' + card.id}">
   	<input type="hidden" name="_csrf" th:value="${_csrf.token}">
   	<div class="ui inverted dimmer">
 			<div class="ui text loader">Loading</div>

@@ -2,7 +2,7 @@ package ru.dantalian.copvoc.web.controllers.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DtoValidation {
+public class DtoTraining {
 
 	@JsonProperty("answer")
 	private String answer;
