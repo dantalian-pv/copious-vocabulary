@@ -12,9 +12,7 @@ import java.util.UUID;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +28,13 @@ import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
-import ru.dantalian.copvoc.persist.api.query.BoolExpression;
-import ru.dantalian.copvoc.persist.api.query.CardsExpression;
-import ru.dantalian.copvoc.persist.api.query.CardsQuery;
-import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.api.utils.Validator;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
+import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardStat;
@@ -147,10 +143,14 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	}
 
 	@Override
-	public List<Card> queryCards(final String aUser, final CardsQuery aQuery) throws PersistException {
+	public List<Card> queryCards(final String aUser, final Query aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		final QueryBuilder query = asElaticQuery(aQuery);
+		final QueryBuilder query = ElasticQueryUtils.asElaticQuery(aQuery);
 		searchSourceBuilder.query(query);
+
+		ElasticQueryUtils.addSort(searchSourceBuilder, aQuery.sort());
+		ElasticQueryUtils.setFromAndLimit(searchSourceBuilder, aQuery.from(), aQuery.limit());
+
 		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		final Iterator<SearchHit> iterator = search.getHits().iterator();
@@ -177,43 +177,6 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 					statsMap));
 		}
 		return list;
-	}
-
-	private QueryBuilder asElaticQuery(final CardsQuery aQuery) {
-		final BoolQueryBuilder bool = QueryBuilders.boolQuery();
-		if (aQuery.getVocabularyId() != null) {
-			bool.must(QueryBuilders.termQuery("vocabulary_id", aQuery.getVocabularyId().toString()));
-		}
-		if (aQuery.where() != null) {
-			bool.must(asElaticQuery(aQuery.where()));
-		}
-		return bool.must().isEmpty() ? QueryBuilders.matchAllQuery() : bool;
-	}
-
-	private QueryBuilder asElaticQuery(final CardsExpression aExpression) {
-		if (aExpression instanceof TermExpression) {
-			final TermExpression termExpression = (TermExpression) aExpression;
-			if (termExpression.isWildcard()) {
-				return QueryBuilders.wildcardQuery(termExpression.getName(), termExpression.getValue());
-			} else {
-				return QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue());
-			}
-		} else if (aExpression instanceof BoolExpression) {
-			final BoolQueryBuilder boolElastic = QueryBuilders.boolQuery();
-			final BoolExpression boolExpression = (BoolExpression) aExpression;
-			for (final CardsExpression exp: boolExpression.must()) {
-				boolElastic.must(asElaticQuery(exp));
-			}
-			for (final CardsExpression exp: boolExpression.should()) {
-				boolElastic.should(asElaticQuery(exp));
-			}
-			for (final CardsExpression exp: boolExpression.not()) {
-				boolElastic.mustNot(asElaticQuery(exp));
-			}
-			return boolElastic;
-		} else {
-			throw new IllegalArgumentException("Unknown expression type: " + aExpression.getClass().getName());
-		}
 	}
 
 	private String getIndexId(final UUID aUuid) {

@@ -4,35 +4,35 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.dantalian.copvoc.persist.api.query.BoolExpression;
-import ru.dantalian.copvoc.persist.api.query.CardsExpression;
+import ru.dantalian.copvoc.persist.api.query.QueryExpression;
 
 public class BoolExpressionImpl implements BoolExpression {
 
-	private final List<CardsExpression> must;
+	private final List<QueryExpression> must;
 
-	private final List<CardsExpression> not;
+	private final List<QueryExpression> not;
 
-	private final List<CardsExpression> should;
+	private final List<QueryExpression> should;
 
-	public BoolExpressionImpl(final List<CardsExpression> aMust, final List<CardsExpression> aShould,
-			final List<CardsExpression> aNot) {
+	public BoolExpressionImpl(final List<QueryExpression> aMust, final List<QueryExpression> aShould,
+			final List<QueryExpression> aNot) {
 		must = Collections.unmodifiableList(aMust);
 		should = Collections.unmodifiableList(aShould);
 		not = Collections.unmodifiableList(aNot);
 	}
 
 	@Override
-	public List<CardsExpression> must() {
+	public List<QueryExpression> must() {
 		return must;
 	}
 
 	@Override
-	public List<CardsExpression> not() {
+	public List<QueryExpression> not() {
 		return not;
 	}
 
 	@Override
-	public List<CardsExpression> should() {
+	public List<QueryExpression> should() {
 		return should;
 	}
 

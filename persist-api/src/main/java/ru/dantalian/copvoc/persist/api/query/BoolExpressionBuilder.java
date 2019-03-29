@@ -4,10 +4,10 @@ import ru.dantalian.copvoc.persist.api.Builder;
 
 public interface BoolExpressionBuilder extends Builder<BoolExpression> {
 
-	BoolExpressionBuilder must(CardsExpression aExpression);
+	BoolExpressionBuilder must(QueryExpression aExpression);
 
-	BoolExpressionBuilder should(CardsExpression aExpression);
+	BoolExpressionBuilder should(QueryExpression aExpression);
 
-	BoolExpressionBuilder not(CardsExpression aExpression);
+	BoolExpressionBuilder not(QueryExpression aExpression);
 
 }

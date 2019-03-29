@@ -2,13 +2,13 @@ package ru.dantalian.copvoc.persist.api.query;
 
 import java.util.List;
 
-public interface BoolExpression extends CardsExpression {
+public interface BoolExpression extends QueryExpression {
 
-	List<CardsExpression> must();
+	List<QueryExpression> must();
 
-	List<CardsExpression> not();
+	List<QueryExpression> not();
 
-	List<CardsExpression> should();
+	List<QueryExpression> should();
 
 
 

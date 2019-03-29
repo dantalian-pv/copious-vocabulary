@@ -20,7 +20,7 @@ import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
-import ru.dantalian.copvoc.persist.api.query.CardsQueryBuilder;
+import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
@@ -56,7 +56,7 @@ public class CardsSuggester implements Suggester {
 			final List<CardField> fields = fieldManager.listFields(aUser, null);
 			final String key = aQuery.getWhere().getKey() == null || aQuery.getWhere().getKey().isEmpty()
 					? null : aQuery.getWhere().getKey().toLowerCase();
-			final CardsQueryBuilder cardsQuery = QueryFactory.newCardsQuery();
+			final QueryBuilder cardsQuery = QueryFactory.newCardsQuery();
 			final BoolExpressionBuilder bool = QueryFactory.bool();
 			final BoolExpressionBuilder nestedBool = QueryFactory.bool();
 			for (final CardField field: fields) {
