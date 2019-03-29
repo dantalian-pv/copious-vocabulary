@@ -15,6 +15,7 @@ import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.query.QueryExpression;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.query.ValueExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.FieldSortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.ScriptSortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortExpression;
@@ -44,6 +45,9 @@ public final class ElasticQueryUtils {
 			} else {
 				return QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue());
 			}
+		} else if (aExpression instanceof ValueExpression) {
+			final ValueExpression valueExpression = (ValueExpression) aExpression;
+			return QueryBuilders.termQuery(valueExpression.getName(), valueExpression.getValue());
 		} else if (aExpression instanceof BoolExpression) {
 			final BoolQueryBuilder boolElastic = QueryBuilders.boolQuery();
 			final BoolExpression boolExpression = (BoolExpression) aExpression;

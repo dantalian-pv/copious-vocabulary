@@ -6,6 +6,7 @@ import java.util.Map;
 import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
 import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.query.ValueExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortOrder;
 import ru.dantalian.copvoc.persist.api.query.sort.SortType;
@@ -23,6 +24,10 @@ public class QueryFactory {
 
 	public static TermExpression term(final String aKey, final String aValue, final boolean aWildcard) {
 		return new TermExpressionImpl(aKey, aValue, aWildcard);
+	}
+
+	public static ValueExpression eq(final String aKey, final Object aValue, final boolean aWildcard) {
+		return new ValueExpressionImpl(aKey, aValue);
 	}
 
 	public static BoolExpressionBuilder bool() {

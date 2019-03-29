@@ -14,9 +14,9 @@
 </head>
 
 <body th:fragment="body" th:remove="tag">
-	<div class="ui warning message" th:classappend="${param.error == null ? 'hidden' : ''}">
+	<div class="ui warning message" th:classappend="${error == null ? 'hidden' : ''}">
 		<div class="header">Error</div>
-		<p class="info" th:text="${param.error}"></p>
+		<p class="info" th:text="${error}"></p>
 	</div>
 	<div class="ui vertically divided grid">
 		<div class="sexteen column row">
@@ -60,7 +60,7 @@
 			<i class="save icon"></i>Show Cards
 		</a>
 		<div class="or"></div>
-		<a class="ui orange button" th:href="${'/cards/' + voc.id}">
+		<a class="ui orange button" th:href="${'/training/' + voc.id}">
 			<i class="keyboard icon"></i>Training
 		</a>
 	</div>

@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistTrainingManager;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTraining;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingResult;
@@ -34,20 +36,28 @@ public class RestTrainingController {
 	private PersistCardManager cardManager;
 
 	@Autowired
+	private PersistTrainingManager trainingManager;
+
+	@Autowired
 	private PersistCardFieldManager fieldManager;
 
-	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.GET)
-	public DtoCard getCard(@PathVariable(value = "voc_id") final String aVocId,
-			@PathVariable(value = "id") final String aId, final Principal aPrincipal)
+	@RequestMapping(value = "/{training_id}/{card_id}", method = RequestMethod.GET)
+	public DtoCard getCard(@PathVariable(value = "training_id") final String aTrainingId,
+			@PathVariable(value = "card_id") final String aCardId, final Principal aPrincipal)
 					throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Card card = cardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
+			final UUID trainingId = UUID.fromString(aTrainingId);
+			final Training training = trainingManager.getTraining(user, trainingId);
+			if (training == null) {
+				throw new PersistException("No training found");
+			}
+			final Card card = cardManager.getCard(user, training.getVocabularyId(), UUID.fromString(aCardId));
 
 			if (card == null) {
-				throw new PersistException("Card with id: " + aId + " not found");
+				throw new PersistException("Card with id: " + aCardId + " not found");
 			}
-			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aVocId));
+			final List<CardField> fields = fieldManager.listFields(user, training.getVocabularyId());
 			final Optional<CardField> field = fields.stream()
 					.filter(aItem -> aItem.getType() == CardFiledType.ANSWER)
 					.findFirst();
@@ -67,25 +77,53 @@ public class RestTrainingController {
 				}
 				return DtoCodec.asDtoCard(card);
 			}
-			throw new RestException("No answer field found in " + aId);
+			throw new RestException("No answer field found in " + aCardId);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
 	}
 
-	@RequestMapping(value = "/{voc_id}/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{training_id}/{card_id}/_next", method = RequestMethod.GET)
+	public DtoCard getNextCard(@PathVariable(value = "training_id") final String aTrainingId,
+			@PathVariable(value = "card_id") final String aCardId, final Principal aPrincipal)
+					throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final UUID cardId = UUID.fromString(aCardId);
+			final UUID trainingId = UUID.fromString(aTrainingId);
+			final Training training = trainingManager.getTraining(user, trainingId);
+			if (training == null) {
+				throw new PersistException("No training found");
+			}
+			final UUID nextCard = trainingManager.nextCard(user, trainingId, cardId);
+			if (nextCard == null) {
+				return new DtoCard();
+			}
+			return getCard(aTrainingId, nextCard.toString(), aPrincipal);
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
+	@RequestMapping(value = "/{training_id}/{card_id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public DtoTrainingResult getCard(@PathVariable(value = "voc_id") final String aVocId,
-			@PathVariable(value = "id") final String aId, final Principal aPrincipal,
+	public DtoTrainingResult checkCard(@PathVariable(value = "training_id") final String aTrainingId,
+			@PathVariable(value = "card_id") final String aCardId, final Principal aPrincipal,
 			@RequestBody final DtoTraining aValidation)
 					throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Card card = cardManager.getCard(user, UUID.fromString(aVocId), UUID.fromString(aId));
-			if (card == null) {
-				throw new PersistException("Card with id: " + aId + " not found");
+			final UUID trainingId = UUID.fromString(aTrainingId);
+			final Training training = trainingManager.getTraining(user, trainingId);
+			if (training == null) {
+				throw new PersistException("No training found");
 			}
-			final List<CardField> fields = fieldManager.listFields(user, UUID.fromString(aVocId));
+
+			final Card card = cardManager.getCard(user, training.getVocabularyId(), UUID.fromString(aCardId));
+			if (card == null) {
+				throw new PersistException("Card with id: " + aCardId + " not found");
+			}
+			final List<CardField> fields = fieldManager.listFields(user, training.getVocabularyId());
 			final Optional<CardField> field = fields.stream()
 					.filter(aItem -> aItem.getType() == CardFiledType.ANSWER)
 					.findFirst();
@@ -97,7 +135,7 @@ public class RestTrainingController {
 					return new DtoTrainingResult(false, "Not valid answer");
 				}
 			}
-			throw new RestException("No answer field found in " + aId);
+			throw new RestException("No answer field found in " + aCardId);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}

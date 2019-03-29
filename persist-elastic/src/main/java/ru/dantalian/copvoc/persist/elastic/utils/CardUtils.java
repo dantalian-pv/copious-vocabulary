@@ -1,13 +1,17 @@
 package ru.dantalian.copvoc.persist.elastic.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatType;
+import ru.dantalian.copvoc.persist.api.utils.Validator;
+import ru.dantalian.copvoc.persist.impl.model.PojoCardStat;
 
 public final class CardUtils {
 
@@ -63,6 +67,29 @@ public final class CardUtils {
 			default:
 				return "long";
 		}
+	}
+
+	public static Map<String, CardStat> asCardStats(final Map<String, ?> stats) {
+		if (stats == null) {
+			return Collections.emptyMap();
+		}
+		final Map<String, CardStat> statsMap = new HashMap<>();
+		for (final Entry<String, ?> stat: stats.entrySet()) {
+			final String statName = CardUtils.asPojoName(stat.getKey());
+			final CardStatType type = CardStatType.valueOf(CardUtils.getSuffix(stat.getKey()).toUpperCase());
+			statsMap.put(statName, new PojoCardStat(statName, stat.getValue(), type));
+		}
+		return statsMap;
+	}
+
+	public static Map<String, Object> asPersistStats(final Map<String, CardStat> aStatsMap) {
+		final Map<String, Object> stats = new HashMap<>();
+		for (final Entry<String, CardStat> stat: aStatsMap.entrySet()) {
+			final CardStat cardStat = stat.getValue();
+			Validator.checkNotNull(cardStat.getType(), "No type for stat " + cardStat.getName());
+			stats.put(CardUtils.asPersistStatName(cardStat), cardStat.getValue());
+		}
+		return stats;
 	}
 
 }

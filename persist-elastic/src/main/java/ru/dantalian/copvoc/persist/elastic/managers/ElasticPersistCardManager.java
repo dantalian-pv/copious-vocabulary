@@ -26,18 +26,15 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
-import ru.dantalian.copvoc.persist.api.model.CardStatType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.api.utils.Validator;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
-import ru.dantalian.copvoc.persist.impl.model.PojoCardStat;
 
 @Service
 public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
@@ -81,7 +78,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			LanguageUtils.asString(vocabulary.getSource()),
 			LanguageUtils.asString(vocabulary.getTarget()),
 			asPersistMap(aContent, fields),
-			asPersistStats(aStatsMap));
+			CardUtils.asPersistStats(aStatsMap));
 		add(getIndexId(aVocabularyId), card, true);
 		return asCard(card, vocabulary);
 	}
@@ -111,7 +108,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			throw new PersistException("Card not found");
 		}
 		final Map<String, Object> stats = new HashMap<>(card.getStats());
-		stats.putAll(asPersistStats(aStatsMap));
+		stats.putAll(CardUtils.asPersistStats(aStatsMap));
 		final Vocabulary vocabulary = vocManager.getVocabulary(aUser, aVocabularyId);
 		final DbCard dbCard = new DbCard(aId, aVocabularyId,
 				LanguageUtils.asString(vocabulary.getSource()),
@@ -169,7 +166,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			}
 			Map<String, ?> stats = (Map<String, ?>) source.get("stats");
 			stats = stats == null ? Collections.emptyMap() : stats;
-			final Map<String, CardStat> statsMap = asCardStats(stats);
+			final Map<String, CardStat> statsMap = CardUtils.asCardStats(stats);
 			list.add(new PojoCard(id, vocId,
 					LanguageUtils.asString(vocabulary.getSource()),
 					LanguageUtils.asString(vocabulary.getTarget()),
@@ -198,7 +195,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			LanguageUtils.asString(aVocabulary.getSource()),
 			LanguageUtils.asString(aVocabulary.getTarget()),
 			content,
-			asPersistStats(aCard.getStats()));
+			CardUtils.asPersistStats(aCard.getStats()));
 	}
 
 	private Card asCard(final DbCard aDbCard, final Vocabulary aVocabulary) {
@@ -213,30 +210,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 				LanguageUtils.asString(aVocabulary.getSource()),
 				LanguageUtils.asString(aVocabulary.getTarget()),
 				map,
-				asCardStats(aDbCard.getStats()));
-	}
-
-	private Map<String, CardStat> asCardStats(final Map<String, ?> stats) {
-		if (stats == null) {
-			return Collections.emptyMap();
-		}
-		final Map<String, CardStat> statsMap = new HashMap<>();
-		for (final Entry<String, ?> stat: stats.entrySet()) {
-			final String statName = CardUtils.asPojoName(stat.getKey());
-			final CardStatType type = CardStatType.valueOf(CardUtils.getSuffix(stat.getKey()).toUpperCase());
-			statsMap.put(statName, new PojoCardStat(statName, stat.getValue(), type));
-		}
-		return statsMap;
-	}
-
-	private Map<String, Object> asPersistStats(final Map<String, CardStat> aStatsMap) {
-		final Map<String, Object> stats = new HashMap<>();
-		for (final Entry<String, CardStat> stat: aStatsMap.entrySet()) {
-			final CardStat cardStat = stat.getValue();
-			Validator.checkNotNull(cardStat.getType(), "No type for stat " + cardStat.getName());
-			stats.put(CardUtils.asPersistStatName(cardStat), cardStat.getValue());
-		}
-		return stats;
+				CardUtils.asCardStats(aDbCard.getStats()));
 	}
 
 	private Map<String, String> asPersistMap(final Map<String, String> aContent, final List<CardField> aFields) {

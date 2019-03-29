@@ -1,5 +1,6 @@
 package ru.dantalian.copvoc.web.utils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,9 @@ import java.util.UUID;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
+import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.Language;
+import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
@@ -18,6 +21,7 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoField;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoLanguage;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingStats;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoView;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVocabulary;
 
@@ -79,6 +83,18 @@ public final class DtoCodec {
 		}
 		return new DtoCard(aCard.getId().toString(),
 				aCard.getVocabularyId().toString(), list);
+	}
+
+	public static DtoTrainingStats asDtoTrainingStats(final Training aTraining) {
+		if (aTraining == null) {
+			return null;
+		}
+		final Map<String, Object> stats = new HashMap<>();
+		for (final Entry<String, CardStat> entry: aTraining.getStats().entrySet()) {
+			stats.put(entry.getKey(), entry.getValue());
+		}
+		return new DtoTrainingStats(aTraining.getId().toString(), aTraining.getVocabularyId().toString(),
+				stats, aTraining.getSize(), aTraining.isFinished());
 	}
 
 }

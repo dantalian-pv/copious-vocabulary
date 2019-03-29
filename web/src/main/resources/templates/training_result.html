@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<link th:fragment="headcss" th:remove="tag"></link>
+<object type="text/javascript" th:fragment="headscript" th:remove="tag">
+</object>
+</head>
+
+<body th:fragment="body" th:remove="tag">
+	<div class="ui warning message" th:classappend="${error == null ? 'hidden' : ''}">
+		<div class="header">Error</div>
+		<p class="info" th:text="${error}"></p>
+	</div>
+	<table class="ui celled table">
+  <tbody>
+    <tr>
+    	<td>Successful</td>
+    	<td th:text="${training.stats.success.value}"></td>
+    </tr>
+    <tr>
+    	<td>Skipped</td>
+    	<td th:text="${training.stats.skip.value}"></td>
+    </tr>
+    <tr>
+    	<td>Failed</td>
+    	<td th:text="${training.stats.fail.value}"></td>
+    </tr>
+  </tbody>
+  </table>
+	<div class="ui divider"></div>
+	<div class="ui buttons">
+		<a th:href="${'/vocabularies/' + voc.id}" th:text="${'Batck to ' + voc.name}" class="ui button"> <i class="save icon"></i>View Cards
+		</a>
+	</div>
+</body>
+</html>

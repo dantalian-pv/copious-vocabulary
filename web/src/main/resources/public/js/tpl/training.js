@@ -56,13 +56,20 @@ $(document).ready(
 
 				self.errorHeader = ko.observable();
 				self.errorMessage = ko.observable();
-
+				
+				self.cardIndx = ko.observable(0);
+				self.cardSize = ko.observable(document.cardsSize);
+				
 				self.showNext = function() {
-					if (document.nextCardId) {
-						window.location.href = '/cards/' + document.vocabularyId + '/' + document.nextCardId;
-					} else {
-						window.location.href = '/vocabularies/' + document.vocabularyId;
-					}
+					$.getJSON('/v1/api/train/' + document.trainingId + '/' + self.item().id() + '/_next', function(allData) {
+						if (allData.id) {
+							self.cardIndx(self.cardIndx() + 1);
+							self.item(new Item(self.convertItem(allData)));
+						} else {
+							// Show result page
+							window.location.href = '/training/' + document.trainingId + '/result';
+						}
+					});
 				};
 				
 				self.errorHeader = ko.observable();
@@ -72,7 +79,7 @@ $(document).ready(
 					self.errorHeader('');
     			self.errorMessage('');
     			$.ajax({
-    	           url: $('#check_card_form').attr('action'),
+    	           url: '/v1/api/train/' + document.trainingId + '/' + item().id(),
     	           type : "POST",
     	           headers : csrf,
     	           dataType : 'json',
@@ -80,7 +87,7 @@ $(document).ready(
     	           data : JSON.stringify($("#check_card_form").serializeFormJSON()),
     	           success : function(result) {
     	          	 if (result.valid) {
-    	          		 window.location.href = '/cards/' + document.vocabularyId + '/' + document.nextCardId;
+    	          		 self.showNext();
     	          	 } else {
     	          		 self.errorHeader('Wrong answer');
     	          		 self.errorMessage(result.message);
@@ -110,9 +117,9 @@ $(document).ready(
 					return flatItem;
 				};
 				
-				self.updateData = function() {
+				self.updateData = function(cardId) {
 					// Load initial state from server
-					$.getJSON('/v1/api/train/' + document.vocabularyId + '/' + document.cardId, function(allData) {
+					$.getJSON('/v1/api/train/' + document.trainingId + '/' + document.firstCardId, function(allData) {
 						self.item(new Item(self.convertItem(allData)));
 					});
 				};

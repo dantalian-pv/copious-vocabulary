@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.dantalian.copvoc.core.stats.DefaultCardStats;
-import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
@@ -27,6 +25,7 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
+import ru.dantalian.copvoc.web.utils.StatsUtils;
 
 @RestController
 @RequestMapping(value = "/v1/api/cards", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,10 +72,7 @@ public class RestCardController {
 		try {
 			final String user = aPrincipal.getName();
 			final Map<String, String> map = asMap(aCard.getContent());
-			final Map<String, CardStat> stats = new HashMap<>();
-			for (final DefaultCardStats defStat: DefaultCardStats.values()) {
-				stats.put(defStat.getName(), CardStatFactory.newStat(defStat.getName(), null, defStat.getType()));
-			}
+			final Map<String, CardStat> stats = StatsUtils.defaultStats();
 			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map, stats);
 			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
