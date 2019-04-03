@@ -34,6 +34,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
@@ -176,6 +177,24 @@ public abstract class AbstractPersistManager<T> {
 			client.update(updateRequest, RequestOptions.DEFAULT);
 		} catch (final Exception e) {
 			throw new PersistException("Failed to create an entity", e);
+		}
+	}
+
+	protected void updateByScript(final String aIndex, final String aId, final Script aScript,
+			final boolean aImmediate) throws PersistException {
+		try {
+			initIndex(aIndex);
+			final UpdateRequest updateRequest = new UpdateRequest(aIndex,
+					DEFAULT_TYPE,
+					aId)
+	        .script(aScript);
+			if (aImmediate) {
+				updateRequest.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+			}
+			updateRequest.retryOnConflict(10);
+			client.update(updateRequest, RequestOptions.DEFAULT);
+		} catch (final Exception e) {
+			throw new PersistException("Failed to execute update script", e);
 		}
 	}
 

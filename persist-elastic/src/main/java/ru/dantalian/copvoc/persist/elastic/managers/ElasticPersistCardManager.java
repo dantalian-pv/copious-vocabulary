@@ -26,6 +26,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
@@ -117,6 +118,14 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 				stats);
 		update(getIndexId(card.getVocabularyId()), dbCard, true);
 		return asCard(dbCard, vocabulary);
+	}
+
+	@Override
+	public void updateStatForCard(final String aUser, final UUID aVocabularyId, final UUID aCardId,
+			final CardStatAction aAction)
+			throws PersistException {
+		updateByScript(getIndexId(aVocabularyId), aCardId.toString(),
+				ElasticQueryUtils.asElasticScript(aAction), false);
 	}
 
 	@Override

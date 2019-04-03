@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbTrainingCardStats;
 import ru.dantalian.copvoc.persist.elastic.model.DbTrainingCardStatsId;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.CodecException;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.DbTrainingCardStatsIdCodec;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
+import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 
 @Service
 public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<DbTrainingCardStats> {
@@ -50,6 +52,17 @@ public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<D
 			}
 		} catch (final CodecException e) {
 			throw new PersistException("Faield to update stats", e);
+		}
+	}
+
+	public void updateStatForCard(final String aUser, final UUID aTrainigId, final UUID aCardId,
+			final CardStatAction aAction) throws PersistException {
+		try {
+			final DbTrainingCardStatsId statsId = new DbTrainingCardStatsId(aTrainigId, aCardId);
+			updateByScript(getDefaultIndex(), idCodec.serialize(statsId),
+					ElasticQueryUtils.asElasticScript(aAction), false);
+		} catch (final CodecException e) {
+			throw new PersistException("Faield to update stats for card", e);
 		}
 	}
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.query.Query;
 
@@ -28,5 +29,7 @@ public interface PersistTrainingManager {
 
 	void updateStatsForCard(final String aUser, UUID aTrainigId, UUID aCardId,
 			Map<String, CardStat> aStats) throws PersistException;
+
+	void updateStatForCard(final String aUser, UUID aTrainigId, UUID aCardId, CardStatAction aAction) throws PersistException;
 
 }

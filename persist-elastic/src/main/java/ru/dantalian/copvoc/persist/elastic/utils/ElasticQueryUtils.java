@@ -1,6 +1,9 @@
 package ru.dantalian.copvoc.persist.elastic.utils;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -11,6 +14,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType;
 import org.elasticsearch.search.sort.SortBuilders;
 
+import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.query.QueryExpression;
@@ -20,6 +25,8 @@ import ru.dantalian.copvoc.persist.api.query.sort.FieldSortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.ScriptSortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortOrder;
+import ru.dantalian.copvoc.persist.api.stats.StatAction;
+import ru.dantalian.copvoc.persist.api.utils.Validator;
 
 public final class ElasticQueryUtils {
 
@@ -106,6 +113,59 @@ public final class ElasticQueryUtils {
 		}
 		if (aLimit != null) {
 			searchSourceBuilder.size(aLimit.intValue());
+		}
+	}
+
+	public static Script asElasticScript(final CardStatAction aAction) {
+		Validator.checkNotNull(aAction);
+		final String action = asStringAction(aAction);
+		final String field = "ctx._source.stats." + CardUtils.asPersistStatName(aAction);
+		final Object defaultValue = getDefaultValue(aAction);
+		final Map<String, Object> params = Collections.singletonMap("value", aAction.getValue());
+
+		final String script = generateScript(aAction, action, field, defaultValue);
+
+		return new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, script, params);
+	}
+
+	private static String generateScript(final CardStatAction aAction, final String action,
+			final String field, final Object defaultValue) {
+		return aAction.getAction() == StatAction.SET ?
+				field + "=params.value" :
+					field + "=" + field + " == null "
+					+ "? " + defaultValue + action + "params.value"
+					+ " : " + field + action + "params.value";
+	}
+
+	private static Object getDefaultValue(final CardStat aStat) {
+		switch (aStat.getType()) {
+			case DATE: {
+				return new Date();
+			}
+			case DOUBLE: {
+				return 0.0D;
+			}
+			case LONG: {
+				return 0L;
+			}
+			default:
+				throw new IllegalArgumentException("Unknown type " + aStat.getType());
+		}
+	}
+
+	private static String asStringAction(final CardStatAction aAction) {
+		switch (aAction.getAction()) {
+			case DECREMENT: {
+				return "-";
+			}
+			case ICREMENT: {
+				return "+";
+			}
+			case SET: {
+				return "=";
+			}
+			default:
+				throw new IllegalArgumentException("Unknown action type " + aAction.getAction());
 		}
 	}
 

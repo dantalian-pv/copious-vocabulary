@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
@@ -22,6 +24,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTraining;
@@ -85,7 +88,9 @@ public class RestTrainingController {
 
 	@RequestMapping(value = "/{training_id}/{card_id}/_next", method = RequestMethod.GET)
 	public DtoCard getNextCard(@PathVariable(value = "training_id") final String aTrainingId,
-			@PathVariable(value = "card_id") final String aCardId, final Principal aPrincipal)
+			@PathVariable(value = "card_id") final String aCardId,
+			@RequestParam(value = "validated", required = false, defaultValue = "false")
+				final boolean aValidated, final Principal aPrincipal)
 					throws RestException {
 		try {
 			final String user = aPrincipal.getName();
@@ -96,6 +101,14 @@ public class RestTrainingController {
 				throw new PersistException("No training found");
 			}
 			final UUID nextCard = trainingManager.nextCard(user, trainingId, cardId);
+			if (!aValidated) {
+				final CardStatAction skip = CardStatFactory.newSkipInc();
+				final CardStatAction visits = CardStatFactory.newVisitsInc();
+				final CardStatAction lastVisit = CardStatFactory.newLastVisit();
+				trainingManager.updateStatForCard(user, trainingId, cardId, skip);
+				trainingManager.updateStatForCard(user, trainingId, cardId, visits);
+				trainingManager.updateStatForCard(user, trainingId, cardId, lastVisit);
+			}
 			if (nextCard == null) {
 				return new DtoCard();
 			}
@@ -130,8 +143,20 @@ public class RestTrainingController {
 			if (field.isPresent()) {
 				final CardFieldContent content = card.getContent(field.get().getName());
 				if (content != null && content.getContent().toLowerCase().contains(aValidation.getAnswer().toLowerCase())) {
+					final CardStatAction success = CardStatFactory.newSuccessInc();
+					final CardStatAction visits = CardStatFactory.newVisitsInc();
+					final CardStatAction lastVisit = CardStatFactory.newLastVisit();
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), success);
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), visits);
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), lastVisit);
 					return new DtoTrainingResult(true, "valid");
 				} else {
+					final CardStatAction fail = CardStatFactory.newFailInc();
+					final CardStatAction visits = CardStatFactory.newVisitsInc();
+					final CardStatAction lastVisit = CardStatFactory.newLastVisit();
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), fail);
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), visits);
+					trainingManager.updateStatForCard(user, trainingId, card.getId(), lastVisit);
 					return new DtoTrainingResult(false, "Not valid answer");
 				}
 			}

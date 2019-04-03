@@ -24,6 +24,7 @@ import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistTrainingManager;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
@@ -112,6 +113,16 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 			list.add(asTraining(training));
 		}
 		return list;
+	}
+
+	@Override
+	public void updateStatForCard(final String aUser, final UUID aTrainigId, final UUID aCardId,
+			final CardStatAction aAction) throws PersistException {
+		final DbTraining dbTraining = getDbTraining(aTrainigId);
+		cardManager.updateStatForCard(aUser, dbTraining.getVocabularyId(), aCardId, aAction);
+		statsManager.updateStatForCard(aUser, aTrainigId, aCardId, aAction);
+		updateByScript(getDefaultIndex(), aTrainigId.toString(),
+				ElasticQueryUtils.asElasticScript(aAction), false);
 	}
 
 	private DbTraining getDbTraining(final UUID aTrainigId) throws PersistException {

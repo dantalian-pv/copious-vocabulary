@@ -60,8 +60,8 @@ $(document).ready(
 				self.cardIndx = ko.observable(0);
 				self.cardSize = ko.observable(document.cardsSize);
 				
-				self.showNext = function() {
-					$.getJSON('/v1/api/train/' + document.trainingId + '/' + self.item().id() + '/_next', function(allData) {
+				self.showNext = function(aValidated) {
+					$.getJSON('/v1/api/train/' + document.trainingId + '/' + self.item().id() + '/_next' + (aValidated === true? '?validated=true': ''), function(allData) {
 						if (allData.id) {
 							self.cardIndx(self.cardIndx() + 1);
 							self.item(new Item(self.convertItem(allData)));
@@ -74,6 +74,8 @@ $(document).ready(
 				
 				self.errorHeader = ko.observable();
 				self.errorMessage = ko.observable();
+				
+				self.errors = ko.observable(0);
 
 				$('#check_card_form').submit(function() {
 					self.errorHeader('');
@@ -87,10 +89,17 @@ $(document).ready(
     	           data : JSON.stringify($("#check_card_form").serializeFormJSON()),
     	           success : function(result) {
     	          	 if (result.valid) {
-    	          		 self.showNext();
+    	          		 self.errors(0);
+    	          		 self.showNext(true);
     	          	 } else {
     	          		 self.errorHeader('Wrong answer');
     	          		 self.errorMessage(result.message);
+    	          		 if (self.errors() > 2) {
+    	          			 self.errors(0);
+    	          			 self.showNext(true);
+    	          		 } else {
+    	          			 self.errors(self.errors() + 1);
+    	          		 }
     	          	 }
     	           },
     	           error: function(xhr, resp, text) {
