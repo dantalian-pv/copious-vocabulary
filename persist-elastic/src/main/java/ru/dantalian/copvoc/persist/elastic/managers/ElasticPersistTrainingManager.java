@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchResponse;
@@ -119,10 +121,34 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 	public void updateStatForCard(final String aUser, final UUID aTrainigId, final UUID aCardId,
 			final CardStatAction aAction) throws PersistException {
 		final DbTraining dbTraining = getDbTraining(aTrainigId);
-		cardManager.updateStatForCard(aUser, dbTraining.getVocabularyId(), aCardId, aAction);
-		statsManager.updateStatForCard(aUser, aTrainigId, aCardId, aAction);
-		updateByScript(getDefaultIndex(), aTrainigId.toString(),
-				ElasticQueryUtils.asElasticScript(aAction), false);
+		try {
+			CompletableFuture.allOf(
+				CompletableFuture.runAsync(() -> {
+					try {
+						cardManager.updateStatForCard(aUser, dbTraining.getVocabularyId(), aCardId, aAction);
+					} catch (final PersistException e) {
+						throw new CompletionException(e);
+					}
+				}),
+				CompletableFuture.runAsync(() -> {
+					try {
+						statsManager.updateStatForCard(aUser, aTrainigId, aCardId, aAction);
+					} catch (final PersistException e) {
+						throw new CompletionException(e);
+					}
+				}),
+				CompletableFuture.runAsync(() -> {
+					try {
+						updateByScript(getDefaultIndex(), aTrainigId.toString(),
+								ElasticQueryUtils.asElasticScript(aAction), false);
+					} catch (final PersistException e) {
+						throw new CompletionException(e);
+					}
+				})
+			).join();
+		} catch (final CompletionException e) {
+			throw (PersistException) e.getCause();
+		}
 	}
 
 	private DbTraining getDbTraining(final UUID aTrainigId) throws PersistException {

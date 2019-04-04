@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
@@ -105,9 +107,7 @@ public class RestTrainingController {
 				final CardStatAction skip = CardStatFactory.newSkipInc();
 				final CardStatAction visits = CardStatFactory.newVisitsInc();
 				final CardStatAction lastVisit = CardStatFactory.newLastVisit();
-				trainingManager.updateStatForCard(user, trainingId, cardId, skip);
-				trainingManager.updateStatForCard(user, trainingId, cardId, visits);
-				trainingManager.updateStatForCard(user, trainingId, cardId, lastVisit);
+				updateStats(user, trainingId, cardId, skip, visits, lastVisit);
 			}
 			if (nextCard == null) {
 				return new DtoCard();
@@ -146,17 +146,13 @@ public class RestTrainingController {
 					final CardStatAction success = CardStatFactory.newSuccessInc();
 					final CardStatAction visits = CardStatFactory.newVisitsInc();
 					final CardStatAction lastVisit = CardStatFactory.newLastVisit();
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), success);
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), visits);
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), lastVisit);
+					updateStats(user, trainingId, card.getId(), success, visits, lastVisit);
 					return new DtoTrainingResult(true, "valid");
 				} else {
 					final CardStatAction fail = CardStatFactory.newFailInc();
 					final CardStatAction visits = CardStatFactory.newVisitsInc();
 					final CardStatAction lastVisit = CardStatFactory.newLastVisit();
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), fail);
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), visits);
-					trainingManager.updateStatForCard(user, trainingId, card.getId(), lastVisit);
+					updateStats(user, trainingId, card.getId(), fail, visits, lastVisit);
 					return new DtoTrainingResult(false, "Not valid answer");
 				}
 			}
@@ -164,6 +160,19 @@ public class RestTrainingController {
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
+	}
+
+	private void updateStats(final String user, final UUID trainingId, final UUID aCardId,
+			final CardStatAction... aActions) {
+		Flowable.fromArray(aActions)
+			.parallel()
+			.runOn(Schedulers.computation())
+			.doOnNext(aItem -> {
+				trainingManager.updateStatForCard(user, trainingId, aCardId, aItem);
+			}).doOnError(aError -> {
+				throw new PersistException("Failed to update stats", aError);
+			}).sequential()
+		  .blockingSubscribe(aItem -> {});
 	}
 
 }

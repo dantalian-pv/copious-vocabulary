@@ -57,7 +57,7 @@ $(document).ready(
 				self.errorHeader = ko.observable();
 				self.errorMessage = ko.observable();
 				
-				self.cardIndx = ko.observable(0);
+				self.cardIndx = ko.observable(1);
 				self.cardSize = ko.observable(document.cardsSize);
 				
 				self.showNext = function(aValidated) {
