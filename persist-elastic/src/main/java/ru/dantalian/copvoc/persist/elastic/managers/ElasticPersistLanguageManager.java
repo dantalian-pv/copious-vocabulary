@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -17,32 +17,27 @@ import org.springframework.stereotype.Service;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbLanguage;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.impl.model.PojoLanguage;
 
 @Service
-public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLanguage>
-	implements PersistLanguageManager {
+public class ElasticPersistLanguageManager implements PersistLanguageManager {
 
 	private static final String DEFAULT_INDEX = "languages";
 
-	private final ElasticSettings settings;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
 	@Autowired
-	public ElasticPersistLanguageManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
-		super(aClient, DbLanguage.class);
-		settings = aSettings;
-	}
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	private ElasticORM<DbLanguage> orm;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbLanguage.class, settingsProvider);
 	}
 
 	@Override
@@ -65,13 +60,13 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 		}
 		searchSourceBuilder.query(boolQuery);
 
-		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<Language> list = new LinkedList<>();
 		search.getHits()
 				.forEach(aItem -> {
 					final Map<String, Object> src = aItem.getSourceAsMap();
 					try {
-						list.add(asLanguage(map(aItem.getId(), src)));
+						list.add(asLanguage(orm.map(aItem.getId(), src)));
 					} catch (final PersistException e) {
 						throw new RuntimeException("Failed to convert an item " + aItem.getId());
 					}
@@ -94,7 +89,7 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 	public Language createLanguage(final String aName, final String aCountry, final String aVariant,
 			final String aText) throws PersistException {
 		final DbLanguage dbLanguage = new DbLanguage(aName, aCountry, aVariant, aText);
-		add(DEFAULT_INDEX, dbLanguage, true);
+		orm.add(DEFAULT_INDEX, dbLanguage, true);
 		return asLanguage(dbLanguage);
 	}
 
@@ -102,7 +97,7 @@ public class ElasticPersistLanguageManager extends AbstractPersistManager<DbLang
 	public Language updateLanguage(final String aName, final String aCountry, final String aVariant,
 			final String aText) throws PersistException {
 		final DbLanguage dbLanguage = new DbLanguage(aName, aCountry, aVariant, aText);
-		update(DEFAULT_INDEX, dbLanguage, true);
+		orm.update(DEFAULT_INDEX, dbLanguage, true);
 		return asLanguage(dbLanguage);
 	}
 

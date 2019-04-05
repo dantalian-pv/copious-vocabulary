@@ -1,4 +1,4 @@
-package ru.dantalian.copvoc.persist.elastic.managers;
+package ru.dantalian.copvoc.persist.elastic.orm;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +38,7 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.utils.Validator;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Field;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.Id;
 import ru.dantalian.copvoc.persist.elastic.model.annotations.SubField;
@@ -46,7 +47,7 @@ import ru.dantalian.copvoc.persist.elastic.model.codecs.CodecException;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.DefaultCodec;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.FieldCodec;
 
-public abstract class AbstractPersistManager<T> {
+public class ElasticORM<T> {
 
 	private static final String DEFAULT_TYPE = "_doc";
 
@@ -62,6 +63,8 @@ public abstract class AbstractPersistManager<T> {
 
 	private final Class<T> entity;
 
+	private final IndexSettingsProvider settingsProvider;
+
 	private final Set<String> indexCache = new HashSet<>();
 
 	private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
@@ -72,16 +75,14 @@ public abstract class AbstractPersistManager<T> {
 
 	private final Map<String, FieldCodec<T, ? super Object>> codecMap = new HashMap<>();
 
-	public AbstractPersistManager(final RestHighLevelClient aClient, final Class<T> aEntity) {
+	public ElasticORM(final RestHighLevelClient aClient, final Class<T> aEntity,
+			final IndexSettingsProvider aSettingsProvider) {
 		client = aClient;
 		entity = aEntity;
+		settingsProvider = aSettingsProvider;
 	}
 
-	protected abstract String getDefaultIndex();
-
-	protected abstract XContentBuilder getSettings(String aIndex) throws PersistException;
-
-	protected T get(final String aIndex, final String aId) throws PersistException {
+	public T get(final String aIndex, final String aId) throws PersistException {
 		try {
 			initIndex(aIndex);
 			final GetRequest req = new GetRequest(aIndex, DEFAULT_TYPE, aId);
@@ -96,7 +97,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void delete(final String aIndex, final String aId) throws PersistException {
+	public void delete(final String aIndex, final String aId) throws PersistException {
 		try {
 			initIndex(aIndex);
 			final DeleteRequest req = new DeleteRequest(aIndex, DEFAULT_TYPE, aId);
@@ -107,7 +108,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void deleteByQuery(final String aIndex, final QueryBuilder aQuery) throws PersistException {
+	public void deleteByQuery(final String aIndex, final QueryBuilder aQuery) throws PersistException {
 		try {
 			initIndex(aIndex);
 			final DeleteByQueryRequest req = new DeleteByQueryRequest(aIndex);
@@ -119,7 +120,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void deleteIndex(final String aIndex) throws PersistException {
+	public void deleteIndex(final String aIndex) throws PersistException {
 		try {
 			initIndex(aIndex);
 			final DeleteIndexRequest req = new DeleteIndexRequest(aIndex);
@@ -129,11 +130,11 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected SearchResponse search(final String aIndex, final SearchSourceBuilder aQuery) throws PersistException {
+	public SearchResponse search(final String aIndex, final SearchSourceBuilder aQuery) throws PersistException {
 		return search(Collections.singletonList(aIndex), aQuery);
 	}
 
-	protected SearchResponse search(final List<String> aIndices, final SearchSourceBuilder aQuery) throws PersistException {
+	public SearchResponse search(final List<String> aIndices, final SearchSourceBuilder aQuery) throws PersistException {
 		try {
 			for (final String index: aIndices) {
 				initIndex(index);
@@ -146,7 +147,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void update(final String aIndex, final T aEntity, final boolean aImmediate) throws PersistException {
+	public void update(final String aIndex, final T aEntity, final boolean aImmediate) throws PersistException {
 		try {
 			initIndex(aIndex);
 			if (aEntity == null) {
@@ -180,7 +181,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void updateByScript(final String aIndex, final String aId, final Script aScript,
+	public void updateByScript(final String aIndex, final String aId, final Script aScript,
 			final boolean aImmediate) throws PersistException {
 		try {
 			initIndex(aIndex);
@@ -198,7 +199,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void add(final String aIndex, final T aEntity, final boolean aImmediate) throws PersistException {
+	public void add(final String aIndex, final T aEntity, final boolean aImmediate) throws PersistException {
 		try {
 			initIndex(aIndex);
 			if (aEntity == null) {
@@ -232,7 +233,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected T map(final String aId, final Map<String, Object> aSource) throws PersistException {
+	public T map(final String aId, final Map<String, Object> aSource) throws PersistException {
 		try {
 			if (aSource == null) {
 				return null;
@@ -252,7 +253,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void fillId(final T aEntiry, final Class<?> aClass, final String aId) throws Exception {
+	public void fillId(final T aEntiry, final Class<?> aClass, final String aId) throws Exception {
 		final java.lang.reflect.Field[] fields = aClass.getDeclaredFields();
 		for (final java.lang.reflect.Field field: fields) {
 			final Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
@@ -270,7 +271,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void fillFields(final T aInstance, final Class<?> aClass, final Map<String, Object> aSource)
+	public void fillFields(final T aInstance, final Class<?> aClass, final Map<String, Object> aSource)
 			throws Exception {
 		final java.lang.reflect.Field[] fields = aClass.getDeclaredFields();
 		for (final java.lang.reflect.Field field: fields) {
@@ -289,7 +290,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void fillField(final T aInstance, final Class<?> aClass, final java.lang.reflect.Field aField,
+	public void fillField(final T aInstance, final Class<?> aClass, final java.lang.reflect.Field aField,
 			final Field aFieldAnnotation, final Map<String, Object> aSource)
 			throws Exception  {
 		final String name = aField.getName();
@@ -303,7 +304,7 @@ public abstract class AbstractPersistManager<T> {
 		method.invoke(aInstance, data);
 	}
 
-	protected String getId(final T aEntity, final Class<?> aClass) throws Exception {
+	public String getId(final T aEntity, final Class<?> aClass) throws Exception {
 		if (Map.class.isAssignableFrom(aEntity.getClass())) {
 			return (String) ((Map<String, ?>) aEntity).get("id");
 		}
@@ -328,7 +329,7 @@ public abstract class AbstractPersistManager<T> {
 		return null;
 	}
 
-	protected void addFiledsForClass(final T aEntity, final Class<?> aClass, final XContentBuilder aBuilder)
+	public void addFiledsForClass(final T aEntity, final Class<?> aClass, final XContentBuilder aBuilder)
 			throws Exception {
 		if (Map.class.isAssignableFrom(aEntity.getClass())) {
 			aBuilder.map((Map<String, ?>) aEntity);
@@ -350,7 +351,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addField(final T aEntity, final Class<?> aClass, final java.lang.reflect.Field aField,
+	public void addField(final T aEntity, final Class<?> aClass, final java.lang.reflect.Field aField,
 			final Field aFieldAnnotation, final XContentBuilder aBuilder) throws Exception {
 		final Id idAnnotation = aField.getAnnotation(Id.class);
 		if (idAnnotation != null) {
@@ -362,12 +363,12 @@ public abstract class AbstractPersistManager<T> {
 		aBuilder.field(fieldName, data);
 	}
 
-	protected String getIndexFieldName(final java.lang.reflect.Field aField, final Field aFieldAnnotation) {
+	public String getIndexFieldName(final java.lang.reflect.Field aField, final Field aFieldAnnotation) {
 		return "".equals(aFieldAnnotation.name()) || aFieldAnnotation.name() == null
 				? aField.getName() : aFieldAnnotation.name();
 	}
 
-	protected Object getFieldData(final T aEntity, final Class<?> aClass, final java.lang.reflect.Field aField,
+	public Object getFieldData(final T aEntity, final Class<?> aClass, final java.lang.reflect.Field aField,
 			final Field aFieldAnnotation)
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, CodecException {
 		final String name = aField.getName();
@@ -388,26 +389,26 @@ public abstract class AbstractPersistManager<T> {
 		return data;
 	}
 
-	protected void initIndex(final String aIndex) throws PersistException {
-		final String index = aIndex == null ? getDefaultIndex() : aIndex;
+	public void initIndex(final String aIndex) throws PersistException {
+		Validator.checkNotNull(aIndex);
 		try {
-			if (isInCache(index)) {
+			if (isInCache(aIndex)) {
 				// Do nothing, because already done
 				return;
 			}
 			final GetIndexRequest exists = new GetIndexRequest();
-			exists.indices(index);
+			exists.indices(aIndex);
 			if (client.indices().exists(exists, RequestOptions.DEFAULT)) {
-				updateIndexMappings(index);
-				saveInCache(index);
+				updateIndexMappings(aIndex);
+				saveInCache(aIndex);
 				// In case index was created before, but codecs map is needed
 				addCodecsForClass(entity);
 				return;
 			}
-			createIndex(index);
-			saveInCache(index);
+			createIndex(aIndex);
+			saveInCache(aIndex);
 		} catch (final IOException | InstantiationException | IllegalAccessException e) {
-			throw new PersistException("Failed to create index: " + index, e);
+			throw new PersistException("Failed to create index: " + aIndex, e);
 		}
 	}
 
@@ -428,7 +429,7 @@ public abstract class AbstractPersistManager<T> {
 		final CreateIndexRequest createIndex = new CreateIndexRequest(aIndex);
 		final XContentBuilder mappings = createMappings();
 
-		final XContentBuilder settings = getSettings(aIndex);
+		final XContentBuilder settings = settingsProvider.getSettings(aIndex);
 		if (mappings != null) {
 			createIndex.mapping(DEFAULT_TYPE, mappings);
 		}
@@ -462,7 +463,7 @@ public abstract class AbstractPersistManager<T> {
 		return mappings;
 	}
 
-	protected void addCodecsForClass(final Class<?> aEntity)
+	public void addCodecsForClass(final Class<?> aEntity)
 			throws InstantiationException, IllegalAccessException {
 		if (aEntity == Map.class) {
 			return;
@@ -511,7 +512,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMappingForClass(final XContentBuilder aMappings, final Class<?> aEntity, final boolean aDynamic)
+	public void addMappingForClass(final XContentBuilder aMappings, final Class<?> aEntity, final boolean aDynamic)
 			throws IOException, InstantiationException, IllegalAccessException {
 		if (aEntity == Map.class) {
 			if (!aDynamic) {
@@ -552,7 +553,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMethodIndex(final Method aMethod, final Field aMethodAnnotation,
+	public void addMethodIndex(final Method aMethod, final Field aMethodAnnotation,
 			final XContentBuilder aMappings, final boolean aDynamic)
 			throws InstantiationException, IllegalAccessException, IOException {
 		String name = "".equals(aMethodAnnotation.name()) || aMethodAnnotation.name() == null
@@ -570,14 +571,14 @@ public abstract class AbstractPersistManager<T> {
 		return getDataType(aFieldAnnotation.type(), methodType);
 	}
 
-	protected void addFieldIndex(final java.lang.reflect.Field aField, final Field aFieldAnnotation,
+	public void addFieldIndex(final java.lang.reflect.Field aField, final Field aFieldAnnotation,
 			final XContentBuilder aMappings, final boolean aDynamic) throws IOException, InstantiationException, IllegalAccessException {
 		final String name = getIndexFieldName(aField, aFieldAnnotation);
 		final String type = getFieldType(aField, aFieldAnnotation);
 		addMapping(name, type, aFieldAnnotation.subtype(), aFieldAnnotation.index(), aFieldAnnotation.codec(), aMappings, aDynamic);
 	}
 
-	protected String getFieldType(final java.lang.reflect.Field aField, final Field aFieldAnnotation) {
+	public String getFieldType(final java.lang.reflect.Field aField, final Field aFieldAnnotation) {
 		final Class<?> fieldType = aField.getType();
 		return getDataType(aFieldAnnotation.type(), fieldType);
 	}
@@ -604,7 +605,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void addMapping(final String aName, final String aType, final SubField[] aSubfields, final boolean aIndex,
+	public void addMapping(final String aName, final String aType, final SubField[] aSubfields, final boolean aIndex,
 			final Class<? extends FieldCodec> aCodec, final XContentBuilder aMappings, final boolean aDynamic)
 					throws IOException, InstantiationException, IllegalAccessException {
 		if ("object".equals(aType) && aDynamic && aSubfields != null) {
@@ -637,7 +638,7 @@ public abstract class AbstractPersistManager<T> {
 		addCodec(aName, aCodec);
 	}
 
-	protected boolean isInCache(final String aIndex) {
+	public boolean isInCache(final String aIndex) {
 		try {
 			readCacheLock.lock();
 			return indexCache.contains(aIndex);
@@ -646,7 +647,7 @@ public abstract class AbstractPersistManager<T> {
 		}
 	}
 
-	protected void saveInCache(final String aIndex) {
+	public void saveInCache(final String aIndex) {
 		try {
 			writeCacheLock.lock();
 			indexCache.add(aIndex);

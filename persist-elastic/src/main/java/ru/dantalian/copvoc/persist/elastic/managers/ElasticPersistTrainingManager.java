@@ -11,9 +11,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -29,33 +29,36 @@ import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.query.Query;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbTraining;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoTraining;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 
 @Service
-public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTraining>
-	implements PersistTrainingManager {
+public class ElasticPersistTrainingManager implements PersistTrainingManager {
 
 	private static final String DEFAULT_INDEX = "trainings";
 
-	private final ElasticSettings settings;
-
-	private final ElasticPersistTrainingStatsManager statsManager;
-
-	private final PersistCardManager cardManager;
+	@Autowired
+	private ElasticPersistTrainingStatsManager statsManager;
 
 	@Autowired
-	public ElasticPersistTrainingManager(final RestHighLevelClient aClient, final ElasticSettings aSettings,
-			final ElasticPersistTrainingStatsManager aStatsManager,
-			final PersistCardManager aCardManager) {
-		super(aClient, DbTraining.class);
-		settings = aSettings;
-		statsManager = aStatsManager;
-		cardManager = aCardManager;
+	private PersistCardManager cardManager;
+
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
+
+	@Autowired
+	private ElasticORMFactory ormFactory;
+
+	private ElasticORM<DbTraining> orm;
+
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbTraining.class, settingsProvider);
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 			.map(aItem -> aItem.getId().toString())
 			.collect(Collectors.toList());
 		final DbTraining training = new DbTraining(id, aVocabularyId, cardIds, CardUtils.asPersistStats(aStatsMap));
-		add(getDefaultIndex(), training, true);
+		orm.add(DEFAULT_INDEX, training, true);
 		return asTraining(training);
 	}
 
@@ -98,7 +101,7 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 		ElasticQueryUtils.addSort(searchSourceBuilder, aQuery.sort());
 		ElasticQueryUtils.setFromAndLimit(searchSourceBuilder, aQuery.from(), aQuery.limit());
 
-		final SearchResponse search = search(getDefaultIndex(), searchSourceBuilder);
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<Training> list = new LinkedList<>();
 		final Iterator<SearchHit> iterator = search.getHits().iterator();
 		while(iterator.hasNext()) {
@@ -139,7 +142,7 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 				}),
 				CompletableFuture.runAsync(() -> {
 					try {
-						updateByScript(getDefaultIndex(), aTrainigId.toString(),
+						orm.updateByScript(DEFAULT_INDEX, aTrainigId.toString(),
 								ElasticQueryUtils.asElasticScript(aAction), false);
 					} catch (final PersistException e) {
 						throw new CompletionException(e);
@@ -152,7 +155,7 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 	}
 
 	private DbTraining getDbTraining(final UUID aTrainigId) throws PersistException {
-		final DbTraining dbTraining = get(getDefaultIndex(), aTrainigId.toString());
+		final DbTraining dbTraining = orm.get(DEFAULT_INDEX, aTrainigId.toString());
 		return dbTraining;
 	}
 
@@ -163,13 +166,13 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 			throw new PersistException("training not found id: " + aTrainigId);
 		}
 		dbTraining.setFinished(true);
-		update(getDefaultIndex(), dbTraining, true);
+		orm.update(DEFAULT_INDEX, dbTraining, true);
 		return asTraining(dbTraining);
 	}
 
 	@Override
 	public UUID firstCard(final String aUser, final UUID aTrainigId) throws PersistException {
-		final DbTraining training = get(getDefaultIndex(), aTrainigId.toString());
+		final DbTraining training = orm.get(DEFAULT_INDEX, aTrainigId.toString());
 		if (training == null) {
 			throw new PersistException("No training found id: " + aTrainigId);
 		}
@@ -178,7 +181,7 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 
 	@Override
 	public UUID nextCard(final String aUser, final UUID aTrainigId, final UUID aCardId) throws PersistException {
-		final DbTraining training = get(getDefaultIndex(), aTrainigId.toString());
+		final DbTraining training = orm.get(DEFAULT_INDEX, aTrainigId.toString());
 		if (training == null) {
 			throw new PersistException("No training found id: " + aTrainigId);
 		}
@@ -204,16 +207,6 @@ public class ElasticPersistTrainingManager extends AbstractPersistManager<DbTrai
 	public void updateStatsForCard(final String aUser, final UUID aTrainigId, final UUID aCardId, final Map<String, CardStat> aStats)
 			throws PersistException {
 		statsManager.updateStats(aUser, aTrainigId, aCardId, aStats);
-	}
-
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
-
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
 	}
 
 	private Training asTraining(final DbTraining aTraining) {

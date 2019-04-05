@@ -2,47 +2,42 @@ package ru.dantalian.copvoc.persist.elastic.managers;
 
 import java.util.Map;
 
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.persist.api.PersistCacheManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 
 @Service
-public class ElasticPersistCacheManager extends AbstractPersistManager<Map<String, Object>>
-	implements PersistCacheManager {
+public class ElasticPersistCacheManager implements PersistCacheManager {
 
 	private static final String DEFAULT_INDEX = "cache";
 
-	private final ElasticSettings settings;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
 	@Autowired
-	public ElasticPersistCacheManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
-		super(aClient, (Class) Map.class);
-		settings = aSettings;
-	}
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	private ElasticORM<Map<String, Object>> orm;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM((Class) Map.class, settingsProvider);
 	}
 
 	@Override
 	public void save(final Map<String, Object> aMap) throws PersistException {
-		add(getDefaultIndex(), aMap, true);
+		orm.add(DEFAULT_INDEX, aMap, true);
 	}
 
 	@Override
 	public Map<String, Object> load(final String aHashCode) throws PersistException {
-		return get(getDefaultIndex(), aHashCode);
+		return orm.get(DEFAULT_INDEX, aHashCode);
 	}
 
 }

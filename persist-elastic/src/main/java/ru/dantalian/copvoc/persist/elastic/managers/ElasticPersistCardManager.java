@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -30,42 +30,36 @@ import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
 
 @Service
-public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
-	implements PersistCardManager {
+public class ElasticPersistCardManager implements PersistCardManager {
 
 	private static final String DEFAULT_INDEX = "cards";
 
-	private final ElasticSettings settings;
-
-	private final PersistCardFieldManager fieldManager;
-
-	private final PersistVocabularyManager vocManager;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
 	@Autowired
-	public ElasticPersistCardManager(final RestHighLevelClient aClient, final ElasticSettings aSettings,
-			final PersistCardFieldManager aFieldManager, final PersistVocabularyManager aVocManager) {
-		super(aClient, DbCard.class);
-		settings = aSettings;
-		fieldManager = aFieldManager;
-		vocManager = aVocManager;
-	}
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	@Autowired
+	private PersistCardFieldManager fieldManager;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	@Autowired
+	private PersistVocabularyManager vocManager;
+
+	private ElasticORM<DbCard> orm;
+
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbCard.class, settingsProvider);
 	}
 
 	@Override
@@ -80,7 +74,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 			LanguageUtils.asString(vocabulary.getTarget()),
 			asPersistMap(aContent, fields),
 			CardUtils.asPersistStats(aStatsMap));
-		add(getIndexId(aVocabularyId), card, true);
+		orm.add(getIndexId(aVocabularyId), card, true);
 		return asCard(card, vocabulary);
 	}
 
@@ -98,7 +92,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 				LanguageUtils.asString(vocabulary.getTarget()),
 				asPersistMap(aContent, fields),
 				card.getStats());
-		update(getIndexId(card.getVocabularyId()), dbCard, true);
+		orm.update(getIndexId(card.getVocabularyId()), dbCard, true);
 		return asCard(dbCard, vocabulary);
 	}
 
@@ -116,7 +110,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 				LanguageUtils.asString(vocabulary.getTarget()),
 				card.getFieldsContent(),
 				stats);
-		update(getIndexId(card.getVocabularyId()), dbCard, true);
+		orm.update(getIndexId(card.getVocabularyId()), dbCard, true);
 		return asCard(dbCard, vocabulary);
 	}
 
@@ -124,7 +118,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	public void updateStatForCard(final String aUser, final UUID aVocabularyId, final UUID aCardId,
 			final CardStatAction aAction)
 			throws PersistException {
-		updateByScript(getIndexId(aVocabularyId), aCardId.toString(),
+		orm.updateByScript(getIndexId(aVocabularyId), aCardId.toString(),
 				ElasticQueryUtils.asElasticScript(aAction), false);
 	}
 
@@ -135,17 +129,17 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 	}
 
 	private DbCard getDbCard(final String aUser, final UUID aVocabularyId, final UUID aId) throws PersistException {
-		return get(getIndexId(aVocabularyId), aId.toString());
+		return orm.get(getIndexId(aVocabularyId), aId.toString());
 	}
 
 	@Override
 	public void deleteCard(final String aUser, final UUID aVocabularyId, final UUID aId) throws PersistException {
-		delete(getIndexId(aVocabularyId), aId.toString());
+		orm.delete(getIndexId(aVocabularyId), aId.toString());
 	}
 
 	@Override
 	public void deleteAllCards(final String aUser, final UUID aVocabularyId) throws PersistException {
-		deleteIndex(getIndexId(aVocabularyId));
+		orm.deleteIndex(getIndexId(aVocabularyId));
 	}
 
 	@Override
@@ -157,7 +151,7 @@ public class ElasticPersistCardManager extends AbstractPersistManager<DbCard>
 		ElasticQueryUtils.addSort(searchSourceBuilder, aQuery.sort());
 		ElasticQueryUtils.setFromAndLimit(searchSourceBuilder, aQuery.from(), aQuery.limit());
 
-		final SearchResponse search = search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
+		final SearchResponse search = orm.search(getIndexId(aQuery.getVocabularyId()), searchSourceBuilder);
 		final List<Card> list = new LinkedList<>();
 		final Iterator<SearchHit> iterator = search.getHits().iterator();
 		while(iterator.hasNext()) {

@@ -4,33 +4,41 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbTrainingCardStats;
 import ru.dantalian.copvoc.persist.elastic.model.DbTrainingCardStatsId;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.CodecException;
 import ru.dantalian.copvoc.persist.elastic.model.codecs.DbTrainingCardStatsIdCodec;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 
 @Service
-public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<DbTrainingCardStats> {
+public class ElasticPersistTrainingStatsManager {
 
 	private static final String DEFAULT_INDEX = "training_stats";
 
-	private final ElasticSettings settings;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
-	private final DbTrainingCardStatsIdCodec idCodec;
+	@Autowired
+	private ElasticORMFactory ormFactory;
 
-	public ElasticPersistTrainingStatsManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
-		super(aClient, DbTrainingCardStats.class);
-		settings = aSettings;
+	private ElasticORM<DbTrainingCardStats> orm;
+
+	private DbTrainingCardStatsIdCodec idCodec;
+
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbTrainingCardStats.class, settingsProvider);
 		idCodec = new DbTrainingCardStatsIdCodec();
 	}
 
@@ -39,16 +47,16 @@ public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<D
 		try {
 			final Map<String, Object> persistStats = CardUtils.asPersistStats(aStats);
 			final DbTrainingCardStatsId statsId = new DbTrainingCardStatsId(aTrainigId, aCardId);
-			DbTrainingCardStats stats = get(getDefaultIndex(),
+			DbTrainingCardStats stats = orm.get(DEFAULT_INDEX,
 					idCodec.serialize(statsId));
 			if (stats == null) {
 				stats = new DbTrainingCardStats(statsId, persistStats);
-				add(getDefaultIndex(), stats, false);
+				orm.add(DEFAULT_INDEX, stats, false);
 			} else {
 				final Map<String, Object> newPersistStats = new HashMap<>(stats.getStats());
 				newPersistStats.putAll(persistStats);
 				stats.setStats(newPersistStats);
-				update(getDefaultIndex(), stats, false);
+				orm.update(DEFAULT_INDEX, stats, false);
 			}
 		} catch (final CodecException e) {
 			throw new PersistException("Faield to update stats", e);
@@ -59,7 +67,7 @@ public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<D
 			final CardStatAction aAction) throws PersistException {
 		try {
 			final DbTrainingCardStatsId statsId = new DbTrainingCardStatsId(aTrainigId, aCardId);
-			updateByScript(getDefaultIndex(), idCodec.serialize(statsId),
+			orm.updateByScript(DEFAULT_INDEX, idCodec.serialize(statsId),
 					ElasticQueryUtils.asElasticScript(aAction), false);
 		} catch (final CodecException e) {
 			throw new PersistException("Faield to update stats for card", e);
@@ -70,21 +78,11 @@ public class ElasticPersistTrainingStatsManager extends AbstractPersistManager<D
 			throws PersistException {
 		try {
 			final DbTrainingCardStatsId statsId = new DbTrainingCardStatsId(aTrainigId, aCardId);
-			final DbTrainingCardStats stats = get(getDefaultIndex(), idCodec.serialize(statsId));
+			final DbTrainingCardStats stats = orm.get(DEFAULT_INDEX, idCodec.serialize(statsId));
 			return CardUtils.asCardStats(stats.getStats());
 		} catch (final CodecException e) {
 			throw new PersistException("Faield to get stats", e);
 		}
-	}
-
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
-
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
 	}
 
 }

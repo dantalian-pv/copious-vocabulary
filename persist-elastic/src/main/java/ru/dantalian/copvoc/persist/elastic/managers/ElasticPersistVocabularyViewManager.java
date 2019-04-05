@@ -2,47 +2,42 @@ package ru.dantalian.copvoc.persist.elastic.managers;
 
 import java.util.UUID;
 
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbVocabularyView;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 
 @Service
-public class ElasticPersistVocabularyViewManager extends AbstractPersistManager<DbVocabularyView>
-	implements PersistVocabularyViewManager {
+public class ElasticPersistVocabularyViewManager implements PersistVocabularyViewManager {
 
 	private static final String DEFAULT_INDEX = "views";
 
-	private final ElasticSettings settings;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
 	@Autowired
-	public ElasticPersistVocabularyViewManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
-		super(aClient, DbVocabularyView.class);
-		settings = aSettings;
-	}
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	private ElasticORM<DbVocabularyView> orm;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbVocabularyView.class, settingsProvider);
 	}
 
 	@Override
 	public VocabularyView createVocabularyView(final String aUser, final UUID aVocabularyId, final String aCss, final String aFrontTpl,
 			final String aBackTpl) throws PersistException {
 		final DbVocabularyView vocView = new DbVocabularyView(aVocabularyId, aCss, aFrontTpl, aBackTpl);
-		add(DEFAULT_INDEX, vocView, true);
+		orm.add(DEFAULT_INDEX, vocView, true);
 		return asVocabularyView(vocView);
 	}
 
@@ -50,17 +45,17 @@ public class ElasticPersistVocabularyViewManager extends AbstractPersistManager<
 	public void updateVocabularyView(final String aUser, final UUID aId, final String aCss, final String aFrontTpl, final String aBackTpl)
 			throws PersistException {
 		final DbVocabularyView vocView = new DbVocabularyView(aId, aCss, aFrontTpl, aBackTpl);
-		update(DEFAULT_INDEX, vocView, true);
+		orm.update(DEFAULT_INDEX, vocView, true);
 	}
 
 	@Override
 	public VocabularyView getVocabularyView(final String aUser, final UUID aId) throws PersistException {
-		return asVocabularyView(get(DEFAULT_INDEX, aId.toString()));
+		return asVocabularyView(orm.get(DEFAULT_INDEX, aId.toString()));
 	}
 
 	@Override
 	public void deleteVocabularyView(final String aUser, final UUID aVocabularyId) throws PersistException {
-		delete(DEFAULT_INDEX, aVocabularyId.toString());
+		orm.delete(DEFAULT_INDEX, aVocabularyId.toString());
 	}
 
 	private VocabularyView asVocabularyView(final DbVocabularyView aDbCardVocabularyView) {

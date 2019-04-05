@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -21,37 +21,30 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbVocabulary;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 
 @Service
-public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVocabulary>
-	implements PersistVocabularyManager {
+public class ElasticPersistVocabularyManager implements PersistVocabularyManager {
 
 	private static final String DEFAULT_INDEX = "vocabularies";
 
-	private final ElasticPersistLanguageManager mLangManager;
-
-	private final ElasticSettings settings;
+	@Autowired
+	private ElasticPersistLanguageManager mLangManager;
 
 	@Autowired
-	public ElasticPersistVocabularyManager(final RestHighLevelClient aClient,
-			final ElasticPersistLanguageManager aLangManager,
-			final ElasticSettings aSettings) {
-		super(aClient, DbVocabulary.class);
-		mLangManager = aLangManager;
-		settings = aSettings;
-	}
+	private DefaultSettingsProvider settingsProvider;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	@Autowired
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	private ElasticORM<DbVocabulary> orm;
+
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbVocabulary.class, settingsProvider);
 	}
 
 	@Override
@@ -61,19 +54,19 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 		final String source = LanguageUtils.asString(aSource);
 		final String target = LanguageUtils.asString(aTarget);
 		final DbVocabulary voc = new DbVocabulary(uuid, aName, aDescription, aUser, source, target);
-		add(DEFAULT_INDEX, voc, true);
+		orm.add(DEFAULT_INDEX, voc, true);
 		return asVocabulary(voc);
 	}
 
 	@Override
 	public void updateVocabulary(final String aUser, final Vocabulary aVocabulary) throws PersistException {
 		final DbVocabulary voc = asDbVocabulary(aVocabulary);
-		update(DEFAULT_INDEX, voc, true);
+		orm.update(DEFAULT_INDEX, voc, true);
 	}
 
 	@Override
 	public Vocabulary getVocabulary(final String aUser, final UUID aId) throws PersistException {
-		return asVocabulary(get(DEFAULT_INDEX, aId.toString()));
+		return asVocabulary(orm.get(DEFAULT_INDEX, aId.toString()));
 	}
 
 	@Override
@@ -84,7 +77,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 			.must(QueryBuilders.termQuery("name", aName));
 		searchSourceBuilder.query(query);
 
-		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
 		final Iterator<SearchHit> iterator = search.getHits().iterator();
 		if (!iterator.hasNext()) {
 			return null;
@@ -107,7 +100,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(QueryBuilders.termQuery("user", aUser));
 
-		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<Vocabulary> list = new LinkedList<>();
 		search.getHits()
 			.forEach(aItem -> {
@@ -121,7 +114,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 					throw new IllegalStateException("Failed to get language", e);
 				}
 				try {
-					list.add(asVocabulary(map(aItem.getId(), src)));
+					list.add(asVocabulary(orm.map(aItem.getId(), src)));
 				} catch (final PersistException e) {
 					throw new RuntimeException("Failed to convert " + aItem.getId(), e);
 				}
@@ -131,7 +124,7 @@ public class ElasticPersistVocabularyManager extends AbstractPersistManager<DbVo
 
 	@Override
 	public void deleteVocabulary(final String aUser, final UUID aId) throws PersistException {
-		delete(DEFAULT_INDEX, aId.toString());
+		orm.delete(DEFAULT_INDEX, aId.toString());
 	}
 
 	private Vocabulary asVocabulary(final DbVocabulary aDbCardVocabulary) throws PersistException {

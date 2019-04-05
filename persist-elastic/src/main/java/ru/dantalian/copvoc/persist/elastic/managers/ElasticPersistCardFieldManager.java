@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -19,52 +19,47 @@ import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
-import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
 import ru.dantalian.copvoc.persist.elastic.model.DbCardField;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
+import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardField;
 
 @Service
-public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCardField>
-	implements PersistCardFieldManager {
+public class ElasticPersistCardFieldManager implements PersistCardFieldManager {
 
 	private static final String DEFAULT_INDEX = "fields";
 
-	private final ElasticSettings settings;
+	@Autowired
+	private DefaultSettingsProvider settingsProvider;
 
 	@Autowired
-	public ElasticPersistCardFieldManager(final RestHighLevelClient aClient, final ElasticSettings aSettings) {
-		super(aClient, DbCardField.class);
-		settings = aSettings;
-	}
+	private ElasticORMFactory ormFactory;
 
-	@Override
-	protected String getDefaultIndex() {
-		return DEFAULT_INDEX;
-	}
+	private ElasticORM<DbCardField> orm;
 
-	@Override
-	protected XContentBuilder getSettings(final String aIndex) throws PersistException {
-		return settings.getDefaultSettings();
+	@PostConstruct
+	public void init() {
+		orm = ormFactory.newElasticORM(DbCardField.class, settingsProvider);
 	}
 
 	@Override
 	public CardField createField(final String aUser, final UUID aVocabularyId, final String aName,
 			final CardFiledType aType, final Integer aOrder, final boolean aSystem) throws PersistException {
 		final DbCardField cardField = new DbCardField(aVocabularyId, aName, aType, aOrder, aSystem);
-		add(DEFAULT_INDEX, cardField, true);
+		orm.add(DEFAULT_INDEX, cardField, true);
 		return asCardField(cardField);
 	}
 
 	@Override
 	public CardField getField(final String aUser, final UUID aVocabularyId, final String aName) throws PersistException {
 		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null, null, false);
-		return asCardField(get(DEFAULT_INDEX, cardField.getId()));
+		return asCardField(orm.get(DEFAULT_INDEX, cardField.getId()));
 	}
 
 	@Override
 	public void deleteField(final String aUser, final UUID aVocabularyId, final String aName) throws PersistException {
 		final DbCardField cardField = new DbCardField(aVocabularyId, aName, null, null, false);
-		delete(DEFAULT_INDEX, cardField.getId());
+		orm.delete(DEFAULT_INDEX, cardField.getId());
 	}
 
 	@Override
@@ -76,13 +71,13 @@ public class ElasticPersistCardFieldManager extends AbstractPersistManager<DbCar
 		// Sort fields by order
 		searchSourceBuilder.sort(SortBuilders.fieldSort("order").order(SortOrder.ASC));
 
-		final SearchResponse search = search(DEFAULT_INDEX, searchSourceBuilder);
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
 		final List<CardField> list = new LinkedList<>();
 		search.getHits()
 				.forEach(aItem -> {
 					final Map<String, Object> src = aItem.getSourceAsMap();
 					try {
-						list.add(map(aItem.getId(), src));
+						list.add(orm.map(aItem.getId(), src));
 					} catch (final PersistException e) {
 						throw new RuntimeException("Failed to convert item " + aItem.getId());
 					}
