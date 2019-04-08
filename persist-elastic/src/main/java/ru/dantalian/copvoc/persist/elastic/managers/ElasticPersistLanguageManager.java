@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -14,6 +15,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import joptsimple.internal.Strings;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistLanguageManager;
 import ru.dantalian.copvoc.persist.api.model.Language;
@@ -34,6 +36,8 @@ public class ElasticPersistLanguageManager implements PersistLanguageManager {
 	private ElasticORMFactory ormFactory;
 
 	private ElasticORM<DbLanguage> orm;
+
+	private Map<String, Language> cache = new ConcurrentHashMap<>();
 
 	@PostConstruct
 	public void init() {
@@ -77,12 +81,13 @@ public class ElasticPersistLanguageManager implements PersistLanguageManager {
 	@Override
 	public Language getLanguage(final String aName, final String aCountry, final String aVariant)
 			throws PersistException {
-		final List<Language> languages = listLanguages(Optional.ofNullable(aName),
-				Optional.ofNullable(aCountry), Optional.ofNullable(aVariant));
-		if (languages.iterator().hasNext()) {
-			return languages.iterator().next();
+		final String id = Strings.join(new String[] {aName, aCountry, Optional.ofNullable(aVariant).orElse("")}, "_");
+		Language language = cache.get(id);
+		if (language == null) {
+			language = asLanguage(orm.get(DEFAULT_INDEX, id));
+			cache.put(id, language);
 		}
-		return null;
+		return language;
 	}
 
 	@Override
@@ -102,6 +107,9 @@ public class ElasticPersistLanguageManager implements PersistLanguageManager {
 	}
 
 	private Language asLanguage(final DbLanguage aLang) {
+		if (aLang == null) {
+			return null;
+		}
 		return new PojoLanguage(aLang.getName(), aLang.getCountry(), aLang.getVariant(), aLang.getText());
 	}
 
