@@ -41,7 +41,7 @@
       							<div class="header" data-bind="text: group"></div>
       							<div data-bind="foreach: items">
       								<div class="description">
-      									<a data-bind="text: value, click: $root.selectSuggest"></a>
+      									<a class="suggest item" data-bind="text: value, click: $root.selectSuggest, event: { mouseover: $root.showSuggest, mouseout: $root.hideSuggest }"></a>
       								</div>
 										</div>
       						</div>

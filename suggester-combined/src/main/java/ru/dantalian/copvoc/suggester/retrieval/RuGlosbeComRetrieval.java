@@ -52,7 +52,7 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 			final List<CardField> fields = fieldManager.listFields(aUser, vocabularyId);
 
 			final String url = "https://ru.glosbe.com/"
-					+ source + "/" + target + "/" + word;
+					+ source + "/" + target + "/" + word.replace("+", " ");
 			final String urlHash = CommonUtils.hash(url);
 
 			final Map<String, Object> map;

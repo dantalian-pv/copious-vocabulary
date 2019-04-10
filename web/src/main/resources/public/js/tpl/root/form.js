@@ -42,6 +42,27 @@ function Form(params) {
 			formParams.method = "PUT";
 		}
 	}
+	
+	self.getData = function(noConvert) {
+		var data = {};
+
+		$(params.formSelector).serializeArray().map(function(x) {
+			if (typeof (data[x.name]) != 'undefined') {
+				if (!Array.isArray(data[x.name])) {
+					var val = data[x.name];
+					data[x.name] = [ val ];
+				}
+				data[x.name].push(x.value);
+			} else {
+				data[x.name] = x.value;
+			}
+		});
+		
+		if (params.convert && !noConvert) {
+			data = params.convert(data);
+		}
+		return data;
+	}
 
 	self.show = function(callback) {
 		$(params.modalSelector).modal('show');

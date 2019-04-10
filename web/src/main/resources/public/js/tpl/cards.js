@@ -156,7 +156,6 @@ $(document).ready(
 							items: []
 						};
 						var allGroups = [];
-						allGroups.push(group);
 						for (var i in data) {
 							var item = data[i];
 							if (item.group != currGroup) {
@@ -170,15 +169,43 @@ $(document).ready(
 							group.group = item.group;
 							group.items.push(item);
 						}
-						if (allGroups[allGroups.length - 1].group != group.group && group.items().length > 0) {
+						if ((allGroups.length == 0 && group.items.length > 0) 
+								|| (allGroups[allGroups.length - 1].group != group.group && group.items.length > 0)) {
 							allGroups.push(group);
 						}
 						self.suggests(allGroups);
 					});
 				}
 				
-				self.selectSuggest = function(evt) {
-					console.log(evt);
+				self.oldFormData = null;
+				
+				self.hideSuggest = function(item, evt) {
+					$(evt.target).css('font-style', 'normal');
+					//console.log(item, evt);
+					if (self.oldFormData) {
+						self.itemForm.setItem(new Item(self.convertItem(self.oldFormData)));
+					}
+				};
+				
+				self.showSuggest = function(item, evt) {
+					$(evt.target).css('font-style', 'italic');
+					//console.log(item, evt);
+					if (!self.oldFormData) {
+						self.oldFormData = self.itemForm.getData();
+					}
+					$.getJSON("/v1/api/retrieval?uri=" + encodeURIComponent(btoa(item.source)), function(data) {
+						data['id'] = null;
+						data['vocabularyId'] = document.vocabularyId;
+
+						self.itemForm.setItem(new ItemForm(data));
+					});
+				};
+				
+				self.selectSuggest = function(item, evt) {
+					$(".suggest.item").css('font-weight', 'normal');
+					$(evt.target).css('font-weight', 'bold');
+					//console.log(item, evt);
+					self.oldFormData = null;
 				};
 				
 				var suggestTimer;
