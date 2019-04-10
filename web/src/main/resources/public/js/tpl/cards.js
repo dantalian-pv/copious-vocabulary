@@ -88,53 +88,6 @@ $(document).ready(
 					}
 				});
 
-				// Suggester
-				$('.suggester.first').search({
-					fields: {
-						description: 'description',
-						title: 'value'
-					},
-					type: 'category',
-					searchDelay: 300,
-					searchOnFocus: false,
-					apiSettings : {
-						url : '/v1/api/suggester?key={key}&value={query}&type=string&notKey=vocabulary_id&notValue=' + document.vocabularyId + "&source=" + document.source + "&target=" + document.target,
-						cache : 'none',
-						beforeSend: function(settings) {
-							var fieldName = $(this).find('.prompt').attr('name');
-				      settings.urlData['key'] = fieldName;
-				      return settings;
-				    },
-						onResponse: function(data) {
-							var results = {};
-							$.each(data, function( i, l ) {
-								var groupId = l.group.replace(/[^a-z0-9]/g, "_");
-								if (!results[groupId]) {
-									var groupResults = [];
-									results[groupId] = {"name": l.group, "results": groupResults};
-								}
-								results[groupId].results.push(l);
-							});
-							return {"success": true, "results": results};
-						}
-					},
-					onSelect: function(result, response) {
-						if (this.className.indexOf('first') == -1) {
-							return;
-						}
-						$.getJSON("https://localhost:8443/v1/api/retrieval?uri=" + encodeURIComponent(btoa(result.source)), function(data) {
-							data['id'] = null;
-							data['vocabularyId'] = document.vocabularyId;
-
-							var itemForm = new ItemForm(data);
-							self.itemForm.setItem(itemForm);
-						});
-					},
-					cache: false,
-					maxResults: 10,
-					selectFirstResult: true
-				});
-
 				// Operations
 				self.addItem = function(data) {
 					self.items.splice(self.items().length, 0, new Item(self.convertItem(data)));
@@ -185,6 +138,58 @@ $(document).ready(
 					}
 					return flatItem;
 				}
+				
+				self.suggests = ko.observableArray([]);
+				
+				self.suggest = function(name, value) {
+					if (!value) {
+						self.suggests([]);
+						return;
+					}
+					$.getJSON('/v1/api/suggester?key=' + name + '&value=' + value 
+							+ '&type=string&notKey=vocabulary_id&notValue=' 
+							+ document.vocabularyId + "&source=" + 
+							document.source + "&target=" + document.target, function(data) {
+						var currGroup = data.length > 0 ? data[0].group : null;
+						var group = {
+							group: null,
+							items: []
+						};
+						var allGroups = [];
+						allGroups.push(group);
+						for (var i in data) {
+							var item = data[i];
+							if (item.group != currGroup) {
+								currGroup = item.group;
+								allGroups.push(group);
+								group = {
+									group: null,
+									items: []
+								};
+							}
+							group.group = item.group;
+							group.items.push(item);
+						}
+						if (allGroups[allGroups.length - 1].group != group.group && group.items().length > 0) {
+							allGroups.push(group);
+						}
+						self.suggests(allGroups);
+					});
+				}
+				
+				self.selectSuggest = function(evt) {
+					console.log(evt);
+				};
+				
+				var suggestTimer;
+				$('#add_card_form .prompt').on('keyup paste mouseup', function(evt) {
+					clearTimeout(suggestTimer);
+					suggestTimer = setTimeout(function() {
+						var name = evt.target.name;
+						var val = evt.target.value;
+						self.suggest(name, val);
+				  }, 500);
+				});
 
 				self.updateData = function() {
 					// Load initial state from server

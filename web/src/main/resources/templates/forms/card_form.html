@@ -22,18 +22,39 @@
 					<p class="info">Card has been saved</p>
 				</div>
 
-				<th:block th:each="field,iterStat: ${fields}">
-					<div th:class="${#strings.equals(field.type, 'ANSWER')} ? 'field required' : 'field'">
-						<label th:text="${field.name} + ' (' + ${field.type} + ')'">Name</label>
-						<div class="ui pointing below red label hidden"></div>
-						<div class="ui" th:classappend="${iterStat.index == 0}? 'search suggester first'">
-							<textarea th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" th:attr="'data-bind'=${'text: itemForm.' + field.name}"></textarea>
-							<input class="prompt" th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" th:attr="'data-bind'=${'value: itemForm.' + field.name}" />
+				<div class="ui vertically devided grid">
+					<div class="sexteen column row">
+						<div class="eight wide column">
+							<th:block th:each="field,iterStat: ${fields}">
+								<div th:class="${#strings.equals(field.type, 'ANSWER') || #strings.equals(field.name, 'word')} ? 'field required' : 'field'">
+									<label th:text="${field.name} + ' (' + ${field.type} + ')'">Name</label>
+									<div class="ui pointing below red label hidden"></div>
+									<textarea class="prompt" th:if="${#strings.equals(field.type, 'TEXT')} or ${#strings.equals(field.type, 'MARKUP')}" th:name="${field.name}" th:attr="'data-bind'=${'text: itemForm.' + field.name}"></textarea>
+									<input class="prompt" th:if="${#strings.equals(field.type, 'STRING')} or ${#strings.equals(field.type, 'ANSWER')}" th:name="${field.name}" type="text" th:attr="'data-bind'=${'value: itemForm.' + field.name}" />
+								</div>
+							</th:block>
+						</div>
+						<div class="eight wide column">
+							<div class="ui list" data-bind="foreach: suggests">
+								<div class="item">
+									<div class="content">
+      							<div class="header" data-bind="text: group"></div>
+      							<div data-bind="foreach: items">
+      								<div class="description">
+      									<a data-bind="text: value, click: $root.selectSuggest"></a>
+      								</div>
+										</div>
+      						</div>
+								</div>
+							</div>
 						</div>
 					</div>
-				</th:block>
-
-				<button class="ui primary button" type="submit">Save</button>
+					<div class="sexteen column row">
+						<div class="sexteen wide column">
+							<button class="ui primary button" type="submit">Save</button>
+						</div>
+					</div>
+				</div>
 			</form>
 		</div>
 	</div>
