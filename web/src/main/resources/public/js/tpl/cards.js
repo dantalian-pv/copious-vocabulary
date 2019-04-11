@@ -146,10 +146,12 @@ $(document).ready(
 						self.suggests([]);
 						return;
 					}
+					var src = name == 'word' ? document.source : document.target;
+					var tgt = name == 'word' ? document.target : document.source;
 					$.getJSON('/v1/api/suggester?key=' + name + '&value=' + value 
 							+ '&type=string&notKey=vocabulary_id&notValue=' 
 							+ document.vocabularyId + "&source=" + 
-							document.source + "&target=" + document.target, function(data) {
+							src + "&target=" + tgt, function(data) {
 						var currGroup = data.length > 0 ? data[0].group : null;
 						var group = {
 							group: null,
@@ -170,7 +172,8 @@ $(document).ready(
 							group.items.push(item);
 						}
 						if ((allGroups.length == 0 && group.items.length > 0) 
-								|| (allGroups[allGroups.length - 1].group != group.group && group.items.length > 0)) {
+								|| (allGroups.length > 0 
+										&& allGroups[allGroups.length - 1].group != group.group && group.items.length > 0)) {
 							allGroups.push(group);
 						}
 						self.suggests(allGroups);
@@ -193,12 +196,26 @@ $(document).ready(
 					if (!self.oldFormData) {
 						self.oldFormData = self.itemForm.getData();
 					}
-					$.getJSON("/v1/api/retrieval?uri=" + encodeURIComponent(btoa(item.source)), function(data) {
-						data['id'] = null;
-						data['vocabularyId'] = document.vocabularyId;
-
-						self.itemForm.setItem(new ItemForm(data));
-					});
+					if (item.key == 'word') {
+						// Fill up full form only for word 
+						$.getJSON("/v1/api/retrieval?uri=" + encodeURIComponent(btoa(item.source)), function(data) {
+							data['id'] = null;
+							data['vocabularyId'] = document.vocabularyId;
+	
+							self.itemForm.setItem(new ItemForm(data));
+						});
+					} else {
+						// Set value only for particular field
+						if (self.oldFormData) {
+							var data = jQuery.extend(true, {}, self.oldFormData);
+							for (var i in data.content) {
+								if (data.content[i].name == item.key) {
+									data.content[i].text = item.value;
+								}
+							}
+							self.itemForm.setItem(new Item(self.convertItem(data)));
+						}
+					}
 				};
 				
 				self.selectSuggest = function(item, evt) {
@@ -213,7 +230,7 @@ $(document).ready(
 					clearTimeout(suggestTimer);
 					suggestTimer = setTimeout(function() {
 						var name = evt.target.name;
-						var val = evt.target.value;
+						var val = evt.target.type == 'textarea' ? $('#add_card_form input[name="translation"]').val() : evt.target.value;
 						self.suggest(name, val);
 				  }, 500);
 				});
