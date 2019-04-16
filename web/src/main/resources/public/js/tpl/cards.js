@@ -48,6 +48,9 @@ $(document).ready(
 				var self = this;
 
 				self.items = ko.observableArray([]);
+				self.itemsTotal = ko.observable(0);
+				self.itemsFrom = ko.observable(0);
+				self.itemsLimit = ko.observable(0);
 
 				self.deleteUrl = null;
 				self.deleteInProgress = ko.observable(false);
@@ -234,11 +237,34 @@ $(document).ready(
 						self.suggest(name, val);
 				  }, 500);
 				});
+				
+				self.showPrevPage = function() {
+					if (self.itemsFrom() <= 0) {
+						return;
+					}
+					var from = self.itemsFrom() - self.itemsLimit();
+					from = from < 0 ? 0 : from;
+					self.updateData(from, self.itemsLimit());
+				}
+				
+				self.showNextPage = function() {
+					if (self.itemsFrom() + self.itemsLimit() >= self.itemsTotal()) {
+						return;
+					}
+					var from = self.itemsFrom() + self.itemsLimit();
+					self.updateData(from, self.itemsLimit());
+				}
 
-				self.updateData = function() {
+				self.updateData = function(aFrom, aLimit) {
+					var from = aFrom ? aFrom : 0;
+					var limit = aLimit ? aLimit : 30;
 					// Load initial state from server
-					$.getJSON('/v1/api/cards/' + document.vocabularyId, function(allData) {
-						var mappedItems = $.map(allData, function(item) {
+					$.getJSON('/v1/api/cards/' + document.vocabularyId + '?from=' + from + "&limit=" + limit,
+					function(allData) {
+						self.itemsTotal(allData.total);
+						self.itemsFrom(allData.from);
+						self.itemsLimit(allData.limit);
+						var mappedItems = $.map(allData.items, function(item) {
 							return new Item(self.convertItem(item));
 						});
 						self.items(mappedItems);

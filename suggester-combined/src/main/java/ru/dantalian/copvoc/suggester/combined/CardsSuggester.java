@@ -71,7 +71,7 @@ public class CardsSuggester implements Suggester {
 			bool.must(QueryFactory.term("source", aQuery.getSourceTarget().getKey() + "*", true));
 			bool.must(QueryFactory.term("target", aQuery.getSourceTarget().getValue() + "*", true));
 			cardsQuery.where(bool.build());
-			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build());
+			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build()).getItems();
 			for (final Card card: queryCards) {
 				suggests.addAll(asSuggest(aUser, card, aQuery.getWhere().getKey(), aQuery.getType()));
 			}

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,9 +21,11 @@ import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.query.QueryResult;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoQueryResult;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
 import ru.dantalian.copvoc.web.utils.StatsUtils;
@@ -35,15 +38,18 @@ public class RestCardController {
 	private PersistCardManager cardManager;
 
 	@RequestMapping(value = "/{voc_id}", method = RequestMethod.GET)
-	public List<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
+	public DtoQueryResult<DtoCard> listCards(@PathVariable(value = "voc_id") final String aVocabularyId,
+			@RequestParam(value = "from", defaultValue = "0") final int aFrom,
+			@RequestParam(value = "limit", defaultValue = "30") final int aLimit,
 			final Principal aPrincipal) throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			return cardManager.queryCards(user, QueryFactory.newCardsQuery()
-					.setVocabularyId(UUID.fromString(aVocabularyId)).build())
-					.stream()
-					.map(DtoCodec::asDtoCard)
-					.collect(Collectors.toList());
+			final QueryResult<Card> queryResult = cardManager.queryCards(user, QueryFactory.newCardsQuery()
+					.setVocabularyId(UUID.fromString(aVocabularyId)).build());
+			final List<DtoCard> list = queryResult.getItems().stream()
+				.map(DtoCodec::asDtoCard)
+				.collect(Collectors.toList());
+			return new DtoQueryResult<>(list, queryResult.getTotal(), aFrom, aLimit);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}

@@ -29,6 +29,7 @@ import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.Query;
+import ru.dantalian.copvoc.persist.api.query.QueryResult;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.elastic.model.DbCard;
 import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
@@ -37,6 +38,7 @@ import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoCard;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
+import ru.dantalian.copvoc.persist.impl.query.QueryResultFactory;
 
 @Service
 public class ElasticPersistCardManager implements PersistCardManager {
@@ -143,7 +145,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 	}
 
 	@Override
-	public List<Card> queryCards(final String aUser, final Query aQuery) throws PersistException {
+	public QueryResult<Card> queryCards(final String aUser, final Query aQuery) throws PersistException {
 		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		final QueryBuilder query = ElasticQueryUtils.asElaticQuery(aQuery);
 		searchSourceBuilder.query(query);
@@ -176,7 +178,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 					map,
 					statsMap));
 		}
-		return list;
+		return QueryResultFactory.instance(list, search.getHits().totalHits);
 	}
 
 	private String getIndexId(final UUID aUuid) {

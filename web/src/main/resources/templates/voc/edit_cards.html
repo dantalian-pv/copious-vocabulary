@@ -58,6 +58,15 @@
 			</tbody>
 		</table>
 	</div>
+	<div class="ui segment">
+		<button class="ui icon button" data-bind="click: showPrevPage, css: {disabled: itemsFrom() <= 0}">
+  		<i class="angle left icon"></i>Prev
+		</button>
+		<span data-bind="text: itemsFrom() + '-' + (itemsFrom() + itemsLimit() > itemsTotal() ? itemsTotal() : itemsFrom() + itemsLimit()) + '/' + itemsTotal()"></span>
+		<button class="ui icon button" data-bind="click: showNextPage, css: {disabled: itemsFrom() + + itemsLimit() >= itemsTotal()}">
+  		Next<i class="angle right icon"></i>
+		</button>
+	</div>
 	<div th:replace="forms/card_form::body" th:remove="tag"></div>
 </body>
 </html>

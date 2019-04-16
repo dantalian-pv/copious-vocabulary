@@ -46,7 +46,7 @@ public class CardController {
 			throw new PageNotFoundException();
 		}
 		final List<Card> cards = cardPersist.queryCards(user, QueryFactory.newCardsQuery()
-				.setVocabularyId(UUID.fromString(aVocabularyId)).build());
+				.setVocabularyId(UUID.fromString(aVocabularyId)).build()).getItems();
 		if (cards.isEmpty()) {
 			return "redirect:/vocabularies/" + voc.getId().toString() + "?error=No cards found.";
 		}
@@ -68,7 +68,7 @@ public class CardController {
 			throw new PageNotFoundException();
 		}
 		final List<Card> cards = cardPersist.queryCards(user, QueryFactory.newCardsQuery()
-				.setVocabularyId(UUID.fromString(aVocabularyId)).build());
+				.setVocabularyId(UUID.fromString(aVocabularyId)).build()).getItems();
 		final Card card = cardPersist.getCard(user, UUID.fromString(aVocabularyId), UUID.fromString(aId));
 		if (card == null) {
 			throw new PageNotFoundException();

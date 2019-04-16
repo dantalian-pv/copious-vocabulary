@@ -71,7 +71,7 @@ public class ElasticPersistTrainingManager implements PersistTrainingManager {
 		cardsQuery.addSort(QueryFactory.sortRandom());
 		cardsQuery.limit(count);
 
-		final List<Card> cards = cardManager.queryCards(aUser, cardsQuery.build());
+		final List<Card> cards = cardManager.queryCards(aUser, cardsQuery.build()).getItems();
 		if (cards.isEmpty()) {
 			throw new EmptyResultPersistException("No cards found");
 		}

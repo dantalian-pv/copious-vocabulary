@@ -1,6 +1,5 @@
 package ru.dantalian.copvoc.persist.api;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -8,6 +7,7 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.query.Query;
+import ru.dantalian.copvoc.persist.api.query.QueryResult;
 
 public interface PersistCardManager {
 
@@ -24,7 +24,7 @@ public interface PersistCardManager {
 
 	void deleteAllCards(String aUser, UUID aVocabularyId) throws PersistException;
 
-	List<Card> queryCards(String aUser, Query aQuery) throws PersistException;
+	QueryResult<Card> queryCards(String aUser, Query aQuery) throws PersistException;
 
 	void updateStatForCard(final String aUser, UUID aVocabularyId, UUID aCardId, CardStatAction aAction) throws PersistException;
 
