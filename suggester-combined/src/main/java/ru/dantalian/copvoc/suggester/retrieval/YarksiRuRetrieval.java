@@ -23,9 +23,9 @@ import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.UniversalRetrieval;
 import ru.dantalian.copvoc.suggester.combined.utils.UrlUtils;
 
-@Component("glosbe_r")
-@Order(20)
-public class RuGlosbeComRetrieval implements UniversalRetrieval {
+@Component("yarksi_r")
+@Order(30)
+public class YarksiRuRetrieval implements UniversalRetrieval {
 
 	@Autowired
 	private PersistCacheManager cache;
@@ -33,7 +33,7 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 	@Override
 	public boolean accept(final URI aSource) {
 		final String scheme = aSource.getScheme();
-		return "glosbe".equals(scheme);
+		return "yarxi".equals(scheme);
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 			final String source = splitQuery.get("source").get(0);
 			final String target = splitQuery.get("target").get(0);
 
-			final String url = "https://ru.glosbe.com/"
-					+ source + "/" + target + "/" +  URLEncoder.encode(word, "UTF-8").replace("+", "%20");
+			final String url = "https://yarxi.ru/search.php?K=&R=&S=&D=0&NS=0&F=0&M="
+					+ URLEncoder.encode(word, "UTF-8");
 			final String urlHash = CommonUtils.hash(url);
 
 			final Map<String, Object> map;
@@ -53,22 +53,37 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 			if (cacheMap == null) {
 				map = new HashMap<>();
 				final Map<String, Object> mapForCache = new HashMap<>();
-				final Document doc = Jsoup.connect(url).get();
+				final Map<String, String> data = new HashMap<>();
+				data.put("K", "");
+				data.put("R", "");
+				data.put("M", word);
+				data.put("D", "0");
+				data.put("NS", "0");
+				data.put("F", "0");
 
-				Element ja = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.examples > div > div:nth-child(2) > div:nth-child(2)").first();
-				if (ja == null) {
-					ja = doc.select("#tmTable > div:nth-child(1) > div:nth-child(2) > span > span > span").first();
-				}
-				final Element answer = doc.select("#phraseTranslation > div > ul > li:nth-child(1) > div.text-info > strong")
+				final Document doc = Jsoup.connect("https://yarxi.ru/search.php")
+						.data(data)
+						.post();
+
+				final Element answer = doc.select(".kunj")
+						.first();
+				final Element kun = doc.select(".kunreading")
+						.first();
+				final Element on = doc.select(".kunreading_ch")
 						.first();
 
 				map.put("translation", answer.text());
 				mapForCache.put("translation_keyword", answer.text());
 				map.put("word", word);
 				mapForCache.put("word_keyword", word);
-				final String text = ja == null ? "" : ja.text().replaceAll("(" + answer.text() + ")", "[$1]");
-				map.put("example", text);
-				mapForCache.put("example_text", text);
+				map.put("example", "");
+				mapForCache.put("example_text", "");
+
+				map.put("kunyomi", kun);
+				mapForCache.put("kunyomi_keyword", kun);
+
+				map.put("onyomi", on);
+				mapForCache.put("onyomi_keyword", on);
 
 				cacheMap = new HashMap<>();
 				cacheMap.put(PersistCacheManager.ID, urlHash);
