@@ -8,14 +8,33 @@
 <meta name="_csrf" th:content="${_csrf.token}" />
 <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-<link rel="stylesheet" type="text/css" th:href="@{/semantic/semantic.css}" />
+<link  th:if="${@environment.getActiveProfiles()[0] == 'dev'}"
+	rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.css"
+	integrity="sha256-QVBN0oT74UhpCtEo4Ko+k3sNo+ykJFBBtGduw13V9vw=" crossorigin="anonymous" />
+<link th:if="${@environment.getActiveProfiles()[0] == 'prod'}"
+	rel="stylesheet" 
+	href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" 
+	integrity="sha256-9mbkOfVho3ZPXfM7W8sV2SndrGDuh7wuyLjtsWeTI1Q=" crossorigin="anonymous" />
 
 <object th:replace="${tpl}::headcss" th:remove="tag"></object>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
 	integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-<script th:src="@{/semantic/semantic.js}"></script>
-<script th:src="@{/js/knockout.js}"></script>
+
+<script th:if="${@environment.getActiveProfiles()[0] == 'dev'}" 
+	src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.js" 
+	integrity="sha256-qs5p0BFSqSvrstBxPvex+zdyrzcyGdHNeNmAirO2zc0=" crossorigin="anonymous"></script>
+<script th:if="${@environment.getActiveProfiles()[0] == 'prod'}"
+	src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+	integrity="sha256-t8GepnyPmw9t+foMh3mKNvcorqNHamSKtKRxxpUEgFI=" crossorigin="anonymous"></script>
+
+<script th:if="${@environment.getActiveProfiles()[0] == 'dev'}"
+	src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-debug.js"
+	integrity="sha256-M5ZomNNnrnEB2WjSbnty5GWGqq6UuAAVNnWECisgEis=" crossorigin="anonymous"></script>
+<script th:if="${@environment.getActiveProfiles()[0] == 'prod'}"
+	src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"
+	integrity="sha256-Tjl7WVgF1hgGMgUKZZfzmxOrtoSf8qltZ9wMujjGNQk=" crossorigin="anonymous"></script>
 
 <script th:if="${top_menu}" th:src="@{/js/tpl/frame.js}"></script>
 
