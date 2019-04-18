@@ -30,6 +30,10 @@ $(document).ready(
 				self.item = ko.observable();
 				self.current = ko.observable(0);
 
+				self.itemsTotal = ko.observable(0);
+				self.itemsFrom = ko.observable(0);
+				self.itemsLimit = ko.observable(0);
+
 				self.items = ko.observableArray([]);
 				
 				self.isShowAnswer = ko.observable(false);
@@ -48,18 +52,29 @@ $(document).ready(
 					} else {
 						self.current(i);
 					}
-					self.item(self.items()[self.current()]);
+					if (self.current() < self.itemsFrom()) {
+						var from = self.itemsFrom() - self.itemsLimit();
+						from = from < 0 ? 0 : from;
+						self.itemsFrom(from);
+						self.updateData(from, self.itemsLimit());
+					}
+					self.item(self.items()[self.current() - self.itemsFrom()]);
 					self.isShowAnswer(false);
 				};
 
 				self.showNext = function() {
 					var i = self.current() + 1;
-					if (i >= self.items().length) {
-						self.current(self.items().length - 1);
+					if (i >= self.itemsTotal()) {
+						self.current(self.itemsTotal() - 1);
 					} else {
 						self.current(i);
 					}
-					self.item(self.items()[self.current()]);
+					if (self.current() > self.itemsFrom() + self.itemsLimit()) {
+						var from = self.itemsFrom() + self.itemsLimit();
+						self.itemsFrom(from);
+						self.updateData(from, self.itemsLimit());
+					}
+					self.item(self.items()[self.current() - self.itemsFrom()]);
 					self.isShowAnswer(false);
 				};
 				
@@ -73,10 +88,16 @@ $(document).ready(
 					return flatItem;
 				}
 
-				self.updateData = function() {
+				self.updateData = function(aFrom, aLimit) {
+					var from = aFrom ? aFrom : 0;
+					var limit = aLimit ? aLimit : 30;
 					// Load initial state from server
-					$.getJSON('/v1/api/cards/' + document.vocabularyId, function(allData) {
-						var mappedItems = $.map(allData, function(item) {
+					$.getJSON('/v1/api/cards/' + document.vocabularyId + '?from=' + from + "&limit=" + limit,
+					function(allData) {
+						self.itemsTotal(allData.total);
+						self.itemsFrom(allData.from);
+						self.itemsLimit(allData.limit);
+						var mappedItems = $.map(allData.items, function(item) {
 							return new Item(self.convertItem(item));
 						});
 						self.items(mappedItems);

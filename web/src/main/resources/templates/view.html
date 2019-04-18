@@ -26,8 +26,8 @@
 	<div>
 		<button class="ui button" data-bind="click: showAnswer, text: isShowAnswer() ? 'Hide Answer' : 'Show Answer' ">Show Answer</button>
 		<button class="ui button" data-bind="click: showPrevious, css: {disabled: current() <= 0}">Previous</button>
-		<span data-bind="text: current() + 1 + ' of ' + items().length"></span>
-		<button class="ui button" data-bind="click: showNext, css: {disabled: current() >= items().length - 1}">Next</button>
+		<span data-bind="text: current() + 1 + ' of ' + itemsTotal()"></span>
+		<button class="ui button" data-bind="click: showNext, css: {disabled: current() >= itemsTotal() - 1}">Next</button>
 	</div>
 </body>
 </html>
