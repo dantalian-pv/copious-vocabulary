@@ -80,7 +80,7 @@ public class YarksiRuSuggester implements Suggester {
 				final Document doc = Jsoup.connect(url.toString())
 						.data(data)
 						.post();
-				suggestKeys = doc.select(".mmno ~ td").eachText();
+				suggestKeys = Collections.singletonList(doc.selectFirst(".mmno ~ td").text());
 				// Also save in cache
 				map = new HashMap<>();
 				map.put(PersistCacheManager.ID, cacheHash);
@@ -114,27 +114,34 @@ public class YarksiRuSuggester implements Suggester {
 
 	private void saveInCacheForRetrieval(final Document aDoc, final String aWord)
 			throws UnsupportedEncodingException, PersistException {
-		final Element answer = aDoc.select(".kunj")
+		Element answer = aDoc.select(".kunj")
 				.first();
 		final Element kun = aDoc.select(".kunreading")
 				.first();
-		final Element on = aDoc.select(".kunreading_ch")
+		Element on = aDoc.select(".kunreading_ch")
 				.first();
 
 		final String url = "https://yarxi.ru/search.php?K=&R=&S=&D=0&NS=0&F=0&M="
 				+ URLEncoder.encode(aWord, "UTF-8");
 		final String urlHash = CommonUtils.hash(url);
 
+		if (answer == null) {
+			answer = aDoc.selectFirst(".tjtext");
+		}
+		if (on == null) {
+			on = aDoc.selectFirst("span.ttrans");
+		}
+
 		Map<String, Object> cacheMap = new HashMap<>();
 		final Map<String, Object> mapForCache = new HashMap<>();
 
-		mapForCache.put("translation_keyword", answer.text());
+		mapForCache.put("translation_keyword", answer == null ? "" : answer.text());
 		mapForCache.put("word_keyword", aWord);
 		mapForCache.put("example_text", "");
 
-		mapForCache.put("kunyomi_keyword", kun.text());
+		mapForCache.put("kunyomi_keyword", kun == null ? "" : kun.text());
 
-		mapForCache.put("onyomi_keyword", on.text());
+		mapForCache.put("onyomi_keyword", on == null ? "" : on.text());
 
 		cacheMap = new HashMap<>();
 		cacheMap.put(PersistCacheManager.ID, urlHash);
