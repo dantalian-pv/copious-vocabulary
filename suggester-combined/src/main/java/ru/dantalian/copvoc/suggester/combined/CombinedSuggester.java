@@ -3,7 +3,11 @@ package ru.dantalian.copvoc.suggester.combined;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -20,6 +24,8 @@ import ru.dantalian.copvoc.suggester.api.model.Suggest;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CombinedSuggester implements Suggester {
 
+	private static final Logger logger = LoggerFactory.getLogger(CombinedSuggester.class);
+
 	@Autowired
 	private List<Suggester> suggesters;
 
@@ -30,7 +36,8 @@ public class CombinedSuggester implements Suggester {
 
 	@Override
 	public List<Suggest> suggest(final String aUser, final SuggestQuery aQuery) throws SuggestException {
-		final List<Suggest> suggests = new LinkedList<>();
+		final List<Suggest> suggests = new CopyOnWriteArrayList<>();
+		final List<CompletableFuture<List<Suggest>>> futures = new LinkedList<>();
 		for (final Suggester suggester: suggesters) {
 			if (suggester == this) {
 				continue;
@@ -38,10 +45,25 @@ public class CombinedSuggester implements Suggester {
 			if (!suggester.accept(aQuery.getSourceTarget(), aQuery.getType())) {
 				continue;
 			}
-			suggests.addAll(suggester.suggest(aUser, aQuery));
+			final CompletableFuture<List<Suggest>> future = CompletableFuture.supplyAsync(
+					() -> suggest(suggester, aUser, aQuery)
+			);
+			future.thenAcceptAsync(aList-> suggests.addAll(aList));
+			futures.add(future);
 		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
 		Collections.sort(suggests);
 		return suggests;
+	}
+
+	private List<Suggest> suggest(final Suggester aSuggester, final String aUser, final SuggestQuery aQuery) {
+		try {
+			return aSuggester.suggest(aUser, aQuery);
+		} catch (final SuggestException e) {
+			logger.error("Failed to call suggester {}", aSuggester, e);
+		}
+		return Collections.emptyList();
 	}
 
 }
