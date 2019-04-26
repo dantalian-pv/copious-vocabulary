@@ -19,6 +19,7 @@ import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
 import ru.dantalian.copvoc.suggester.api.Suggester;
 import ru.dantalian.copvoc.suggester.api.model.Pair;
 import ru.dantalian.copvoc.suggester.api.model.Suggest;
+import ru.dantalian.copvoc.suggester.combined.config.SuggesterSettings;
 
 @Component("root")
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -28,6 +29,14 @@ public class CombinedSuggester implements Suggester {
 
 	@Autowired
 	private List<Suggester> suggesters;
+
+	@Autowired
+	private SuggesterSettings settings;
+
+	@Override
+	public String getName() {
+		return "root";
+	}
 
 	@Override
 	public boolean accept(final Pair<String, String> aSourceTarget, final SuggestQueryType aType) {
@@ -40,6 +49,9 @@ public class CombinedSuggester implements Suggester {
 		final List<CompletableFuture<List<Suggest>>> futures = new LinkedList<>();
 		for (final Suggester suggester: suggesters) {
 			if (suggester == this) {
+				continue;
+			}
+			if (!settings.getEnabledSuggesters().contains(suggester.getName())) {
 				continue;
 			}
 			if (!suggester.accept(aQuery.getSourceTarget(), aQuery.getType())) {

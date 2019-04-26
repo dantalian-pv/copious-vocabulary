@@ -38,6 +38,11 @@ public class RuGlosbeComSuggester implements Suggester {
 
 	private static final String QUERY_KEYWORD = "query_keyword";
 
+	@Override
+	public String getName() {
+		return "glosbe";
+	}
+
 	@Autowired
 	private RestTemplate restTemplate;
 

@@ -41,6 +41,11 @@ public class YarksiRuSuggester implements Suggester {
 
 	private static final String QUERY_KEYWORD = "query_keyword";
 
+	@Override
+	public String getName() {
+		return "yarksi";
+	}
+
 	@Autowired
 	private PersistCacheManager cache;
 

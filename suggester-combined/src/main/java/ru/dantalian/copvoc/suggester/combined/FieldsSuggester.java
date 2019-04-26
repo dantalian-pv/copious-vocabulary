@@ -33,6 +33,11 @@ public class FieldsSuggester implements Suggester {
 	private PersistVocabularyManager vocManager;
 
 	@Override
+	public String getName() {
+		return "fields";
+	}
+
+	@Override
 	public boolean accept(final Pair<String, String> aSourceTarget, final SuggestQueryType aType) {
 		return aType == SuggestQueryType.FIELD;
 	}

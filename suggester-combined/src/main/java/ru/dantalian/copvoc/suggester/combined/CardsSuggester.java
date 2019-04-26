@@ -44,6 +44,11 @@ public class CardsSuggester implements Suggester {
 	private PersistVocabularyManager vocManager;
 
 	@Override
+	public String getName() {
+		return "cards";
+	}
+
+	@Override
 	public boolean accept(final Pair<String, String> aSourceTarget, final SuggestQueryType aType) {
 		return aType == SuggestQueryType.STRING || aType == SuggestQueryType.TEXT;
 	}
