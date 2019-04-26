@@ -1,11 +1,17 @@
 package ru.dantalian.copvoc.web.controllers.rest;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +31,7 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
+import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.web.controllers.BadUserRequestException;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVocabulary;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
@@ -78,6 +85,26 @@ public class RestVocabularyController {
 			}
 			return DtoCodec.asDtoVocabulary(voc);
 		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
+	@RequestMapping(value = "/{id}/_export", method = RequestMethod.GET)
+	public void exportVoc(final Principal aPrincipal,
+			@PathVariable(value = "id") final String aId,
+			final HttpServletResponse response) throws RestException {
+		try(OutputStream stream = response.getOutputStream()) {
+			final String user = aPrincipal.getName();
+			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
+			if (voc == null) {
+				throw new PersistException("Vocabulary with id: " + aId + " not found");
+			}
+			final String vocName = voc.getName() + " (" + LanguageUtils.asString(voc.getSource()) + "->"
+					+ LanguageUtils.asString(voc.getTarget()) + ") " + voc.getDescription() + ".json";
+			response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + vocName + "\"");
+			response.setContentType(ContentType.APPLICATION_JSON.getMimeType());
+			vocUtils.exportVocabulary(user, stream, voc.getId());
+		} catch (final PersistException | IOException e) {
 			throw new RestException(e.getMessage(), e);
 		}
 	}

@@ -4,15 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,15 +24,56 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import ru.dantalian.copvoc.core.CoreConstants;
 import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.core.model.CardsIterable;
+import ru.dantalian.copvoc.core.model.VocabularyExport;
+import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
+import ru.dantalian.copvoc.persist.api.PersistCardManager;
+import ru.dantalian.copvoc.persist.api.PersistException;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.CardField;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.api.utils.XmlUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
 
 @Service
 public class VocabularyUtils {
+
+	@Autowired
+	private PersistCardManager cardManager;
+
+	@Autowired
+	private PersistVocabularyManager vocManager;
+
+	@Autowired
+	private PersistVocabularyViewManager viewManager;
+
+	@Autowired
+	private PersistCardFieldManager fieldManager;
+
+	private ObjectMapper json;
+
+	@PostConstruct
+	public void init() {
+		json = new ObjectMapper();
+		json.enable(SerializationFeature.INDENT_OUTPUT);
+	}
+
+	public void exportVocabulary(final String aUser, final OutputStream aStream, final UUID aVocabularyId)
+			throws IOException, PersistException {
+		final CardsIterable cards = new CardsIterable(aUser, aVocabularyId, cardManager);
+		final Vocabulary voc = vocManager.getVocabulary(aUser, aVocabularyId);
+		final VocabularyView view = viewManager.getVocabularyView(aUser, aVocabularyId);
+		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
+		final VocabularyExport vocExport = new VocabularyExport(1, voc, view, fields, cards);
+		json.writeValue(aStream, vocExport);
+	}
 
 	public VocabularyView getDefaultView(final UUID aVocabularyId,
 			final List<CardField> aTargetLangFields) throws CoreException {

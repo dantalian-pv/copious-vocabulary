@@ -39,7 +39,7 @@ public final class XmlUtils {
 		final StreamResult result = new StreamResult(out);
 		final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		final Transformer transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
