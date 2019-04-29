@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.utils.FieldUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
@@ -33,6 +34,9 @@ public class RestFieldsController {
 
 	@Autowired
 	private PersistCardFieldManager fieldManager;
+
+	@Autowired
+	private FieldUtils fieldUtils;
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody
@@ -76,7 +80,8 @@ public class RestFieldsController {
 			throws RestException {
 		try {
 			final String user = aPrincipal.getName();
-			final Vocabulary voc = vocManager.getVocabulary(user, UUID.fromString(aDtoField.getVocabularyId()));
+			final UUID vocId = UUID.fromString(aDtoField.getVocabularyId());
+			final Vocabulary voc = vocManager.getVocabulary(user, vocId);
 			if (voc == null) {
 				throw new PersistException("Vocabulary with id: " + aDtoField.getVocabularyId() + " not found");
 			}
@@ -85,11 +90,7 @@ public class RestFieldsController {
 			if (field != null) {
 				throw new RestException("Field with a given name already exists");
 			}
-			final List<CardField> fields = fieldManager.listFields(user, voc.getId())
-					.stream()
-					.filter(aItem -> aItem.getOrder() < 1000)
-					.collect(Collectors.toList());
-			final CardField lastField = fields.get(fields.size() - 1);
+			final CardField lastField = fieldUtils.getLastField(user, vocId);
 
 			final CardField createdField = fieldManager.createField(user, UUID.fromString(aDtoField.getVocabularyId()),
 					aDtoField.getName(), CardFiledType.valueOf(aDtoField.getType()),

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.utils.StatsUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.model.Card;
@@ -28,7 +29,6 @@ import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoQueryResult;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoVoid;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
-import ru.dantalian.copvoc.web.utils.StatsUtils;
 
 @RestController
 @RequestMapping(value = "/v1/api/cards", produces = MediaType.APPLICATION_JSON_VALUE)

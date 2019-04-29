@@ -1,10 +1,9 @@
-package ru.dantalian.copvoc.web.utils;
+package ru.dantalian.copvoc.core.utils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.dantalian.copvoc.core.stats.DefaultCardStats;
-import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 
 public final class StatsUtils {

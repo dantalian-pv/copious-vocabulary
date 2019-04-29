@@ -1,6 +1,7 @@
 package ru.dantalian.copvoc.web.controllers.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Principal;
 import java.util.List;
@@ -17,10 +18,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.core.model.VocabularyImportSettings;
 import ru.dantalian.copvoc.core.utils.FieldUtils;
 import ru.dantalian.copvoc.core.utils.VocabularyUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
@@ -104,7 +108,30 @@ public class RestVocabularyController {
 			response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + vocName + "\"");
 			response.setContentType(ContentType.APPLICATION_JSON.getMimeType());
 			vocUtils.exportVocabulary(user, stream, voc.getId());
-		} catch (final PersistException | IOException e) {
+		} catch (final CoreException | PersistException | IOException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
+	@RequestMapping(value = "/{id}/_import", method = RequestMethod.POST)
+	public void importVoc(final Principal aPrincipal,
+			@PathVariable(value = "id") final String aId,
+			@RequestParam("addFields") final boolean aAddFields,
+			@RequestParam("skipIncompatibleFields") final boolean aSkipIncompatibleFields,
+			@RequestParam("overwriteView") final boolean aOverwriteView,
+			@RequestParam("overwriteCards") final boolean aOverwriteCards,
+			@RequestParam("file") final MultipartFile file) throws RestException {
+
+		try (InputStream stream = file.getInputStream()) {
+			final String user = aPrincipal.getName();
+			final Vocabulary voc = vocPersist.getVocabulary(user, UUID.fromString(aId));
+			if (voc == null) {
+				throw new PersistException("Vocabulary with id: " + aId + " not found");
+			}
+			final VocabularyImportSettings settings = new VocabularyImportSettings(aAddFields, aSkipIncompatibleFields,
+					aOverwriteView, aOverwriteCards);
+			vocUtils.importVocabulary(user, voc.getId(), stream, settings);
+		} catch (final IOException | PersistException | CoreException e) {
 			throw new RestException(e.getMessage(), e);
 		}
 	}

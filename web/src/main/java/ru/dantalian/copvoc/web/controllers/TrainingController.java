@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ru.dantalian.copvoc.core.utils.StatsUtils;
 import ru.dantalian.copvoc.persist.api.EmptyResultPersistException;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistTrainingManager;
@@ -25,7 +26,6 @@ import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
 import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingStats;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
-import ru.dantalian.copvoc.web.utils.StatsUtils;
 
 @Controller
 public class TrainingController {
