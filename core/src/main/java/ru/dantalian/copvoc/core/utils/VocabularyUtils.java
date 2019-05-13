@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,15 +28,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.dantalian.copvoc.core.CoreConstants;
 import ru.dantalian.copvoc.core.CoreException;
+import ru.dantalian.copvoc.core.export.model.CardFieldV1;
+import ru.dantalian.copvoc.core.export.model.CardV1;
+import ru.dantalian.copvoc.core.export.model.CardV1Iterable;
+import ru.dantalian.copvoc.core.export.model.VocabularyExport;
+import ru.dantalian.copvoc.core.export.model.VocabularyV1;
+import ru.dantalian.copvoc.core.export.model.VocabularyViewV1;
 import ru.dantalian.copvoc.core.model.CardsIterable;
-import ru.dantalian.copvoc.core.model.VocabularyExport;
 import ru.dantalian.copvoc.core.model.VocabularyImportSettings;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
@@ -90,7 +93,17 @@ public class VocabularyUtils {
 			final Vocabulary voc = vocManager.getVocabulary(aUser, aVocabularyId);
 			final VocabularyView view = viewManager.getVocabularyView(aUser, aVocabularyId);
 			final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
-			final VocabularyExport vocExport = new VocabularyExport(1, voc, view, fields, cards);
+
+			final VocabularyV1 vocV1 = new VocabularyV1(voc.getName(), voc.getDescription(),
+					LanguageUtils.asString(voc.getSource()), LanguageUtils.asString(voc.getTarget()));
+			final VocabularyViewV1 vocViewV1 = new VocabularyViewV1(view.getCss(), view.getFront(), view.getBack());
+			final List<CardFieldV1> fieldsV1 = fields.stream()
+					.map(aItem -> new CardFieldV1(aItem.getName(), aItem.getType(), aItem.getOrder(), aItem.isSystem()))
+					.collect(Collectors.toList());
+
+			final CardV1Iterable cardsV1 = new CardV1Iterable(cards);
+
+			final VocabularyExport vocExport = new VocabularyExport(1, vocV1, vocViewV1, fieldsV1, cardsV1);
 			json.writeValue(aStream, vocExport);
 		} catch (final IOException | PersistException e) {
 			throw new CoreException("Failed to export vocabulary: " + aVocabularyId, e);
@@ -100,14 +113,14 @@ public class VocabularyUtils {
 	public void importVocabulary(final String aUser, final UUID aVocabularyId, final InputStream aStream,
 			final VocabularyImportSettings aSettings) throws CoreException {
 		try {
-			final ObjectNode root = (ObjectNode) json.readTree(aStream);
-			final int version = root.get("version").asInt();
-			checkVocabulary(aUser, aVocabularyId, root);
+			final VocabularyExport export = json.readValue(aStream, VocabularyExport.class);
+			final int version = export.getVersion();
+			checkVocabulary(aUser, aVocabularyId, export);
 			if (version >= 1) {
-				importFieldsV1(aUser, aVocabularyId, root, aSettings.isAddFields(),
+				importFieldsV1(aUser, aVocabularyId, export, aSettings.isAddFields(),
 						aSettings.isSkipIncompatibleFields());
-				importViewV1(aUser, aVocabularyId, root, aSettings.isOverwriteView());
-				importCardsV1(aUser, aVocabularyId, root, aSettings.isOverwriteCards());
+				importViewV1(aUser, aVocabularyId, export, aSettings.isOverwriteView());
+				importCardsV1(aUser, aVocabularyId, export, aSettings.isOverwriteCards());
 			}
 		} catch (final IOException | PersistException e) {
 			throw new CoreException("Failed to export vocabulary: " + aVocabularyId, e);
@@ -115,22 +128,22 @@ public class VocabularyUtils {
 	}
 
 	private void importCardsV1(final String aUser, final UUID aVocabularyId,
-			final ObjectNode aRoot, final boolean aOverwriteCards) throws PersistException {
+			final VocabularyExport aExport, final boolean aOverwriteCards) throws PersistException {
 
-		final Iterator<JsonNode> cards = aRoot.get("cards").iterator();
+		final Iterator<CardV1> cards = aExport.getCards().iterator();
 		while(cards.hasNext()) {
-			final ObjectNode card = (ObjectNode) cards.next();
-			final JsonNode fieldsContent = card.get("fieldsContent");
+			final CardV1 card = cards.next();
+			final Map<String, String> importContent = card.getContent();
 			final Map<String, String> content = new HashMap<>();
-			final Iterator<JsonNode> iterator = fieldsContent.iterator();
-			while (iterator.hasNext()) {
-				final ObjectNode contentNode = (ObjectNode) iterator.next();
-				final String fieldName = contentNode.get("fieldName").asText();
-				final String fieldValue = contentNode.get("content").asText();
+			for (final Entry<String, String> entry: content.entrySet()) {
+				final String fieldName = entry.getKey();
+				final String fieldValue = entry.getValue();
 				content.put(fieldName, fieldValue);
 			}
-			final String word = fieldsContent
-					.get("word").get("content").asText();
+			final String word = importContent.get("word");
+			if (word == null) {
+				throw new PersistException("field 'word' is missing in card");
+			}
 			final Query query = QueryFactory.newCardsQuery()
 					.from(0)
 					.limit(1)
@@ -152,66 +165,54 @@ public class VocabularyUtils {
 		}
 	}
 
-	private void importViewV1(final String aUser, final UUID aVocabularyId, final ObjectNode aRoot,
+	private void importViewV1(final String aUser, final UUID aVocabularyId, final VocabularyExport aExport,
 			final boolean aOverwriteView) throws PersistException {
 		if (!aOverwriteView) {
 			return;
 		}
 		final VocabularyView originalView = viewManager.getVocabularyView(aUser, aVocabularyId);
-		final JsonNode view = aRoot.get("view");
-		String css = view.get("css").asText();
+		final VocabularyViewV1 view = aExport.getView();
+		String css = view.getCss();
 		if (css == null || css.isEmpty()) {
 			css = originalView.getCss();
 		}
-		String front = view.get("front").asText();
+		String front = view.getFront();
 		if (front == null || front.isEmpty()) {
 			front = originalView.getFront();
 		}
-		String back = view.get("back").asText();
+		String back = view.getBack();
 		if (back == null || back.isEmpty()) {
 			back = originalView.getFront();
 		}
 		viewManager.updateVocabularyView(aUser, aVocabularyId, css, front, back);
 	}
 
-	private void checkVocabulary(final String aUser, final UUID aVocabularyId, final ObjectNode aRoot)
+	private void checkVocabulary(final String aUser, final UUID aVocabularyId, final VocabularyExport aExport)
 			throws PersistException, CoreException {
-		final ObjectNode voc = (ObjectNode) aRoot.get("vocabulary");
-		final JsonNode src = voc.get("source");
-		final JsonNode tgt = voc.get("target");
-
-		final String srcName = src.get("name").asText();
-		final String srcCountry = src.get("country").asText();
-		final String srcVariant = Optional.ofNullable(src.get("variant").asText()).orElse("");
-		final String srcLang = String.join("_", srcName, srcCountry, srcVariant);
-
-		final String tgtName = tgt.get("name").asText();
-		final String tgtCountry = tgt.get("name").asText();
-		final String tgtVariant = Optional.ofNullable(tgt.get("variant").asText()).orElse("");
-		final String tgtLang = String.join("_", tgtName, tgtCountry, tgtVariant);
+		final VocabularyV1 voc = aExport.getVocabulary();
+		final String src = voc.getSource();
+		final String tgt = voc.getTarget();
 
 		final Vocabulary originalVoc = vocManager.getVocabulary(aUser, aVocabularyId);
 		final Language source = originalVoc.getSource();
 		final Language target = originalVoc.getTarget();
 
-		final Language importSrc = LanguageUtils.asLanguage(srcLang);
-		final Language importTgt = LanguageUtils.asLanguage(tgtLang);
+		final Language importSrc = LanguageUtils.asLanguage(src);
+		final Language importTgt = LanguageUtils.asLanguage(tgt);
 		if (!source.equals(importSrc) || !target.equals(importTgt)) {
 			throw new CoreException("Languages are not compatible in vocabulary");
 		}
 	}
 
-	private void importFieldsV1(final String aUser, final UUID aVocabularyId, final ObjectNode aRoot,
+	private void importFieldsV1(final String aUser, final UUID aVocabularyId, final VocabularyExport aExport,
 			final boolean aAddFields, final boolean aSkipIncompatibleFields) throws PersistException, CoreException {
 		final Map<String, CardField> fields = fieldManager.listFields(aUser, aVocabularyId)
 				.stream()
 				.collect(Collectors.toMap(CardField::getName, aItem -> aItem));
-		final Iterator<JsonNode> importFields = aRoot.get("fields").iterator();
-		while(importFields.hasNext()) {
-			final JsonNode importField = importFields.next();
-			final String fieldName = importField.get("name").asText();
-			final boolean systemField = importField.get("system").asBoolean();
-			final CardFiledType fieldType = CardFiledType.valueOf(importField.get("type").asText());
+		for (final CardFieldV1 importField: aExport.getFields()) {
+			final String fieldName = importField.getName();
+			final boolean systemField = importField.isSystem();
+			final CardFiledType fieldType = importField.getType();
 			final CardField originalField = fields.get(fieldName);
 			if (originalField != null) {
 				if (fieldType != originalField.getType() && !aSkipIncompatibleFields) {
