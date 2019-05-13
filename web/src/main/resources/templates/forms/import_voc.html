@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<object th:fragment="css" th:remove="tag"></object>
+<script type="text/javascript" th:fragment="script" th:remove="tag"></script>
+</head>
+
+<body th:fragment="body" th:remove="tag">
+	<div id="import_voc" class="ui modal">
+		<i class="close icon"></i>
+		<div class="header">Import Vocabulary</div>
+		<div class="content">
+			<form id="import_voc_form" class="ui form segment" method="post" th:action="'/v1/api/vocabularies/' + ${voc.id} + '/_import'">
+				<div class="ui inverted dimmer">
+					<div class="ui text loader">Loading</div>
+				</div>
+				<div class="ui hidden positive message">
+					<div class="header">Success</div>
+					<p class="info">Vocabulary has been Imported</p>
+				</div>
+				<div class="field">
+					<div class="ui pointing below red label hidden"></div>
+					<div class="ui toggle checkbox">
+					  <input name="addFields" type="checkbox" checked="checked">
+					  <label>Import fields</label>
+					</div>
+				</div>
+				<div class="field">
+					<div class="ui pointing below red label hidden"></div>
+					<div class="ui toggle checkbox">
+					  <input name="skipIncompatibleFields" type="checkbox" checked="checked">
+					  <label>Skip incompatible fields</label>
+					</div>
+				</div>
+				<div class="field">
+					<div class="ui pointing below red label hidden"></div>
+					<div class="ui toggle checkbox">
+					  <input name="overwriteView" type="checkbox" checked="checked">
+					  <label>Overwrite view</label>
+					</div>
+				</div>
+				<div class="field">
+					<div class="ui pointing below red label hidden"></div>
+					<div class="ui toggle checkbox">
+					  <input name="overwriteCards" type="checkbox" checked="checked">
+					  <label>Overwrite cards</label>
+					</div>
+				</div>
+				<div class="field">
+					<input type="file" name="file">
+				</div>
+				<button class="ui primary button" type="submit">Import</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

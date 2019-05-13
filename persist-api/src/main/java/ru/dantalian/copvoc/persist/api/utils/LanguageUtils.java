@@ -18,7 +18,7 @@ public final class LanguageUtils {
 		if (parts.length < 2) {
 			throw new IllegalArgumentException("Malformed language format in: " + aLanguage);
 		}
-		return new PojoLanguage(parts[0], parts[1], parts.length == 3 ? parts[2] : null, null);
+		return new PojoLanguage(parts[0], parts[1], parts.length == 3 ? parts[2] : "", "");
 	}
 
 }

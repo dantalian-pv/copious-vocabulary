@@ -2,7 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-<link th:fragment="headcss" th:remove="tag"></link>
+<object th:fragment="headcss" th:remove="tag">
+	<object th:replace="forms/voc_form::css" th:remove="tag"></object>
+	<object th:replace="forms/import_voc::css" th:remove="tag"></object>
+</object>
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script type="text/javascript" th:inline="javascript">
 		document.vocabularyId=[[${voc.id}]];
@@ -34,24 +37,34 @@
 		
 	</div>
 	<div class="ui divider"></div>
-	<div class="ui basic buttons">
-		<div class="ui button" data-bind="click: showEditVoc">
-			<i class="edit icon"></i>Edit Settings
-		</div>
-		<div class="ui button">
-			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_view'">
-				<i class="edit icon"></i>Edit View
-			</a>
-		</div>
-		<div class="ui button">
-			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_fields'">
-				<i class="edit icon"></i>Edit Fields
-			</a>
-		</div>
-		<div class="ui button">
-			<a th:href="'/vocabularies/' + ${voc.id} + '/edit_cards'">
-				<i class="edit icon"></i>Edit Cards
-			</a>
+	<div class="ui vertically divided grid">
+		<div class="sexteen column row">
+			<div class="ten wide column">
+				<div class="ui basic buttons">
+					<div class="ui button" data-bind="click: showEditVoc">
+						<i class="edit icon"></i>Edit Settings
+					</div>
+					<a class="ui button" th:href="'/vocabularies/' + ${voc.id} + '/edit_view'">
+						<i class="edit icon"></i>Edit View
+					</a>
+					<a class="ui button" th:href="'/vocabularies/' + ${voc.id} + '/edit_fields'">
+						<i class="edit icon"></i>Edit Fields
+					</a>
+					<a class="ui button" th:href="'/vocabularies/' + ${voc.id} + '/edit_cards'">
+						<i class="edit icon"></i>Edit Cards
+					</a>
+				</div>
+			</div>
+			<div class="six wide column right aligned">
+				<div class="ui basic buttons">
+					<a class="ui button" th:href="'/v1/api/vocabularies/' + ${voc.id} + '/_export'">
+							<i class="download icon"></i>Export
+					</a>
+					<div class="ui button" data-bind="click: showImport">
+						<i class="upload icon"></i>Import
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<div class="ui divider"></div>
@@ -65,6 +78,7 @@
 		</a>
 	</div>
 	<div th:replace="forms/voc_form::body" th:remove="tag"></div>
+	<div th:replace="forms/import_voc::body" th:remove="tag"></div>
 	<div class="ui basic yesno modal">
   	<div class="header" th:text="'Do you want to delete ' + ${voc.name} + '?'"></div>
   	<div class="actions">

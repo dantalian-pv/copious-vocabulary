@@ -22,6 +22,72 @@ $(document).ready(
 				fullTextSearch: true,
 				filterRemoteData: true
 			});
+			
+			$('.ui.checkbox').checkbox();
+			
+			var csrf = {};
+			var csrf_name = $("meta[name='_csrf_header']").attr("content");
+			csrf[csrf_name] = $("meta[name='_csrf']").attr("content");
+			$('#import_voc_form').on('submit', function(env) {
+				env.preventDefault();
+				var form = $(this);
+				var messageBox = form.children('.message');
+				var data = new FormData(form[0]);
+		    var url = form.attr('action');
+		    
+		    var showMessage = function(status, message, statusTitle) {
+					if (status == 'success') {
+						messageBox.removeClass('negative message').addClass('positive message');
+						messageBox.children('div.header').text(
+								(statusTitle) ? statusTitle : 'Success');
+					} else if (status == 'error') {
+						messageBox.removeClass('positive message').addClass('negative message');
+						messageBox.children('div.header').text(
+								(statusTitle) ? statusTitle : 'Error');
+					} else {
+						console.error('undefined status', status);
+					}
+					messageBox.children('p.info').text(message);
+					messageBox.removeClass('hidden');
+				}
+		    
+		    $.ajax({
+		    	headers : csrf,
+          type: "POST",
+          url: url,
+          data: data,
+          contentType: 'multipart/form-data',
+          processData: false,
+          contentType: false,
+          success: function(data) {
+          	$('#import_voc').modal('hide');
+          },
+          fail: function(jqXHR, textStatus, errorThrown) {
+          	if (jqXHR.responseJSON) {
+
+							var json = jqXHR.responseJSON;
+							
+							if(json.status == 403 && json.message.indexOf('CSRF')) {
+								window.location.replace(window.location.href);
+							}
+
+							var message = "Error code: " + jqXHR.status + " " + json.message;
+							showMessage('error', message, json.error);
+
+							if (json.fieldErrors && Array.isArray(json.fieldErrors)) {
+								for ( var i in json.fieldErrors) {
+									var fieldError = json.fieldErrors[i];
+									showInputError(fieldError.field, fieldError.defaultMessage);
+								}
+							}
+						} else {
+							var message = "Error code: " + jqXHR.status + " "
+									+ ((jqXHR.status == 0) ? "Lost connection" : jqXHR.statusText);
+							showMessage('error', message);
+						}
+          }
+        });
+			});
 
 			function ItemForm(data) {
 				this.id = ko.observable(data.id);
@@ -109,6 +175,10 @@ $(document).ready(
 				  })
 				  .modal('show');
 				};
+				self.showImport = function() {
+					$('#import_voc').modal('show');
+				}
+
 			}
 
 			ko.applyBindings(new ItemGroupListViewModel());
