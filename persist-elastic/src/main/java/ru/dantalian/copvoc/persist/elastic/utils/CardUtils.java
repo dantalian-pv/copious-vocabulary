@@ -18,6 +18,10 @@ public final class CardUtils {
 	private CardUtils() {
 	}
 
+	public static String asPersistContentName(final CardField aCardField) {
+		return "content." + asPersistName(aCardField);
+	}
+
 	public static String asPersistName(final CardField aCardField) {
 		return aCardField.getName() + "_" + getIndexType(aCardField.getType());
 	}

@@ -19,7 +19,9 @@ import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.query.BoolExpression;
 import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.query.QueryExpression;
+import ru.dantalian.copvoc.persist.api.query.TermCardFieldExpression;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.query.ValueCardFieldExpression;
 import ru.dantalian.copvoc.persist.api.query.ValueExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.FieldSortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.ScriptSortExpression;
@@ -52,9 +54,22 @@ public final class ElasticQueryUtils {
 			} else {
 				return QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue());
 			}
+		} else if (aExpression instanceof TermCardFieldExpression) {
+			final TermCardFieldExpression termExpression = (TermCardFieldExpression) aExpression;
+			if (termExpression.isWildcard()) {
+				return QueryBuilders.wildcardQuery(CardUtils.asPersistContentName(termExpression.getField()),
+						termExpression.getValue());
+			} else {
+				return QueryBuilders.termQuery(CardUtils.asPersistContentName(termExpression.getField()),
+						termExpression.getValue());
+			}
 		} else if (aExpression instanceof ValueExpression) {
 			final ValueExpression valueExpression = (ValueExpression) aExpression;
 			return QueryBuilders.termQuery(valueExpression.getName(), valueExpression.getValue());
+		} else if (aExpression instanceof ValueCardFieldExpression) {
+			final ValueCardFieldExpression valueExpression = (ValueCardFieldExpression) aExpression;
+			return QueryBuilders.termQuery(CardUtils.asPersistContentName(valueExpression.getField()),
+					valueExpression.getValue());
 		} else if (aExpression instanceof BoolExpression) {
 			final BoolQueryBuilder boolElastic = QueryBuilders.boolQuery();
 			final BoolExpression boolExpression = (BoolExpression) aExpression;

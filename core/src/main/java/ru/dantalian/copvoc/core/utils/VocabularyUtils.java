@@ -148,7 +148,7 @@ public class VocabularyUtils {
 					.from(0)
 					.limit(1)
 					.setVocabularyId(aVocabularyId)
-					.where(QueryFactory.eq("content.word_keyword", word, false))
+					.where(QueryFactory.eq(QueryFactory.queryField("word", CardFiledType.STRING), word, false))
 					.build();
 			final QueryResult<Card> result = cardManager.queryCards(aUser, query);
 			if (!result.getItems().isEmpty()) {
