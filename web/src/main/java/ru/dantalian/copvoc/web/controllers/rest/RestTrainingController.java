@@ -22,12 +22,15 @@ import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistTrainingManager;
+import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
+import ru.dantalian.copvoc.persist.api.analyse.WordHighlighter;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTraining;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingResult;
@@ -46,6 +49,12 @@ public class RestTrainingController {
 	@Autowired
 	private PersistCardFieldManager fieldManager;
 
+	@Autowired
+	private PersistVocabularyManager vocManager;
+
+	@Autowired
+	private WordHighlighter highlighter;
+
 	@RequestMapping(value = "/{training_id}/{card_id}", method = RequestMethod.GET)
 	public DtoCard getCard(@PathVariable(value = "training_id") final String aTrainingId,
 			@PathVariable(value = "card_id") final String aCardId, final Principal aPrincipal)
@@ -62,27 +71,23 @@ public class RestTrainingController {
 			if (card == null) {
 				throw new PersistException("Card with id: " + aCardId + " not found");
 			}
+			final Vocabulary vocabulary = vocManager.getVocabulary(user, training.getVocabularyId());
 			final List<CardField> fields = fieldManager.listFields(user, training.getVocabularyId());
-			final Optional<CardField> field = fields.stream()
-					.filter(aItem -> aItem.getType() == CardFiledType.ANSWER)
-					.findFirst();
-			if (field.isPresent()) {
-				final String answer = card.getContent(field.get().getName()).getContent();
-				String word = card.getContent("word").getContent();
-				word = word == null ? "" : word;
-				// Replace in all text fields the answer
-				for (final CardField fld: fields) {
-					if (fld.getType() == CardFiledType.MARKUP || fld.getType() == CardFiledType.TEXT) {
-						final CardFieldContent content = card.getContent(fld.getName());
-						if (content != null && content.getContent() != null) {
-							final String cnt = content.getContent().replaceAll("\\b"+answer+"\\b", word);
-							content.setContent(cnt);
-						}
+			String word = card.getContent("word").getContent();
+			word = word == null ? "" : word;
+			String answer = card.getContent("translation").getContent();
+			answer = answer == null ? "" : answer;
+			// Replace in all text fields the answer
+			for (final CardField fld: fields) {
+				if (fld.getType() == CardFiledType.MARKUP || fld.getType() == CardFiledType.TEXT) {
+					final CardFieldContent content = card.getContent(fld.getName());
+					if (content != null && content.getContent() != null) {
+						final String cnt = highlighter.replace(content.getContent(), answer, word, vocabulary.getTarget());
+						content.setContent(cnt);
 					}
 				}
-				return DtoCodec.asDtoCard(card);
 			}
-			throw new RestException("No answer field found in " + aCardId);
+			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}

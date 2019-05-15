@@ -30,11 +30,12 @@
 
 		<elasticsearch-version>6.5.4</elasticsearch-version>
 		<elasticsearch-cluster-runner-version>6.5.4.0</elasticsearch-cluster-runner-version>
+		<lucene-version>7.5.0</lucene-version>
 		<jsoup-version>1.11.3</jsoup-version>
 
 		<asm-version>7.1</asm-version>
 		<asm-debug-all-version>5.2</asm-debug-all-version>
-		
+
 		<rxjava-version>2.2.8</rxjava-version>
 
 		<logback-version>1.2.3</logback-version>
@@ -105,6 +106,12 @@
 				<groupId>org.elasticsearch.client</groupId>
 				<artifactId>elasticsearch-rest-high-level-client</artifactId>
 				<version>${elasticsearch-version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.lucene</groupId>
+				<artifactId>lucene-analyzers-kuromoji</artifactId>
+				<version>${lucene-version}</version>
 			</dependency>
 
 			<dependency>

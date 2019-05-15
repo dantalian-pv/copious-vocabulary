@@ -94,9 +94,11 @@ $(document).ready(
 				// Operations
 				self.addItem = function(data) {
 					self.items.splice(self.items().length, 0, new Item(self.convertItem(data)));
+					self.itemsTotal(self.itemsTotal() + 1);
 				};
 				self.removeItem = function(item) {
 					self.items.remove(item);
+					self.itemsTotal(self.itemsTotal() - 1);
 				};
 
 				self.showItemForm = function() {

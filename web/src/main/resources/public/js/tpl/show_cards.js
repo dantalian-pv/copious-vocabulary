@@ -92,7 +92,7 @@ $(document).ready(
 					var from = aFrom ? aFrom : 0;
 					var limit = aLimit ? aLimit : 30;
 					// Load initial state from server
-					$.getJSON('/v1/api/cards/' + document.vocabularyId + '?from=' + from + "&limit=" + limit,
+					$.getJSON('/v1/api/cards/' + document.vocabularyId + '?from=' + from + "&limit=" + limit + "&highlight=true",
 					function(allData) {
 						self.itemsTotal(allData.total);
 						self.itemsFrom(allData.from);

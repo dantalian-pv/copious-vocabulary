@@ -66,7 +66,7 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 				mapForCache.put("translation_keyword", answer.text());
 				map.put("word", word);
 				mapForCache.put("word_keyword", word);
-				final String text = ja == null ? "" : ja.text().replaceAll("(" + answer.text() + ")", "[$1]");
+				final String text = ja == null ? "" : ja.text();
 				map.put("example", text);
 				mapForCache.put("example_text", text);
 
@@ -80,7 +80,7 @@ public class RuGlosbeComRetrieval implements UniversalRetrieval {
 				map = ((Map<String, Object>) cacheMap.get("map"))
 						.entrySet()
 						.stream()
-						.collect(Collectors.toMap(aItem -> aItem.getKey().replaceAll("(.*)_\\w++$","$1"),
+						.collect(Collectors.toMap(aItem -> aItem.getKey().replaceAll("(.*)_\\w+$","$1"),
 								aItem -> aItem.getValue()));
 			}
 			return map;

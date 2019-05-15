@@ -95,7 +95,7 @@ public class YarksiRuRetrieval implements UniversalRetrieval {
 				map = ((Map<String, Object>) cacheMap.get("map"))
 						.entrySet()
 						.stream()
-						.collect(Collectors.toMap(aItem -> aItem.getKey().replaceAll("(.*)_\\w++$","$1"),
+						.collect(Collectors.toMap(aItem -> aItem.getKey().replaceAll("(.*)_\\w+$","$1"),
 								aItem -> aItem.getValue()));
 			}
 			return map;
