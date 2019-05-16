@@ -56,7 +56,9 @@ public class FieldsSuggester implements Suggester {
 				if (field.getName().toLowerCase().contains(value)
 						&& (vocId == null || !vocId.equals(field.getVocabularyId()))) {
 					final Vocabulary voc = vocManager.getVocabulary(aUser, field.getVocabularyId());
-					suggests.add(asSuggest(voc, field));
+					if (voc.isShared()) {
+						suggests.add(asSuggest(voc, field));
+					}
 				}
 			}
 			return suggests;

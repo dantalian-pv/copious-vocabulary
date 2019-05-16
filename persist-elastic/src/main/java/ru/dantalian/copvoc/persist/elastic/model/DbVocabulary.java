@@ -27,17 +27,21 @@ public class DbVocabulary {
 	@Field
 	private String target;
 
+	@Field
+	private Boolean shared;
+
 	public DbVocabulary() {
 	}
 
 	public DbVocabulary(final UUID aId, final String aName, final String aDescription,
-			final String aUser, final String aSource, final String aTarget) {
+			final String aUser, final String aSource, final String aTarget, final boolean aShared) {
 		id = aId;
 		name = aName;
 		description = aDescription;
 		user = aUser;
 		source = aSource;
 		target = aTarget;
+		shared = aShared;
 	}
 
 	public UUID getId() {
@@ -88,6 +92,14 @@ public class DbVocabulary {
 		target = aTarget;
 	}
 
+	public Boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(final Boolean aShared) {
+		shared = aShared;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -121,7 +133,8 @@ public class DbVocabulary {
 	@Override
 	public String toString() {
 		return "DbVocabulary [id=" + id + ", name=" + name + ", description=" + description
-				+ ", user=" + user + ", source=" + source + ", target=" + target + "]";
+				+ ", user=" + user + ", source=" + source + ", target=" + target
+				+ ", shared=" + shared + "]";
 	}
 
 }

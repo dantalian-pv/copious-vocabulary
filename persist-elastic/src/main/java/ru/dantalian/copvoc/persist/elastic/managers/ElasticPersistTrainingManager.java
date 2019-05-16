@@ -29,13 +29,13 @@ import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.query.Query;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.persist.elastic.model.DbTraining;
 import ru.dantalian.copvoc.persist.elastic.orm.ElasticORM;
 import ru.dantalian.copvoc.persist.elastic.orm.ElasticORMFactory;
 import ru.dantalian.copvoc.persist.elastic.utils.CardUtils;
 import ru.dantalian.copvoc.persist.elastic.utils.ElasticQueryUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoTraining;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 
 @Service
 public class ElasticPersistTrainingManager implements PersistTrainingManager {

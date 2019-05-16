@@ -16,4 +16,6 @@ public interface Vocabulary {
 
 	Language getTarget();
 
+	boolean isShared();
+
 }

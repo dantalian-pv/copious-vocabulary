@@ -1,20 +1,22 @@
-package ru.dantalian.copvoc.persist.impl.query;
+package ru.dantalian.copvoc.persist.api.query;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ru.dantalian.copvoc.persist.api.model.CardField;
 import ru.dantalian.copvoc.persist.api.model.CardFiledType;
-import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
-import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
-import ru.dantalian.copvoc.persist.api.query.TermCardFieldExpression;
-import ru.dantalian.copvoc.persist.api.query.TermExpression;
-import ru.dantalian.copvoc.persist.api.query.ValueCardFieldExpression;
-import ru.dantalian.copvoc.persist.api.query.ValueExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.SortOrder;
 import ru.dantalian.copvoc.persist.api.query.sort.SortType;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardField;
+import ru.dantalian.copvoc.persist.impl.query.BoolExpressionBuilderImpl;
+import ru.dantalian.copvoc.persist.impl.query.DefaultQueryBuilder;
+import ru.dantalian.copvoc.persist.impl.query.TermCardFieldExpressionImpl;
+import ru.dantalian.copvoc.persist.impl.query.TermExpressionImpl;
+import ru.dantalian.copvoc.persist.impl.query.TermsExpressionImpl;
+import ru.dantalian.copvoc.persist.impl.query.ValueCardFieldExpressionImpl;
+import ru.dantalian.copvoc.persist.impl.query.ValueExpressionImpl;
 import ru.dantalian.copvoc.persist.impl.query.sort.FieldSortExpressionImpl;
 import ru.dantalian.copvoc.persist.impl.query.sort.ScriptSortExpressionImpl;
 
@@ -45,6 +47,10 @@ public class QueryFactory {
 
 	public static ValueCardFieldExpression eq(final CardField aField, final Object aValue, final boolean aWildcard) {
 		return new ValueCardFieldExpressionImpl(aField, aValue);
+	}
+
+	public static <T> TermsExpression<T> terms(final String aKey, final List<T> aValues) {
+		return new TermsExpressionImpl<>(aKey, aValues);
 	}
 
 	public static BoolExpressionBuilder bool() {

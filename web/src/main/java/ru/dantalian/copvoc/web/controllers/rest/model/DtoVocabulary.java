@@ -16,11 +16,14 @@ public class DtoVocabulary {
 
 	private String targetName;
 
+	private boolean shared;
+
 	public DtoVocabulary() {
 	}
 
 	public DtoVocabulary(final String aId, final String aName, final String aDescription,
-			final String aSourceId, final String aSourceName, final String aTargetId, final String aTargetName) {
+			final String aSourceId, final String aSourceName, final String aTargetId, final String aTargetName,
+			final boolean aShared) {
 		id = aId;
 		name = aName;
 		description = aDescription;
@@ -28,6 +31,7 @@ public class DtoVocabulary {
 		sourceName = aSourceName;
 		targetId = aTargetId;
 		targetName = aTargetName;
+		shared = aShared;
 	}
 
 	public String getId() {
@@ -84,6 +88,14 @@ public class DtoVocabulary {
 
 	public void setTargetName(final String aTargetName) {
 		targetName = aTargetName;
+	}
+
+	public boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(final boolean aShared) {
+		shared = aShared;
 	}
 
 }

@@ -182,6 +182,20 @@ public class RestVocabularyController {
 		}
 	}
 
+	@RequestMapping(value = "/{id}/_share", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public DtoVoid shareVoc(final Principal aPrincipal, @PathVariable(value = "id") final String aId,
+			@RequestParam("share") final boolean aShare) throws RestException {
+		try {
+			final String user = aPrincipal.getName();
+			final UUID vocId = UUID.fromString(aId);
+			vocPersist.shareUnshareVocabulary(user, vocId, aShare);
+			return new DtoVoid();
+		} catch (final PersistException e) {
+			throw new RestException(e.getMessage(), e);
+		}
+	}
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public DtoVoid deleteVoc(final Principal aPrincipal, @PathVariable(value = "id") final String aId)

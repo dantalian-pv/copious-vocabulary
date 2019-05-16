@@ -107,6 +107,28 @@ $(document).ready(
 				self.deleteInProgress = ko.observable(false);
 				self.errorHeader = ko.observable();
 				self.errorMessage = ko.observable();
+				
+				self.shared = ko.observable(document.vocabularyShared);
+				
+				self.sharedText = ko.computed(function() {
+					return self.shared() ? "Shared" : "Share";
+				});
+				
+				self.share = function() {
+					var shared = self.shared() == true;
+					$.ajax({
+						url : '/v1/api/vocabularies/' + document.vocabularyId + '/_share?share=' + !shared,
+						contentType : "application/json; charset=utf-8",
+						method : 'PUT',
+						headers : csrf,
+						dataType : 'json'
+					}).done(function() {
+						self.shared(!shared);
+					}).fail(function(deffer, type, message) {
+						self.errorHeader(type);
+						self.errorMessage(message);
+					});
+				}
 
 				// Form Data
 				self.itemForm = new Form({

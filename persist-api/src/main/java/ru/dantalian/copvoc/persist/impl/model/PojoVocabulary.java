@@ -2,8 +2,8 @@ package ru.dantalian.copvoc.persist.impl.model;
 
 import java.util.UUID;
 
-import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.Language;
+import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 
 public class PojoVocabulary implements Vocabulary {
 
@@ -19,17 +19,20 @@ public class PojoVocabulary implements Vocabulary {
 
 	private Language target;
 
+	private boolean shared;
+
 	public PojoVocabulary() {
 	}
 
 	public PojoVocabulary(final UUID aId, final String aName, final String aDescription, final String aUser,
-			final Language aSource,	final Language aTarget) {
+			final Language aSource,	final Language aTarget, final boolean aShared) {
 		id = aId;
 		name = aName;
 		description = aDescription;
 		user = aUser;
 		source = aSource;
 		target = aTarget;
+		shared = aShared;
 	}
 
 	@Override
@@ -84,6 +87,15 @@ public class PojoVocabulary implements Vocabulary {
 
 	public void setTarget(final Language aTarget) {
 		target = aTarget;
+	}
+
+	@Override
+	public boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(final boolean aShared) {
+		shared = aShared;
 	}
 
 	@Override

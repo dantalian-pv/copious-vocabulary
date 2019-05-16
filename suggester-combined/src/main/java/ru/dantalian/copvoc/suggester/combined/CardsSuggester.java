@@ -1,10 +1,13 @@
 package ru.dantalian.copvoc.suggester.combined;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -21,7 +24,7 @@ import ru.dantalian.copvoc.persist.api.model.CardFiledType;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.BoolExpressionBuilder;
 import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.suggester.api.SuggestException;
 import ru.dantalian.copvoc.suggester.api.SuggestQuery;
 import ru.dantalian.copvoc.suggester.api.SuggestQueryType;
@@ -58,7 +61,7 @@ public class CardsSuggester implements Suggester {
 		try {
 			final List<Suggest> suggests = new LinkedList<>();
 
-			final List<CardField> fields = fieldManager.listFields(aUser, null);
+			final Set<CardField> fields = new HashSet<>(fieldManager.listFields(aUser, null));
 			final String key = aQuery.getWhere().getKey() == null || aQuery.getWhere().getKey().isEmpty()
 					? null : aQuery.getWhere().getKey().toLowerCase();
 			final QueryBuilder cardsQuery = QueryFactory.newCardsQuery();
@@ -70,11 +73,22 @@ public class CardsSuggester implements Suggester {
 				}
 			}
 			bool.must(nestedBool.build());
-			if (aQuery.getNot() != null) {
-				bool.not(QueryFactory.term(aQuery.getNot().getKey(), aQuery.getNot().getValue(), false));
-			}
 			bool.must(QueryFactory.term("source", aQuery.getSourceTarget().getKey() + "*", true));
 			bool.must(QueryFactory.term("target", aQuery.getSourceTarget().getValue() + "*", true));
+
+			final List<String> sharedVocIds = vocManager.listSharedVocabularies(aUser)
+				.stream()
+				.map(aItem -> aItem.getId().toString())
+				.filter(aItem-> {
+					if (aQuery.getNot() == null || !"vocabulary_id".equals(aQuery.getNot().getKey())) {
+						return true;
+					}
+					return !aItem.equals(aQuery.getNot().getValue());
+				})
+				.collect(Collectors.toList());
+
+			bool.must(QueryFactory.terms("vocabulary_id", sharedVocIds));
+
 			cardsQuery.where(bool.build());
 			final List<Card> queryCards = cardManager.queryCards(aUser, cardsQuery.build()).getItems();
 			for (final Card card: queryCards) {

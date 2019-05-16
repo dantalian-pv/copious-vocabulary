@@ -21,6 +21,7 @@ import ru.dantalian.copvoc.persist.api.query.Query;
 import ru.dantalian.copvoc.persist.api.query.QueryExpression;
 import ru.dantalian.copvoc.persist.api.query.TermCardFieldExpression;
 import ru.dantalian.copvoc.persist.api.query.TermExpression;
+import ru.dantalian.copvoc.persist.api.query.TermsExpression;
 import ru.dantalian.copvoc.persist.api.query.ValueCardFieldExpression;
 import ru.dantalian.copvoc.persist.api.query.ValueExpression;
 import ru.dantalian.copvoc.persist.api.query.sort.FieldSortExpression;
@@ -54,6 +55,9 @@ public final class ElasticQueryUtils {
 			} else {
 				return QueryBuilders.termQuery(termExpression.getName(), termExpression.getValue());
 			}
+		} else if (aExpression instanceof TermsExpression) {
+			final TermsExpression<?> termsExpression = (TermsExpression<?>) aExpression;
+			return QueryBuilders.termsQuery(termsExpression.getName(), termsExpression.getValues());
 		} else if (aExpression instanceof TermCardFieldExpression) {
 			final TermCardFieldExpression termExpression = (TermCardFieldExpression) aExpression;
 			if (termExpression.isWildcard()) {

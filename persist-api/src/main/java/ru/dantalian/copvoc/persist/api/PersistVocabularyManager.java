@@ -15,9 +15,13 @@ public interface PersistVocabularyManager {
 
 	Vocabulary getVocabulary(String aUser, UUID aId) throws PersistException;
 
+	void shareUnshareVocabulary(String aUser, UUID aId, boolean aShare) throws PersistException;
+
 	Vocabulary queryVocabulary(String aUser, String aName) throws PersistException;
 
 	List<Vocabulary> listVocabularies(String aUser) throws PersistException;
+
+	List<Vocabulary> listSharedVocabularies(String aUser) throws PersistException;
 
 	void deleteVocabulary(String aUser, UUID aId) throws PersistException;
 

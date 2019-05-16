@@ -48,13 +48,15 @@ public final class DtoCodec {
 		}
 		return new DtoVocabulary(aVocabulary.getId().toString(), aVocabulary.getName(), aVocabulary.getDescription(),
 				LanguageUtils.asString(aVocabulary.getSource()), aVocabulary.getSource().getText(),
-				LanguageUtils.asString(aVocabulary.getTarget()), aVocabulary.getTarget().getText());
+				LanguageUtils.asString(aVocabulary.getTarget()), aVocabulary.getTarget().getText(),
+				aVocabulary.isShared());
 	}
 
 	public static Vocabulary asVocabulary(final String aUser, final DtoVocabulary aDtoVocabulary) {
 		return new PojoVocabulary(UUID.fromString(aDtoVocabulary.getId()), aDtoVocabulary.getName(),
 				aDtoVocabulary.getDescription(), aUser,
-				asLanguage(aDtoVocabulary.getSourceId()), asLanguage(aDtoVocabulary.getTargetId()));
+				asLanguage(aDtoVocabulary.getSourceId()), asLanguage(aDtoVocabulary.getTargetId()),
+				aDtoVocabulary.isShared());
 	}
 
 	public static DtoView asDtoView(final VocabularyView aView) {

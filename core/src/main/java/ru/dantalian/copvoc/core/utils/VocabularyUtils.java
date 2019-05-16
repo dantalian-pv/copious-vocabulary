@@ -54,11 +54,11 @@ import ru.dantalian.copvoc.persist.api.model.Language;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.api.query.Query;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.persist.api.query.QueryResult;
 import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.api.utils.XmlUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabularyView;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 
 @Service
 public class VocabularyUtils {

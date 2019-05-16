@@ -9,6 +9,7 @@
 <object type="text/javascript" th:fragment="headscript" th:remove="tag">
 	<script type="text/javascript" th:inline="javascript">
 		document.vocabularyId=[[${voc.id}]];
+		document.vocabularyShared=[[${voc.shared}]];
 	</script>
 	<script th:src="@{/js/tpl/root/form.js}"></script>
 	<script th:src="@{/js/tpl/form.js}"></script>
@@ -63,6 +64,10 @@
 					<div class="ui button" data-bind="click: showImport">
 						<i class="upload icon"></i>Import
 					</div>
+				</div>
+				<div class="ui basic buttons">
+					<button class="ui toggle button" 
+						data-bind="text: sharedText, click: share, css: {active: shared}">Share</button>
 				</div>
 			</div>
 		</div>

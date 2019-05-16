@@ -18,7 +18,7 @@ import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
 
 @Controller

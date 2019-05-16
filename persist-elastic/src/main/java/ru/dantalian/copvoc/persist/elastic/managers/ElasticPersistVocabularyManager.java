@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -53,7 +54,7 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 		final UUID uuid = UUID.randomUUID();
 		final String source = LanguageUtils.asString(aSource);
 		final String target = LanguageUtils.asString(aTarget);
-		final DbVocabulary voc = new DbVocabulary(uuid, aName, aDescription, aUser, source, target);
+		final DbVocabulary voc = new DbVocabulary(uuid, aName, aDescription, aUser, source, target, false);
 		orm.add(DEFAULT_INDEX, voc, true);
 		return asVocabulary(voc);
 	}
@@ -67,6 +68,14 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 	@Override
 	public Vocabulary getVocabulary(final String aUser, final UUID aId) throws PersistException {
 		return asVocabulary(orm.get(DEFAULT_INDEX, aId.toString()));
+	}
+
+	@Override
+	public void shareUnshareVocabulary(final String aUser, final UUID aId, final boolean aShare)
+			throws PersistException {
+		final DbVocabulary dbVocabulary = orm.get(DEFAULT_INDEX, aId.toString());
+		dbVocabulary.setShared(aShare);
+		orm.update(DEFAULT_INDEX, dbVocabulary, true);
 	}
 
 	@Override
@@ -92,7 +101,8 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 				(String) src.get("name"),
 				(String) src.get("description"),
 				(String) src.get("user"),
-				source, target);
+				source, target,
+				(Boolean) src.get("shared"));
 	}
 
 	@Override
@@ -105,14 +115,25 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 		search.getHits()
 			.forEach(aItem -> {
 				final Map<String, Object> src = aItem.getSourceAsMap();
-				Language source = LanguageUtils.asLanguage((String) src.get("source"));
-				Language target = LanguageUtils.asLanguage((String) src.get("target"));
 				try {
-					source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
-					target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
+					list.add(asVocabulary(orm.map(aItem.getId(), src)));
 				} catch (final PersistException e) {
-					throw new IllegalStateException("Failed to get language", e);
+					throw new RuntimeException("Failed to convert " + aItem.getId(), e);
 				}
+			});
+		return list;
+	}
+
+	@Override
+	public List<Vocabulary> listSharedVocabularies(final String aUser) throws PersistException {
+		final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchSourceBuilder.query(QueryBuilders.termQuery("shared", true));
+
+		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
+		final List<Vocabulary> list = new LinkedList<>();
+		search.getHits()
+			.forEach(aItem -> {
+				final Map<String, Object> src = aItem.getSourceAsMap();
 				try {
 					list.add(asVocabulary(orm.map(aItem.getId(), src)));
 				} catch (final PersistException e) {
@@ -135,15 +156,17 @@ public class ElasticPersistVocabularyManager implements PersistVocabularyManager
 		Language target = LanguageUtils.asLanguage(aDbCardVocabulary.getTarget());
 		source = mLangManager.getLanguage(source.getName(), source.getCountry(), source.getVariant());
 		target = mLangManager.getLanguage(target.getName(), target.getCountry(), target.getVariant());
-		return new PojoVocabulary(aDbCardVocabulary.getId(), aDbCardVocabulary.getName(), aDbCardVocabulary.getDescription(),
-				aDbCardVocabulary.getUser(), source, target);
+		return new PojoVocabulary(aDbCardVocabulary.getId(), aDbCardVocabulary.getName(),
+				aDbCardVocabulary.getDescription(),
+				aDbCardVocabulary.getUser(), source, target, Optional.ofNullable(aDbCardVocabulary.isShared())
+				.orElse(Boolean.FALSE));
 	}
 
 	private DbVocabulary asDbVocabulary(final Vocabulary aVocabulary) {
 		final String source = LanguageUtils.asString(aVocabulary.getSource());
 		final String target = LanguageUtils.asString(aVocabulary.getTarget());
 		return new DbVocabulary(aVocabulary.getId(), aVocabulary.getName(), aVocabulary.getDescription(),
-				aVocabulary.getUser(), source, target);
+				aVocabulary.getUser(), source, target, aVocabulary.isShared());
 	}
 
 }

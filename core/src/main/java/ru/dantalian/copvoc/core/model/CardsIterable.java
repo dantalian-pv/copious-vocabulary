@@ -11,8 +11,8 @@ import ru.dantalian.copvoc.persist.api.model.Card;
 import ru.dantalian.copvoc.persist.api.model.CardFieldContent;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.query.Query;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.persist.api.query.QueryResult;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
 
 public class CardsIterable implements Iterable<Card> {
 

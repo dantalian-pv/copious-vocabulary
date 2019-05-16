@@ -23,7 +23,7 @@ import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
 import ru.dantalian.copvoc.persist.api.query.QueryBuilder;
-import ru.dantalian.copvoc.persist.impl.query.QueryFactory;
+import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingStats;
 import ru.dantalian.copvoc.web.utils.DtoCodec;
 
