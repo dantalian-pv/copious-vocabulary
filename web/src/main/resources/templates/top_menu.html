@@ -9,25 +9,25 @@
 			<a class="item" href="/"><i class="home icon"></i></a>
 		</div>
 		<div class="right menu">
-			<div class="item">
-				<div class="ui action left icon input">
-					<div class="ui fluid category search">
-						<div class="ui icon input">
-							<input class="prompt" placeholder="Search..." type="text" /> <i
-								class="search icon"></i>
-						</div>
-						<div class="results"></div>
-					</div>
-				</div>
-			</div>
+<!-- 			<div class="item"> -->
+<!-- 				<div class="ui action left icon input"> -->
+<!-- 					<div class="ui fluid category search"> -->
+<!-- 						<div class="ui icon input"> -->
+<!-- 							<input class="prompt" placeholder="Search..." type="text" /> <i -->
+<!-- 								class="search icon"></i> -->
+<!-- 						</div> -->
+<!-- 						<div class="results"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
 			<div class="ui dropdown item">
 				<span sec:authentication="name"></span><i class="dropdown icon"></i>
 				<div class="menu">
-					<a sec:authorize="hasRole('ROLE_ADMIN')" class="item"
-						href="/settings">System Settings</a> <a
-						sec:authorize="hasRole('ROLE_ADMIN')" class="item"
-						href="/users_groups">Users &amp; Groups</a> <a class="item"
-						href="/personal">Personal Settings</a>
+<!-- 					<a sec:authorize="hasRole('ROLE_ADMIN')" class="item" -->
+<!-- 						href="/settings">System Settings</a> -->
+<!-- 					<a sec:authorize="hasRole('ROLE_ADMIN')" class="item" -->
+<!-- 						href="/users_groups">Users &amp; Groups</a> -->
+<!-- 					<a class="item" href="/personal">Personal Settings</a> -->
 					<div class="divider"></div>
 					<div class="item">
 						<form th:action="@{/logout}" method="post">
