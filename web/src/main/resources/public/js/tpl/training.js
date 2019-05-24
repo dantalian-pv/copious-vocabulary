@@ -65,6 +65,7 @@ $(document).ready(
 						if (allData.id) {
 							self.cardIndx(self.cardIndx() + 1);
 							self.item(new Item(self.convertItem(allData)));
+							$('#check_card_form').trigger("reset");
 						} else {
 							// Show result page
 							window.location.href = '/training/' + document.trainingId + '/result';
@@ -77,11 +78,12 @@ $(document).ready(
 				
 				self.errors = ko.observable(0);
 
-				$('#check_card_form').submit(function() {
+				$('#check_card_form').submit(function(evt) {
+					evt.preventDefault();
 					self.errorHeader('');
     			self.errorMessage('');
     			$.ajax({
-    	           url: '/v1/api/train/' + document.trainingId + '/' + item().id(),
+    	           url: '/v1/api/train/' + document.trainingId + '/' + self.item().id(),
     	           type : "POST",
     	           headers : csrf,
     	           dataType : 'json',
@@ -128,6 +130,9 @@ $(document).ready(
 				
 				self.updateData = function(cardId) {
 					// Load initial state from server
+					if (!document.trainingId) {
+						return;
+					}
 					$.getJSON('/v1/api/train/' + document.trainingId + '/' + document.firstCardId, function(allData) {
 						self.item(new Item(self.convertItem(allData)));
 					});

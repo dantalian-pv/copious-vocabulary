@@ -97,11 +97,17 @@ $(document).ready(
 						self.itemsTotal(allData.total);
 						self.itemsFrom(allData.from);
 						self.itemsLimit(allData.limit);
-						var mappedItems = $.map(allData.items, function(item) {
-							return new Item(self.convertItem(item));
-						});
-						self.items(mappedItems);
-						self.item(self.items()[0]);
+						if (allData.items.length == 0) {
+							// No cards
+							self.errorHeader('Error');
+							self.errorMessage('No cards were found. Please, create cards first.');
+						} else {
+							var mappedItems = $.map(allData.items, function(item) {
+								return new Item(self.convertItem(item));
+							});
+							self.items(mappedItems);
+							self.item(self.items()[0]);
+						}
 					});
 				};
 

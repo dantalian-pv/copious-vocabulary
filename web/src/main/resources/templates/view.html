@@ -17,6 +17,10 @@
 		</a>
 	</div>
 	<div class="ui divider"></div>
+	<div class="ui warning message" data-bind="css: {'hidden': !errorHeader()}">
+		<div class="header" data-bind="text: errorHeader">Error</div>
+		<p class="info" data-bind="text: errorMessage"></p>
+	</div>
 	<div th:replace="${'front/' + view.id}::body"></div>
 	<div class="ui divider"></div>
 	<div class="ui segment dimmable" style="min-height: 400px;">
