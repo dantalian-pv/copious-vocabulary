@@ -95,8 +95,13 @@ public class CardsIterable implements Iterable<Card> {
 				}
 
 				@Override
-				public String getTarget() {
-					return aCard.getTarget();
+				public String getTargetLang() {
+					return aCard.getTargetLang();
+				}
+
+				@Override
+				public String getSource() {
+					return aCard.getSource();
 				}
 
 				@Override
@@ -106,8 +111,8 @@ public class CardsIterable implements Iterable<Card> {
 				}
 
 				@Override
-				public String getSource() {
-					return aCard.getSource();
+				public String getSourceLang() {
+					return aCard.getSourceLang();
 				}
 
 				@Override

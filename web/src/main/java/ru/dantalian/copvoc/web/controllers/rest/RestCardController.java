@@ -1,11 +1,14 @@
 package ru.dantalian.copvoc.web.controllers.rest;
 
+import java.net.URI;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.dantalian.copvoc.core.stats.DefaultCardStats;
+import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.core.utils.StatsUtils;
 import ru.dantalian.copvoc.persist.api.PersistCardFieldManager;
 import ru.dantalian.copvoc.persist.api.PersistCardManager;
@@ -32,6 +37,7 @@ import ru.dantalian.copvoc.persist.api.model.CardStat;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.query.QueryFactory;
 import ru.dantalian.copvoc.persist.api.query.QueryResult;
+import ru.dantalian.copvoc.persist.api.stats.StatAction;
 import ru.dantalian.copvoc.persist.impl.model.PojoCardFieldContent;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
@@ -155,11 +161,34 @@ public class RestCardController {
 			final String user = aPrincipal.getName();
 			final Map<String, String> map = asMap(aCard.getContent());
 			final Map<String, CardStat> stats = StatsUtils.defaultStats();
-			final Card card = cardManager.createCard(user, UUID.fromString(aCard.getVocabularyId()), map, stats);
+			final Card card = cardManager.createCard(user,
+					UUID.fromString(aCard.getVocabularyId()),
+					aCard.getSource(),
+					map, stats);
+			updateSourceStats(user, aCard.getSource(), StatAction.ICREMENT);
 			return DtoCodec.asDtoCard(card);
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);
 		}
+	}
+
+	private void updateSourceStats(final String aUser, final String aSource, final StatAction aAction)
+			throws PersistException {
+		if (aSource == null || aSource.isEmpty() || !aSource.startsWith("card://")) {
+			return;
+		}
+		CompletableFuture.runAsync(() -> {
+			final URI sourceUri = URI.create(aSource);
+			final UUID vocId = UUID.fromString(sourceUri.getHost());
+			final String[] split = sourceUri.getPath().split("/");
+			final UUID cardId = UUID.fromString(split[1]);
+			try {
+				cardManager.updateStatForCard(aUser, vocId, cardId,
+						CardStatFactory.newAction(DefaultCardStats.SHARED, 1L, aAction));
+			} catch (final PersistException e) {
+				throw new CompletionException(e);
+			}
+		});
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -184,7 +213,11 @@ public class RestCardController {
 			final String user = aPrincipal.getName();
 			final UUID vocId = UUID.fromString(aVocId);
 			final UUID id = UUID.fromString(aId);
+			final Card card = cardManager.getCard(user, vocId, id);
 			cardManager.deleteCard(user, vocId, id);
+			if (card != null) {
+				updateSourceStats(user, card.getSource(), StatAction.DECREMENT);
+			}
 			return DtoVoid.INSTANCE;
 		} catch (final PersistException e) {
 			throw new RestException(e.getMessage(), e);

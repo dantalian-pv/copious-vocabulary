@@ -14,6 +14,7 @@
 			<form id="add_card_form" class="ui form segment" method="post" action="/v1/api/cards">
 				<input th:value="${voc.id}" name="vocabularyId" type="hidden" />
 				<input name="id" data-bind="value: itemForm.id" type="hidden" />
+				<input name="source" data-bind="value: itemForm.source" type="hidden" />
 				<div class="ui inverted dimmer">
 					<div class="ui text loader">Loading</div>
 				</div>
@@ -35,6 +36,9 @@
 							</th:block>
 						</div>
 						<div class="eight wide column">
+							<div id="suggest_dimmer" class="ui inverted dimmer">
+						    <div class="ui loader"></div>
+						  </div>
 							<div class="ui list" data-bind="foreach: suggests">
 								<div class="item">
 									<div class="content">

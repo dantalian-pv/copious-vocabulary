@@ -66,6 +66,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 
 	@Override
 	public Card createCard(final String aUser, final UUID aVocabularyId,
+			final String aSource,
 			final Map<String, String> aContent, final Map<String, CardStat> aStatsMap) throws PersistException {
 		final UUID id = UUID.randomUUID();
 		final List<CardField> fields = fieldManager.listFields(aUser, aVocabularyId);
@@ -74,6 +75,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 		final DbCard card = new DbCard(id, aVocabularyId,
 			LanguageUtils.asString(vocabulary.getSource()),
 			LanguageUtils.asString(vocabulary.getTarget()),
+			aSource,
 			asPersistMap(aContent, fields),
 			CardUtils.asPersistStats(aStatsMap));
 		orm.add(getIndexId(aVocabularyId), card, true);
@@ -92,6 +94,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 		final DbCard dbCard = new DbCard(aId, aVocabularyId,
 				LanguageUtils.asString(vocabulary.getSource()),
 				LanguageUtils.asString(vocabulary.getTarget()),
+				card.getSource(),
 				asPersistMap(aContent, fields),
 				card.getStats());
 		orm.update(getIndexId(card.getVocabularyId()), dbCard, true);
@@ -110,6 +113,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 		final DbCard dbCard = new DbCard(aId, aVocabularyId,
 				LanguageUtils.asString(vocabulary.getSource()),
 				LanguageUtils.asString(vocabulary.getTarget()),
+				card.getSource(),
 				card.getFieldsContent(),
 				stats);
 		orm.update(getIndexId(card.getVocabularyId()), dbCard, true);
@@ -175,6 +179,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 			list.add(new PojoCard(id, vocId,
 					LanguageUtils.asString(vocabulary.getSource()),
 					LanguageUtils.asString(vocabulary.getTarget()),
+					(String) source.get("source"),
 					map,
 					statsMap));
 		}
@@ -199,6 +204,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 		return new DbCard(aCard.getId(), aCard.getVocabularyId(),
 			LanguageUtils.asString(aVocabulary.getSource()),
 			LanguageUtils.asString(aVocabulary.getTarget()),
+			aCard.getSource(),
 			content,
 			CardUtils.asPersistStats(aCard.getStats()));
 	}
@@ -214,6 +220,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 		return new PojoCard(aDbCard.getId(), aDbCard.getVocabularyId(),
 				LanguageUtils.asString(aVocabulary.getSource()),
 				LanguageUtils.asString(aVocabulary.getTarget()),
+				aDbCard.getSource(),
 				map,
 				CardUtils.asCardStats(aDbCard.getStats()));
 	}

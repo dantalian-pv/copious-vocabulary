@@ -2,8 +2,8 @@ package ru.dantalian.copvoc.web.controllers.rest;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -60,9 +60,11 @@ public class RestSuggesterController {
 			}
 			builder.setSourceTarget(aSource, aTarget);
 			final List<Suggest> suggests = suggester.suggest(user, builder.build());
-			return suggests.stream()
-					.map(this::asDtoSuggest)
-					.collect(Collectors.toList());
+			final List<DtoSuggest> list = new LinkedList<>();
+			for (final Suggest sugg: suggests) {
+				list.add(asDtoSuggest(sugg));
+			}
+			return list;
 		} catch (final SuggestException e) {
 			throw new RestException(e.getMessage(), e);
 		}

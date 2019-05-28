@@ -61,4 +61,12 @@ public final class CardStatFactory {
 		return newSetAction(DefaultCardStats.LAST_VISIT, new Date());
 	}
 
+	public static CardStatAction newShardInc() {
+		return newIncAction(DefaultCardStats.SHARED, 1L);
+	}
+
+	public static CardStatAction newShardDec() {
+		return newDecAction(DefaultCardStats.SHARED, 1L);
+	}
+
 }

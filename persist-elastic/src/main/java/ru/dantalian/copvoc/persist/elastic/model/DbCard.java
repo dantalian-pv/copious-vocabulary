@@ -18,10 +18,13 @@ public class DbCard {
 	private UUID vocabularyId;
 
 	@Field
-	private String source;
+	private String sourceLang;
 
 	@Field
-	private String target;
+	private String targetLang;
+
+	@Field
+	private String source;
 
 	@Field(name = "content", type = "object", subtype = {
 			@SubField(path_match="content.*_keyword"),
@@ -39,12 +42,14 @@ public class DbCard {
 	public DbCard() {
 	}
 
-	public DbCard(final UUID aId, final UUID aVocabularyId, final String aSource, final String aTarget,
+	public DbCard(final UUID aId, final UUID aVocabularyId, final String aSourceLang, final String aTargetLang,
+			final String aSource,
 			final Map<String, String> aFieldsContent, final Map<String, Object> aStats) {
 		id = aId;
 		vocabularyId = aVocabularyId;
+		sourceLang = aSourceLang;
+		targetLang = aTargetLang;
 		source = aSource;
-		target = aTarget;
 		fieldsContent = aFieldsContent;
 		stats = aStats;
 	}
@@ -65,20 +70,28 @@ public class DbCard {
 		vocabularyId = aVocabularyId;
 	}
 
+	public String getSourceLang() {
+		return sourceLang;
+	}
+
+	public void setSourceLang(final String aSourceLang) {
+		sourceLang = aSourceLang;
+	}
+
+	public String getTargetLang() {
+		return targetLang;
+	}
+
+	public void setTargetLang(final String aTargetLang) {
+		targetLang = aTargetLang;
+	}
+
 	public String getSource() {
 		return source;
 	}
 
 	public void setSource(final String aSource) {
 		source = aSource;
-	}
-
-	public String getTarget() {
-		return target;
-	}
-
-	public void setTarget(final String aTarget) {
-		target = aTarget;
 	}
 
 	public Map<String, String> getFieldsContent() {

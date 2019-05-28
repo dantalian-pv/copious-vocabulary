@@ -73,8 +73,8 @@ public class CardsSuggester implements Suggester {
 				}
 			}
 			bool.must(nestedBool.build());
-			bool.must(QueryFactory.term("source", aQuery.getSourceTarget().getKey() + "*", true));
-			bool.must(QueryFactory.term("target", aQuery.getSourceTarget().getValue() + "*", true));
+			bool.must(QueryFactory.term("sourceLang", aQuery.getSourceTarget().getKey() + "*", true));
+			bool.must(QueryFactory.term("targetLang", aQuery.getSourceTarget().getValue() + "*", true));
 
 			final List<String> sharedVocIds = vocManager.listSharedVocabularies(aUser)
 				.stream()

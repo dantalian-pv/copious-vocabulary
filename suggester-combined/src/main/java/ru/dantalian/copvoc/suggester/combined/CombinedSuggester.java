@@ -1,10 +1,10 @@
 package ru.dantalian.copvoc.suggester.combined;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class CombinedSuggester implements Suggester {
 
 	@Override
 	public List<Suggest> suggest(final String aUser, final SuggestQuery aQuery) throws SuggestException {
-		final List<Suggest> suggests = new CopyOnWriteArrayList<>();
+		final List<Suggest> suggests = Collections.synchronizedList(new ArrayList<>());
 		final List<CompletableFuture<List<Suggest>>> futures = new LinkedList<>();
 		for (final Suggester suggester: suggesters) {
 			if (suggester == this) {
@@ -60,7 +60,7 @@ public class CombinedSuggester implements Suggester {
 			final CompletableFuture<List<Suggest>> future = CompletableFuture.supplyAsync(
 					() -> suggest(suggester, aUser, aQuery)
 			);
-			future.thenAcceptAsync(aList-> suggests.addAll(aList));
+			future.thenAcceptAsync(aList -> suggests.addAll(aList));
 			futures.add(future);
 		}
 		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

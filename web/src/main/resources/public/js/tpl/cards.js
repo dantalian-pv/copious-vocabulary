@@ -12,10 +12,8 @@ $(document).ready(
 				card['content'] = [];
 				for (var key in data) {
 			    if (data.hasOwnProperty(key)) {
-			    	if (key == 'vocabularyId') {
-			    		card['vocabularyId'] = data[key];
-			    	} else if (key == 'id') {
-			    		card['id'] = data[key];
+			    	if (key == 'vocabularyId' || key == 'id' || key == 'source') {
+			    		card[key] = data[key];
 			    	} else {
 			    		card.content.push({
 			    			name: key,
@@ -71,6 +69,7 @@ $(document).ready(
 					setEmpty : function(data) {
 						this.id(null);
 						this.vocabularyId(null);
+						this.source(null);
 						for (var key in document.cardFields) {
 					    if (document.cardFields.hasOwnProperty(key)) {
 					    	this[document.cardFields[key].name]('');
@@ -83,6 +82,7 @@ $(document).ready(
 					initItem : function() {
 						this.id = ko.observable();
 						this.vocabularyId = ko.observable();
+						this.source = ko.observable();
 						for (var key in document.cardFields) {
 					    if (document.cardFields.hasOwnProperty(key)) {
 					    	this[document.cardFields[key].name] = ko.observable();
@@ -102,6 +102,7 @@ $(document).ready(
 				};
 
 				self.showItemForm = function() {
+					self.suggests([]);
 					self.itemForm.setEmpty();
 					self.itemForm.show(function(data) {
 						self.addItem(data);
@@ -110,6 +111,7 @@ $(document).ready(
 				};
 
 				self.showEditItemForm = function(item) {
+					self.suggests([]);
 					$.getJSON("/v1/api/cards/" + item.vocabularyId() + '/' + item.id(), function(itemForm) {
 						self.itemForm.setItem(new Item(self.convertItem(itemForm)));
 						self.itemForm.show(function(data) {
@@ -127,7 +129,7 @@ $(document).ready(
 						headers : csrf,
 						dataType : 'json'
 					}).done(function() {
-						self.items.remove(item);
+						self.removeItem(item);
 					}).fail(function(deffer, type, message) {
 						self.errorHeader(type);
 						self.errorMessage(message);
@@ -138,6 +140,7 @@ $(document).ready(
 					var flatItem = {};
 					flatItem['id'] = data.id;
 					flatItem['vocabularyId'] = data.vocabularyId;
+					flatItem['source'] = data.source;
 					for (var cnt in data.content) {
 						flatItem[data.content[cnt].name] = data.content[cnt].text;
 					}
@@ -153,6 +156,8 @@ $(document).ready(
 					}
 					var src = name == 'word' ? document.source : document.target;
 					var tgt = name == 'word' ? document.target : document.source;
+					
+					$('#suggest_dimmer').addClass('active');
 					$.getJSON('/v1/api/suggester?key=' + name + '&value=' + value 
 							+ '&type=string&notKey=vocabulary_id&notValue=' 
 							+ document.vocabularyId + "&source=" + 
@@ -182,6 +187,8 @@ $(document).ready(
 							allGroups.push(group);
 						}
 						self.suggests(allGroups);
+					}).always(function() {
+						$('#suggest_dimmer').removeClass('active');
 					});
 				}
 				
@@ -202,10 +209,11 @@ $(document).ready(
 						self.oldFormData = self.itemForm.getData();
 					}
 					if (item.key == 'word') {
-						// Fill up full form only for word 
+						// Fill up full form only for word
 						$.getJSON("/v1/api/retrieval?uri=" + encodeURIComponent(btoa(item.source)), function(data) {
 							data['id'] = null;
 							data['vocabularyId'] = document.vocabularyId;
+							data['source'] = item.source;
 	
 							self.itemForm.setItem(new ItemForm(data));
 						});

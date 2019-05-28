@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -128,7 +130,10 @@ public class VocabularyUtils {
 	}
 
 	private void importCardsV1(final String aUser, final UUID aVocabularyId,
-			final VocabularyExport aExport, final boolean aOverwriteCards) throws PersistException {
+			final VocabularyExport aExport, final boolean aOverwriteCards)
+					throws PersistException, UnsupportedEncodingException {
+
+		final String importName = "import://file/" + URLEncoder.encode(aExport.getVocabulary().getName(), "UTF-8");
 
 		final Iterator<CardV1> cards = aExport.getCards().iterator();
 		while(cards.hasNext()) {
@@ -160,7 +165,7 @@ public class VocabularyUtils {
 			} else {
 				// Add new card
 				final Map<String, CardStat> stats = StatsUtils.defaultStats();
-				cardManager.createCard(aUser, aVocabularyId, content, stats);
+				cardManager.createCard(aUser, aVocabularyId, importName, content, stats);
 			}
 		}
 	}

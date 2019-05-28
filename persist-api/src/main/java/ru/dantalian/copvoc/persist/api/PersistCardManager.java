@@ -11,7 +11,9 @@ import ru.dantalian.copvoc.persist.api.query.QueryResult;
 
 public interface PersistCardManager {
 
-	Card createCard(String aUser, UUID aVocabularyId, Map<String, String> aContent,
+	Card createCard(String aUser, UUID aVocabularyId,
+			String aSource,
+			Map<String, String> aContent,
 			Map<String, CardStat> aStatsMap) throws PersistException;
 
 	Card updateCard(String aUser, UUID aVocabularyId, UUID aId, Map<String, String> aContent) throws PersistException;

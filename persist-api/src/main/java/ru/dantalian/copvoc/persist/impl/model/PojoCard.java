@@ -15,9 +15,11 @@ public class PojoCard implements Card {
 
 	private UUID vocabularyId;
 
-	private String source;
+	private String sourceLang;
 
-	private String target;
+	private String targetLang;
+
+	private String source;
 
 	private Map<String, CardFieldContent> fieldsContent;
 
@@ -27,13 +29,15 @@ public class PojoCard implements Card {
 	}
 
 	public PojoCard(final UUID aId, final UUID aVocabularyId,
-			final String aSource, final String aTarget,
+			final String aSourceLang, final String aTargetLang,
+			final String aSouce,
 			final Map<String, CardFieldContent> aFieldsContent,
 			final Map<String, CardStat> aStats) {
 		id = aId;
 		vocabularyId = aVocabularyId;
-		source = aSource;
-		target = aTarget;
+		sourceLang = aSourceLang;
+		targetLang = aTargetLang;
+		source = aSouce;
 		fieldsContent = aFieldsContent;
 		stats = aStats;
 	}
@@ -57,21 +61,30 @@ public class PojoCard implements Card {
 	}
 
 	@Override
+	public String getSourceLang() {
+		return sourceLang;
+	}
+
+	public void setSourceLang(final String aSourceLang) {
+		sourceLang = aSourceLang;
+	}
+
+	@Override
+	public String getTargetLang() {
+		return targetLang;
+	}
+
+	public void setTargetLang(final String aTargetLang) {
+		targetLang = aTargetLang;
+	}
+
+	@Override
 	public String getSource() {
 		return source;
 	}
 
 	public void setSource(final String aSource) {
 		source = aSource;
-	}
-
-	@Override
-	public String getTarget() {
-		return target;
-	}
-
-	public void setTarget(final String aTarget) {
-		target = aTarget;
 	}
 
 	@Override

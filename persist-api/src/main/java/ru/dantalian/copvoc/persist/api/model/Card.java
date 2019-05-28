@@ -9,9 +9,11 @@ public interface Card {
 
 	UUID getVocabularyId();
 
-	String getSource();
+	String getSourceLang();
 
-	String getTarget();
+	String getTargetLang();
+
+	String getSource();
 
 	Map<String, CardFieldContent> getFieldsContent();
 

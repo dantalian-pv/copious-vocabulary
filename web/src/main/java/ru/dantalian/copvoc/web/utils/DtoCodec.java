@@ -84,7 +84,9 @@ public final class DtoCodec {
 			list.add(new DtoCardContent(entry.getKey(), entry.getValue().getContent()));
 		}
 		return new DtoCard(aCard.getId().toString(),
-				aCard.getVocabularyId().toString(), list);
+				aCard.getVocabularyId().toString(),
+				aCard.getSource(),
+				list);
 	}
 
 	public static DtoTrainingStats asDtoTrainingStats(final Training aTraining) {
