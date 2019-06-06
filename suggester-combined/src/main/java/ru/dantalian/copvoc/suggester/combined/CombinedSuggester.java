@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +38,9 @@ public class CombinedSuggester implements Suggester {
 	@Autowired
 	private SuggesterSettings settings;
 
+	@Autowired
+	private ExecutorService pool;
+
 	@Override
 	public String getName() {
 		return "root";
@@ -45,37 +53,53 @@ public class CombinedSuggester implements Suggester {
 
 	@Override
 	public List<Suggest> suggest(final String aUser, final SuggestQuery aQuery) throws SuggestException {
-		final List<Suggest> suggests = Collections.synchronizedList(new ArrayList<>());
-		final List<CompletableFuture<List<Suggest>>> futures = new LinkedList<>();
-		for (final Suggester suggester: suggesters) {
-			if (suggester == this) {
-				continue;
+		try {
+			final List<Suggest> suggests = new ArrayList<>();
+			final List<Callable<List<Suggest>>> commands = new LinkedList<>();
+			for (final Suggester suggester: suggesters) {
+				if (suggester == this) {
+					continue;
+				}
+				if (!settings.getEnabledSuggesters().contains(suggester.getName())) {
+					continue;
+				}
+				if (!suggester.accept(aQuery.getSourceTarget(), aQuery.getType())) {
+					continue;
+				}
+				commands.add(new SuggestCommand(suggester, aUser, aQuery));
 			}
-			if (!settings.getEnabledSuggesters().contains(suggester.getName())) {
-				continue;
+			final List<Future<List<Suggest>>> futures = pool.invokeAll(commands);
+			for (final Future<List<Suggest>> future: futures) {
+				try {
+					suggests.addAll(future.get(10, TimeUnit.SECONDS));
+				} catch (final ExecutionException | TimeoutException e) {
+					logger.error("Failed to get suggest", e);
+				}
 			}
-			if (!suggester.accept(aQuery.getSourceTarget(), aQuery.getType())) {
-				continue;
-			}
-			final CompletableFuture<List<Suggest>> future = CompletableFuture.supplyAsync(
-					() -> suggest(suggester, aUser, aQuery)
-			);
-			future.thenAcceptAsync(aList -> suggests.addAll(aList));
-			futures.add(future);
+			Collections.sort(suggests);
+			return suggests;
+		} catch (final InterruptedException e) {
+			throw new SuggestException("Failed to get suggests", e);
 		}
-		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-		Collections.sort(suggests);
-		return suggests;
 	}
 
-	private List<Suggest> suggest(final Suggester aSuggester, final String aUser, final SuggestQuery aQuery) {
-		try {
-			return aSuggester.suggest(aUser, aQuery);
-		} catch (final SuggestException e) {
-			logger.error("Failed to call suggester {}", aSuggester, e);
+	private class SuggestCommand implements Callable<List<Suggest>> {
+
+		private final Suggester suggester;
+		private final String user;
+		private final SuggestQuery query;
+
+		public SuggestCommand(final Suggester aSuggester, final String aUser, final SuggestQuery aQuery) {
+			suggester = aSuggester;
+			user = aUser;
+			query = aQuery;
 		}
-		return Collections.emptyList();
+
+		@Override
+		public List<Suggest> call() throws Exception {
+			return suggester.suggest(user, query);
+		}
+
 	}
 
 }
