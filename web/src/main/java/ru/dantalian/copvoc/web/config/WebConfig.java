@@ -36,15 +36,18 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(final HttpSecurity aHttp) throws Exception {
-    aHttp.authorizeRequests()
+    aHttp.exceptionHandling()
+    				.authenticationEntryPoint(new AuthEntryPoint("/login"))
+    		.and()
+    		.authorizeRequests()
     				.antMatchers("/semantic/**", "/css/**", "/js/**").permitAll()
             .antMatchers("/").permitAll()
             .anyRequest().authenticated()
-            .and()
+        .and()
         .formLogin()
             .loginPage("/login")
             .permitAll()
-            .and()
+        .and()
         .logout()
             .permitAll();
   }
