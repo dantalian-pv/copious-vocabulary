@@ -59,6 +59,11 @@ $(document).ready(
           contentType: 'multipart/form-data',
           processData: false,
           contentType: false,
+					statusCode: {
+						401: function() {
+							window.location.replace(window.location.href);
+						}
+					},
           success: function(data) {
           	$('#import_voc').modal('hide');
           },
@@ -121,10 +126,16 @@ $(document).ready(
 						contentType : "application/json; charset=utf-8",
 						method : 'PUT',
 						headers : csrf,
-						dataType : 'json'
+						dataType : 'json',
+						statusCode: {
+							401: function() {
+								window.location.replace(window.location.href);
+							}
+						}
 					}).done(function() {
 						self.shared(!shared);
-					}).fail(function(deffer, type, message) {
+					}).fail(function(xhr, type, message) {
+						xhrErrorHandler(xhr);
 						self.errorHeader(type);
 						self.errorMessage(message);
 					});
@@ -172,7 +183,7 @@ $(document).ready(
 							self.items.replace(self.selectedItem, new Item(data));
 							$('#add_voc').modal('hide');
 						});
-					});
+					}).fail(xhrErrorHandler);
 				};
 				self.deleteItem = function() {
 					$('.ui.basic.yesno.modal')
@@ -186,10 +197,16 @@ $(document).ready(
 								contentType : "application/json; charset=utf-8",
 								method : 'DELETE',
 								headers : csrf,
-								dataType : 'json'
+								dataType : 'json',
+								statusCode: {
+									401: function() {
+										window.location.replace(window.location.href);
+									}
+								}
 							}).done(function() {
 								window.location.href = '/';
-							}).fail(function(deffer, type, message) {
+							}).fail(function(xhr, type, message) {
+								xhrErrorHandler(xhr);
 								self.errorHeader(type);
 								self.errorMessage(message);
 							});

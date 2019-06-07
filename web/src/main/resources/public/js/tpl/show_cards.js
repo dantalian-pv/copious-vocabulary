@@ -108,7 +108,7 @@ $(document).ready(
 							self.items(mappedItems);
 							self.item(self.items()[0]);
 						}
-					});
+					}).fail(xhrErrorHandler);
 				};
 
 				self.updateData();

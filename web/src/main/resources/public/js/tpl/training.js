@@ -70,7 +70,7 @@ $(document).ready(
 							// Show result page
 							window.location.href = '/training/' + document.trainingId + '/result';
 						}
-					});
+					}).fail(xhrErrorHandler);
 				};
 				
 				self.errorHeader = ko.observable();
@@ -87,6 +87,11 @@ $(document).ready(
     	           type : "POST",
     	           headers : csrf,
     	           dataType : 'json',
+	   						 statusCode: {
+	  								401: function() {
+	  									window.location.replace(window.location.href);
+	  								}
+	  						 },
     	           contentType: "application/json; charset=utf-8",
     	           data : JSON.stringify($("#check_card_form").serializeFormJSON()),
     	           success : function(result) {
@@ -135,7 +140,7 @@ $(document).ready(
 					}
 					$.getJSON('/v1/api/train/' + document.trainingId + '/' + document.firstCardId, function(allData) {
 						self.item(new Item(self.convertItem(allData)));
-					});
+					}).fail(xhrErrorHandler);
 				};
 
 				self.updateData();

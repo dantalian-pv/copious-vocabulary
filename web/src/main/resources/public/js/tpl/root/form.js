@@ -1,5 +1,11 @@
 "use strict";
 
+function xhrErrorHandler(xhr) {
+	if (xhr.status == 401) {
+		window.location.replace(window.location.href);
+	}
+}
+
 function Form(params) {
 
 	var self = this;

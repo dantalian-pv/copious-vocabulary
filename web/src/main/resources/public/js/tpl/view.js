@@ -35,29 +35,34 @@ $(document).ready(
 
 				$('#view_form').submit(function() {
 					self.errorHeader('');
-	    			self.errorMessage('');
-	    			$.ajax({
-	    	           url: $('#view_form').attr('action'),
-	    	           type : "PUT",
-	    	           headers : csrf,
-	    	           dataType : 'json',
-	    	           contentType: "application/json; charset=utf-8",
-	    	           data : JSON.stringify($("#view_form").serializeFormJSON()),
-	    	           success : function(result) {
-	    	        	   window.location.href = '/vocabularies/' + document.vocabularyId;
-	    	           },
-	    	           error: function(xhr, resp, text) {
-	    	        	   if (!xhr.responseJSON) {
+    			self.errorMessage('');
+    			$.ajax({
+	           url: $('#view_form').attr('action'),
+	           type : "PUT",
+	           headers : csrf,
+	           dataType : 'json',
+	           contentType: "application/json; charset=utf-8",
+	           data: JSON.stringify($("#view_form").serializeFormJSON()),
+ 						 statusCode: {
+								401: function() {
+									window.location.replace(window.location.href);
+								}
+						 },
+	           success: function(result) {
+	        	   window.location.href = '/vocabularies/' + document.vocabularyId;
+	           },
+	           error: function(xhr, resp, text) {
+	        	   if (!xhr.responseJSON) {
 				    			self.errorHeader(xhr.status);
 				    			self.errorMessage(xhr.statusText);
-				    		} else {
-								var e = xhr.responseJSON;
-								self.errorHeader('Failed to Save');
-								self.errorMessage(e.message);
-				    		}
-	    	           }
-	    	        });
-				    return false;
+				    	 } else {
+				    		 var e = xhr.responseJSON;
+				    		 self.errorHeader('Failed to Save');
+				    		 self.errorMessage(e.message);
+				    	 }
+	           }
+	        });
+			    return false;
 				});
 			};
 			ko.applyBindings(new ItemGroupListViewModel());

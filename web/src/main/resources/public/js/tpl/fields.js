@@ -99,10 +99,16 @@ $(document).ready(
 						contentType : "application/json; charset=utf-8",
 						method : 'DELETE',
 						headers : csrf,
-						dataType : 'json'
+						dataType : 'json',
+						statusCode: {
+							401: function() {
+								window.location.replace(window.location.href);
+							}
+						}
 					}).done(function() {
 						self.items.remove(item);
-					}).fail(function(deffer, type, message) {
+					}).fail(function(xhr, type, message) {
+						xhrErrorHandler(xhr);
 						self.errorHeader(type);
 						self.errorMessage(message);
 					});
@@ -117,8 +123,8 @@ $(document).ready(
 							return new Item(item)
 						});
 						self.items(mappedItems);
-					})
-					.fail(function(error) {
+					}).fail(function(error) {
+						xhrErrorHandler(error);
 						var e = error.responseJSON;
 						self.errorHeader('Failed to receive fields list');
 						self.errorMessage(e.message);

@@ -118,7 +118,7 @@ $(document).ready(
 							self.items.replace(item, new Item(self.convertItem(data)));
 							$('#add_card').modal('hide');
 						});
-					});
+					}).fail(xhrErrorHandler);
 				};
 
 				self.deleteItem = function(item) {
@@ -127,10 +127,16 @@ $(document).ready(
 						contentType : "application/json; charset=utf-8",
 						method : 'DELETE',
 						headers : csrf,
-						dataType : 'json'
+						dataType : 'json',
+						statusCode: {
+							401: function() {
+								window.location.replace(window.location.href);
+							}
+						}
 					}).done(function() {
 						self.removeItem(item);
-					}).fail(function(deffer, type, message) {
+					}).fail(function(xhr, type, message) {
+						xhrErrorHandler(xhr);
 						self.errorHeader(type);
 						self.errorMessage(message);
 					});
@@ -189,7 +195,7 @@ $(document).ready(
 						self.suggests(allGroups);
 					}).always(function() {
 						$('#suggest_dimmer').removeClass('active');
-					});
+					}).fail(xhrErrorHandler);
 				}
 				
 				self.oldFormData = null;
@@ -216,7 +222,7 @@ $(document).ready(
 							data['source'] = item.source;
 	
 							self.itemForm.setItem(new ItemForm(data));
-						});
+						}).fail(xhrErrorHandler);
 					} else {
 						// Set value only for particular field
 						if (self.oldFormData) {
@@ -278,11 +284,9 @@ $(document).ready(
 							return new Item(self.convertItem(item));
 						});
 						self.items(mappedItems);
-					});
+					}).fail(xhrErrorHandler);
 				};
-
 				self.updateData();
-
 			}
 
 			ko.applyBindings(new ItemGroupListViewModel());

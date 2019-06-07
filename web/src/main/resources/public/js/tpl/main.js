@@ -113,7 +113,7 @@ $(document).ready(
 							self.items.replace(self.selectedItem, new Item(data));
 							$('#add_voc').modal('hide');
 						});
-					});
+					}).fail(xhrErrorHandler);
 				};
 
 				self.showDeleteItems = function() {
@@ -145,7 +145,12 @@ $(document).ready(
 							contentType : "application/json; charset=utf-8",
 							method : 'DELETE',
 							headers : csrf,
-							dataType : 'json'
+							dataType : 'json',
+							statusCode: {
+								401: function() {
+									window.location.replace(window.location.href);
+								}
+							}
 						}));
 					});
 
@@ -158,7 +163,8 @@ $(document).ready(
 							}
 						});
 						$('#delete_items').modal('hide');
-					}).fail(function(deffer, type, message) {
+					}).fail(function(xhr, type, message) {
+						xhrErrorHandler(xhr);
 						self.errorHeader(type);
 						self.errorMessage(message);
 					}).always(function() {
@@ -176,8 +182,8 @@ $(document).ready(
 							return new Item(item)
 						});
 						self.items(mappedItems);
-					})
-					.fail(function(error) {
+					}).fail(function(error) {
+						xhrErrorHandler(error);
 						var e = error.responseJSON;
 						self.errorHeader('Failed to receive vocabulary list');
 						self.errorMessage(e.message);

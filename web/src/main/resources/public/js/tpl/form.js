@@ -76,8 +76,12 @@ function setFormAction(params) {
 							headers : csrf,
 							contentType : "application/json; charset=utf-8",
 							data : JSON.stringify(data),
-							dataType : 'json'
-
+							dataType : 'json',
+							statusCode: {
+								401: function() {
+									window.location.replace(window.location.href);
+								}
+							}
 						}).done(function(data) {
 							if (data.message) {
 								showMessage('success', data.message);
@@ -87,37 +91,33 @@ function setFormAction(params) {
 							if (params.doneAction) {
 								params.doneAction(data);
 							}
-						}).fail(
-								function(jqXHR, textStatus, errorThrown) {
+						}).fail(function(jqXHR, textStatus, errorThrown) {
+							xhrErrorHandler(jqXHR);
+							if (jqXHR.responseJSON) {
+								var json = jqXHR.responseJSON;
+								
+								if (json.status == 403 && json.message.indexOf('CSRF')) {
+									window.location.replace(window.location.href);
+								}
+								var message = "Error code: " + jqXHR.status + " " + json.message;
+								showMessage('error', message, json.error);
 
-									if (jqXHR.responseJSON) {
-
-										var json = jqXHR.responseJSON;
-										
-										if(json.status == 403 && json.message.indexOf('CSRF')) {
-											window.location.replace(window.location.href);
-										}
-
-										var message = "Error code: " + jqXHR.status + " " + json.message;
-										showMessage('error', message, json.error);
-
-										if (json.fieldErrors && Array.isArray(json.fieldErrors)) {
-											for ( var i in json.fieldErrors) {
-												var fieldError = json.fieldErrors[i];
-												showInputError(fieldError.field, fieldError.defaultMessage);
-											}
-										}
-									} else {
-										var message = "Error code: " + jqXHR.status + " "
-												+ ((jqXHR.status == 0) ? "Lost connection" : jqXHR.statusText);
-										showMessage('error', message);
+								if (json.fieldErrors && Array.isArray(json.fieldErrors)) {
+									for ( var i in json.fieldErrors) {
+										var fieldError = json.fieldErrors[i];
+										showInputError(fieldError.field, fieldError.defaultMessage);
 									}
+								}
+							} else {
+								var message = "Error code: " + jqXHR.status + " "
+										+ ((jqXHR.status == 0) ? "Lost connection" : jqXHR.statusText);
+								showMessage('error', message);
+							}
 
-									if (params.failAction) {
-										params.failAction();
-									}
-
-								}).always(function() {
+							if (params.failAction) {
+								params.failAction();
+							}
+						}).always(function() {
 							form.removeClass('loading');
 
 							if (params.alwaysAction) {
