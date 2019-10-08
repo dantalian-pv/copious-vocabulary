@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
 <head>
 <object th:fragment="headcss" th:remove="tag">
 	<style type="text/css" th:text="${view.css}"></style>
@@ -16,37 +17,60 @@
 </head>
 <body th:fragment="body" th:remove="tag">
 	<div class="ui buttons">
-		<a th:href="${'/vocabularies/' + voc.id}" th:text="${'Batck to ' + voc.name}" class="ui button"> <i class="save icon"></i>View Cards
+		<a th:href="${'/vocabularies/' + voc.id}"
+			th:text="${'Batck to ' + voc.name}" class="ui button"> <i
+			class="save icon"></i>View Cards
 		</a>
 	</div>
 	<div class="ui divider"></div>
-	<div class="ui warning message" th:classappend="${error == null ? 'hidden' : ''}">
+	<div class="ui warning message"
+		th:classappend="${error == null ? 'hidden' : ''}">
 		<div class="header">Error</div>
 		<p class="info" th:text="${error}"></p>
 	</div>
 	<div th:replace="${'front/' + view.id}::body"></div>
 	<div class="ui divider"></div>
-  <form id="check_card_form" class="ui form segment" method="post">
-  	<input type="hidden" name="_csrf" th:value="${_csrf.token}">
-  	<div class="ui inverted dimmer">
+
+	<form id="check_card_form" class="ui form segment" method="post">
+		<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+		<div class="ui inverted dimmer">
 			<div class="ui text loader">Loading</div>
 		</div>
-		<div class="ui hidden positive message" data-bind="css: {hidden: !errorMessage()}">
+
+		<div class="ui hidden positive message"
+			data-bind="css: {hidden: !errorMessage()}">
 			<div class="header" data-bind="text: errorHeader">Success</div>
 			<p class="info" data-bind="text: errorMessage">Checked</p>
 		</div>
+
 		<div class="required field">
 			<label>Answer</label>
 			<div class="ui pointing below red label hidden"></div>
 			<div class="ui left icon input">
-				<input name="answer" type="text" autocomplete="off" /><i class="graduation cap icon"></i>
-			</div>
-			<div class="ui left icon input">
-				<button class="ui green button" name="test" type="submit">Check</button>
-				<span data-bind="text: cardIndx() + ' of ' + cardSize()"></span>
-				<button class="ui orange button" data-bind="click: showNext">Skip</button>
+				<input name="answer" type="text" autocomplete="off" /><i
+					class="graduation cap icon"></i>
 			</div>
 		</div>
-  </form>
+
+		<div class="ui vertically divided grid">
+			<div class="sexteen column row">
+				<div class="ten wide column">
+					<div class="ui left icon input">
+						<button class="ui green button" name="test" type="submit">Check</button>
+						<div style="border-width: 0; padding: 11px;" class="ui basic label" data-bind="text: cardIndx() + ' of ' + cardSize()">
+						</div>
+						<button class="ui orange button" data-bind="click: showNext">Skip</button>
+					</div>
+				</div>
+				<div class="six wide column right aligned">
+					<div class="ui basic buttons">
+						<button class="ui button" data-bind="click: finishTraining">Finish current training</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</form>
 </body>
 </html>
