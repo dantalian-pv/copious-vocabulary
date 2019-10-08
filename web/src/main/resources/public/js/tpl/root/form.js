@@ -1,11 +1,5 @@
 "use strict";
 
-function xhrErrorHandler(xhr) {
-	if (xhr.status == 401) {
-		window.location.replace(window.location.href);
-	}
-}
-
 function Form(params) {
 
 	var self = this;
@@ -48,7 +42,7 @@ function Form(params) {
 			formParams.method = "PUT";
 		}
 	}
-	
+
 	self.getData = function(noConvert) {
 		var data = {};
 
@@ -63,7 +57,7 @@ function Form(params) {
 				data[x.name] = x.value;
 			}
 		});
-		
+
 		if (params.convert && !noConvert) {
 			data = params.convert(data);
 		}
