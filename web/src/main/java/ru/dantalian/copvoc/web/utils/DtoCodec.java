@@ -19,6 +19,7 @@ import ru.dantalian.copvoc.persist.api.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.impl.model.PojoVocabulary;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCard;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardContent;
+import ru.dantalian.copvoc.web.controllers.rest.model.DtoCardStat;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoField;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoLanguage;
 import ru.dantalian.copvoc.web.controllers.rest.model.DtoTrainingStats;
@@ -95,10 +96,17 @@ public final class DtoCodec {
 		}
 		final Map<String, Object> stats = new HashMap<>();
 		for (final Entry<String, CardStat> entry: aTraining.getStats().entrySet()) {
-			stats.put(entry.getKey(), entry.getValue());
+			stats.put(entry.getKey(), asDtoCardStat(entry.getValue()));
 		}
 		return new DtoTrainingStats(aTraining.getId().toString(), aTraining.getVocabularyId().toString(),
 				stats, aTraining.getSize(), aTraining.isFinished());
+	}
+
+	public static <T> DtoCardStat<T> asDtoCardStat(final CardStat aCardStat) {
+		if (aCardStat == null) {
+			return null;
+		}
+		return new DtoCardStat<T>(aCardStat.getName(), aCardStat.getType(), aCardStat.getValue());
 	}
 
 }
