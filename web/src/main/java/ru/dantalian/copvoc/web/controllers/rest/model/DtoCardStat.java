@@ -19,14 +19,18 @@ public class DtoCardStat<T> {
 		type = Objects.requireNonNull(aType);
 		value = Optional.ofNullable(aValue).orElseGet(() -> {
 			switch (aType) {
-			case DATE:
-				return null;
-			case DOUBLE:
-				return (T) Double.valueOf(0.0d);
-			case LONG:
-				return (T) Long.valueOf(0L);
-			default:
-				throw new IllegalArgumentException(MessageUtils.message("Unknown value type {}", aType));
+				case DATE: {
+					return null;
+				}
+				case DOUBLE: {
+					return (T) Double.valueOf(0.0d);
+				}
+				case LONG: {
+					return (T) Long.valueOf(0L);
+				}
+				default: {
+					throw new IllegalArgumentException(MessageUtils.message("Unknown value type {}", aType));
+				}
 			}
 		});
 	}

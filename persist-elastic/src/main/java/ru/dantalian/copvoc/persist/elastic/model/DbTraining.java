@@ -31,6 +31,9 @@ public class DbTraining {
 	@Field(name = "cards", index = false, type = "keyword")
 	private List<String> cards;
 
+	@Field(name = "card_index", index = false, type = "integer")
+	private int cardIndex;
+
 	public DbTraining() {
 	}
 
@@ -81,6 +84,14 @@ public class DbTraining {
 
 	public void setCards(final List<String> aCards) {
 		cards = aCards;
+	}
+
+	public int getCardIndex() {
+		return cardIndex;
+	}
+
+	public void setCardIndex(final int aCardIndex) {
+		cardIndex = aCardIndex;
 	}
 
 }

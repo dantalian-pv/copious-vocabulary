@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
+import ru.dantalian.copvoc.core.utils.CardStatFactory;
 import ru.dantalian.copvoc.core.utils.StatsUtils;
 import ru.dantalian.copvoc.persist.api.EmptyResultPersistException;
 import ru.dantalian.copvoc.persist.api.PersistException;
@@ -19,6 +22,7 @@ import ru.dantalian.copvoc.persist.api.PersistTrainingManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyManager;
 import ru.dantalian.copvoc.persist.api.PersistVocabularyViewManager;
 import ru.dantalian.copvoc.persist.api.model.CardStat;
+import ru.dantalian.copvoc.persist.api.model.CardStatAction;
 import ru.dantalian.copvoc.persist.api.model.Training;
 import ru.dantalian.copvoc.persist.api.model.Vocabulary;
 import ru.dantalian.copvoc.persist.api.model.VocabularyView;
@@ -101,6 +105,14 @@ public class TrainingController {
 		if (voc == null) {
 			throw new PageNotFoundException();
 		}
+		final List<UUID> cards = training.getCards();
+		for (int i = training.getCardIndex(); i < cards.size(); i++) {
+			final UUID cardId = cards.get(i);
+			final CardStatAction skip = CardStatFactory.newSkipInc();
+			final CardStatAction visits = CardStatFactory.newVisitsInc();
+			final CardStatAction lastVisit = CardStatFactory.newLastVisit();
+			updateStats(user, trainingId, cardId, skip, visits, lastVisit);
+		}
 		trainingManager.finishTraining(user, trainingId);
 
 		aModel.addAttribute("tpl", "training_result");
@@ -110,6 +122,19 @@ public class TrainingController {
 		aModel.addAttribute("voc", DtoCodec.asDtoVocabulary(voc));
 
 		return "frame";
+	}
+
+	private void updateStats(final String user, final UUID trainingId, final UUID aCardId,
+			final CardStatAction... aActions) {
+		Flowable.fromArray(aActions)
+			.parallel()
+			.runOn(Schedulers.computation())
+			.doOnNext(aItem -> {
+				trainingManager.updateStatForCard(user, trainingId, aCardId, aItem);
+			}).doOnError(aError -> {
+				throw new PersistException("Failed to update stats", aError);
+			}).sequential()
+			.blockingSubscribe(aItem -> {});
 	}
 
 }

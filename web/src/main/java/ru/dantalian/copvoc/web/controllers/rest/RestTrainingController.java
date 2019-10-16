@@ -107,7 +107,7 @@ public class RestTrainingController {
 			if (training == null) {
 				throw new PersistException("No training found");
 			}
-			final UUID nextCard = trainingManager.nextCard(user, trainingId, cardId);
+			final UUID nextCard = trainingManager.nextCard(user, trainingId);
 			if (!aValidated) {
 				final CardStatAction skip = CardStatFactory.newSkipInc();
 				final CardStatAction visits = CardStatFactory.newVisitsInc();
@@ -177,7 +177,7 @@ public class RestTrainingController {
 			}).doOnError(aError -> {
 				throw new PersistException("Failed to update stats", aError);
 			}).sequential()
-		  .blockingSubscribe(aItem -> {});
+			.blockingSubscribe(aItem -> {});
 	}
 
 }

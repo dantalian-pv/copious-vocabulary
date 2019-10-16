@@ -23,7 +23,7 @@ public interface PersistTrainingManager {
 
 	UUID firstCard(final String aUser, UUID aTrainigId) throws PersistException;
 
-	UUID nextCard(final String aUser, UUID aTrainigId, UUID aCardId) throws PersistException;
+	UUID nextCard(final String aUser, UUID aTrainigId) throws PersistException;
 
 	Map<String, CardStat> getStatsForCard(final String aUser, UUID aTrainigId, UUID aCardId) throws PersistException;
 

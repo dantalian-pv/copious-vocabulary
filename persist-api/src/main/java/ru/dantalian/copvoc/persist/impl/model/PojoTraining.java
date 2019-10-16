@@ -1,5 +1,6 @@
 package ru.dantalian.copvoc.persist.impl.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,15 +19,21 @@ public class PojoTraining implements Training {
 
 	private int size;
 
+	private List<UUID> cards;
+
+	private int cardIndex;
+
 	public PojoTraining() {
 	}
 
 	public PojoTraining(final UUID aId, final UUID aVocabularyId, final Map<String, CardStat> aStats,
-			final int aSize) {
+			final int aSize, final List<UUID> aCards, final int aCardIndex) {
 		id = aId;
 		vocabularyId = aVocabularyId;
 		stats = aStats;
 		size = aSize;
+		cards = aCards;
+		cardIndex = aCardIndex;
 	}
 
 	@Override
@@ -68,6 +75,28 @@ public class PojoTraining implements Training {
 	@Override
 	public int getSize() {
 		return size;
+	}
+
+	public void setSize(final int aSize) {
+		size = aSize;
+	}
+
+	@Override
+	public List<UUID> getCards() {
+		return cards;
+	}
+
+	public void setCards(final List<UUID> aCards) {
+		cards = aCards;
+	}
+
+	@Override
+	public int getCardIndex() {
+		return cardIndex;
+	}
+
+	public void setCardIndex(final int aCardIndex) {
+		cardIndex = aCardIndex;
 	}
 
 	@Override

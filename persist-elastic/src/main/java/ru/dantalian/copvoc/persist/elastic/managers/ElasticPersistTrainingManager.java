@@ -166,6 +166,7 @@ public class ElasticPersistTrainingManager implements PersistTrainingManager {
 			throw new PersistException("training not found id: " + aTrainigId);
 		}
 		dbTraining.setFinished(true);
+		dbTraining.setCardIndex(dbTraining.getCards().size() - 1);
 		orm.update(DEFAULT_INDEX, dbTraining, true);
 		return asTraining(dbTraining);
 	}
@@ -180,20 +181,20 @@ public class ElasticPersistTrainingManager implements PersistTrainingManager {
 	}
 
 	@Override
-	public UUID nextCard(final String aUser, final UUID aTrainigId, final UUID aCardId) throws PersistException {
-		final DbTraining training = orm.get(DEFAULT_INDEX, aTrainigId.toString());
-		if (training == null) {
+	public UUID nextCard(final String aUser, final UUID aTrainigId) throws PersistException {
+		final DbTraining dbTraining = getDbTraining(aTrainigId);
+		if (dbTraining == null) {
 			throw new PersistException("No training found id: " + aTrainigId);
 		}
-		final String current = aCardId.toString();
 		String id = null;
-		final Iterator<String> iterator = training.getCards().iterator();
-		while (iterator.hasNext()) {
-			final String cardId = iterator.next();
-			if (cardId.equals(current) && iterator.hasNext()) {
-				id = iterator.next();
-				break;
-			}
+
+		final List<String> cards = dbTraining.getCards();
+		final int idx = dbTraining.getCardIndex() + 1;
+
+		id = idx < cards.size() ? cards.get(idx) : null;
+		if (idx < cards.size()) {
+			dbTraining.setCardIndex(idx);
+			orm.update(DEFAULT_INDEX, dbTraining, true);
 		}
 		return id == null ? null : UUID.fromString(id);
 	}
@@ -213,8 +214,12 @@ public class ElasticPersistTrainingManager implements PersistTrainingManager {
 		if (aTraining == null) {
 			return null;
 		}
+		final List<UUID> cards = aTraining.getCards()
+				.stream()
+				.map(aItem -> UUID.fromString(aItem))
+				.collect(Collectors.toList());
 		return new PojoTraining(aTraining.getId(), aTraining.getVocabularyId(),
-				CardUtils.asCardStats(aTraining.getStats()), aTraining.getCards().size());
+				CardUtils.asCardStats(aTraining.getStats()), aTraining.getCards().size(), cards, aTraining.getCardIndex());
 	}
 
 }
