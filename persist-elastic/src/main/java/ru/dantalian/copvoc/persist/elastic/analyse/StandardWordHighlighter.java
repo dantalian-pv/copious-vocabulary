@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
 import org.apache.lucene.analysis.ru.RussianAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -90,7 +92,9 @@ public class StandardWordHighlighter implements WordHighlighter {
 			case "jp":
 				return checkCacheAndReturn(aLang.getName(), () -> new JapaneseAnalyzer()) ;
 			case "ru":
-				return checkCacheAndReturn(aLang.getName(), () -> new RussianAnalyzer());
+				return checkCacheAndReturn(aLang.getName(), () -> new RussianAnalyzer(CharArraySet.EMPTY_SET));
+			case "de":
+				return checkCacheAndReturn(aLang.getName(), () -> new GermanAnalyzer(CharArraySet.EMPTY_SET));
 			default:
 				return checkCacheAndReturn(aLang.getName(), () -> PreBuiltAnalyzers.CLASSIC.getAnalyzer(Version.CURRENT));
 		}
