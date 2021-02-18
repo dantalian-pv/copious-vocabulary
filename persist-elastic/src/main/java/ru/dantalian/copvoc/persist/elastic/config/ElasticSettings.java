@@ -18,7 +18,7 @@ import ru.dantalian.copvoc.persist.api.config.AppConfigMap;
 @Configuration
 public class ElasticSettings {
 
-	@Value("${elatic.hosts}")
+	@Value("${elastic.hosts}")
 	private List<String> hosts;
 
 	@Autowired

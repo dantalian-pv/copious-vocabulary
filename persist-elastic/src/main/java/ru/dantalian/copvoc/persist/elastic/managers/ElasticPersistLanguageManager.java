@@ -53,15 +53,9 @@ public class ElasticPersistLanguageManager implements PersistLanguageManager {
 		searchSourceBuilder.sort("country");
 		searchSourceBuilder.sort("variant");
 		final BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		if (aName.isPresent()) {
-			boolQuery.must(QueryBuilders.termQuery("name", aName.get()));
-		}
-		if (aCountry.isPresent()) {
-			boolQuery.must(QueryBuilders.termQuery("country", aCountry.get()));
-		}
-		if (aVariant.isPresent()) {
-			boolQuery.must(QueryBuilders.termQuery("variant", aVariant.get()));
-		}
+		aName.ifPresent(s -> boolQuery.must(QueryBuilders.termQuery("name", s)));
+		aCountry.ifPresent(s -> boolQuery.must(QueryBuilders.termQuery("country", s)));
+		aVariant.ifPresent(s -> boolQuery.must(QueryBuilders.termQuery("variant", s)));
 		searchSourceBuilder.query(boolQuery);
 
 		final SearchResponse search = orm.search(DEFAULT_INDEX, searchSourceBuilder);
@@ -85,7 +79,9 @@ public class ElasticPersistLanguageManager implements PersistLanguageManager {
 		Language language = cache.get(id);
 		if (language == null) {
 			language = asLanguage(orm.get(DEFAULT_INDEX, id));
-			cache.put(id, language);
+      		if (language != null) {
+        		cache.put(id, language);
+			}
 		}
 		return language;
 	}

@@ -1,12 +1,5 @@
 package ru.dantalian.copvoc.ui.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.Configs;
 import org.elasticsearch.common.settings.Settings;
@@ -16,11 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import ru.dantalian.copvoc.core.CoreException;
 import ru.dantalian.copvoc.core.utils.LanguageUtils;
 import ru.dantalian.copvoc.persist.api.PersistException;
 import ru.dantalian.copvoc.persist.api.PersistPrincipalManager;
+import ru.dantalian.copvoc.persist.elastic.config.ElasticSettings;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 @Configuration
 public class InitConfig {
@@ -35,6 +34,9 @@ public class InitConfig {
 
 	@Value("${data.dir}")
 	private File dataDir;
+
+	@Autowired
+	private ElasticSettings settings;
 
 	private ElasticsearchClusterRunner runner;
 
@@ -57,16 +59,16 @@ public class InitConfig {
 		runner = new ElasticsearchClusterRunner();
 		final Configs cfg = new Configs();
 		cfg.basePath(baseDir.toString());
-		cfg.baseHttpPort(9200);
-		cfg.baseTransportPort(9300);
+		cfg.baseHttpPort(settings.getElasticHosts().get(0).getPort());
+		cfg.baseTransportPort(settings.getElasticHosts().get(0).getPort() + 100);
 		cfg.numOfNode(1);
 		// create ES nodes
 		runner.onBuild(new ElasticsearchClusterRunner.Builder() {
 			@Override
 			public void build(final int number, final Settings.Builder settingsBuilder) {
 				// settingsBuilder.put("index.number_of_replicas", 0);
-				settingsBuilder.put("http.port", 9200);
-				settingsBuilder.put("transport.tcp.port", 9300);
+				settingsBuilder.put("http.port", settings.getElasticHosts().get(0).getPort());
+				settingsBuilder.put("transport.tcp.port", settings.getElasticHosts().get(0).getPort() + 100);
 			}
 		}).build(cfg);
 		runner.waitForRelocation();
