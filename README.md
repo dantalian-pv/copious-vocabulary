@@ -40,16 +40,16 @@ Default username and password are user:user.
 * Click "Add Vocabulary" button on top of the page
 * In appeared form enter vocabulary name and select source and target languages
 * Then click "Save". Just created vocabulary will appear in the list
-* Click on name of just created vocabulary
+* Click on a name of just created vocabulary
 * Click "Edit Cards" on opened vocabulary
 * Click "Add Card"
 * Fill up the form. The application **will offer you list of examples** while you are typing to fill up the form automatically, which should simplify the process
-* When you finished with editing card go back to vocabulary by clicking "Back to <Vocabulary name>"
+* After you finished with editing card, go back to vocabulary by clicking "Back to <Vocabulary name>"
 * Then you can click "Show Cards" or "Training"
 
 ### Show Cards
 
-On this page you can list an memorize cards. If you forgot translation of a certain word just click on "Show Answer" to see a prompt.
+On this page you can list and memorize cards. If you forgot translation of a certain word, just click on "Show Answer" to see a prompt.
 
 ### Training
 
