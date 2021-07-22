@@ -18,7 +18,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -30,6 +29,7 @@ import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -396,8 +396,7 @@ public class ElasticORM<T> {
 				// Do nothing, because already done
 				return;
 			}
-			final GetIndexRequest exists = new GetIndexRequest();
-			exists.indices(aIndex);
+			final GetIndexRequest exists = new GetIndexRequest(aIndex);
 			if (client.indices().exists(exists, RequestOptions.DEFAULT)) {
 				updateIndexMappings(aIndex);
 				saveInCache(aIndex);

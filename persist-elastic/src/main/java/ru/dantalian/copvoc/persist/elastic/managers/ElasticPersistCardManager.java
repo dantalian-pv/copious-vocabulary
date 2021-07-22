@@ -183,7 +183,7 @@ public class ElasticPersistCardManager implements PersistCardManager {
 					map,
 					statsMap));
 		}
-		return QueryResultFactory.instance(list, search.getHits().totalHits);
+		return QueryResultFactory.instance(list, search.getHits().getTotalHits().value);
 	}
 
 	private String getIndexId(final UUID aUuid) {

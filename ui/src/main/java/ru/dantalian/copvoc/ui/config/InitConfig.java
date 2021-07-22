@@ -60,7 +60,6 @@ public class InitConfig {
 		final Configs cfg = new Configs();
 		cfg.basePath(baseDir.toString());
 		cfg.baseHttpPort(settings.getElasticHosts().get(0).getPort());
-		cfg.baseTransportPort(settings.getElasticHosts().get(0).getPort() + 100);
 		cfg.numOfNode(1);
 		// create ES nodes
 		runner.onBuild(new ElasticsearchClusterRunner.Builder() {
