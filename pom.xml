@@ -33,7 +33,7 @@
 		<elasticsearch-version>7.10.2</elasticsearch-version>
 		<elasticsearch-cluster-runner-version>7.10.2.0</elasticsearch-cluster-runner-version>
 		<lucene-version>8.7.0</lucene-version>
-		<jsoup-version>1.11.3</jsoup-version>
+		<jsoup-version>1.14.2</jsoup-version>
 
 		<asm-version>7.1</asm-version>
 		<asm-debug-all-version>5.2</asm-debug-all-version>
